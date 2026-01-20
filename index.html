@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WMP V2 — Visualizaciones</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <canvas id="bg"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <main>
+    <section class="card">
+      <header class="card__header">
+        <div>
+          <h1>Visualizaciones WMP v2</h1>
+          <p class="subtitle">Playlist con audio de fondo (muteado por defecto) + presets generativos.</p>
+        </div>
+        <div class="status" id="audioStatus">Muteado · Pausado</div>
+      </header>
+
+      <div class="controls-panel" aria-label="Controles del generador">
+        <div class="control">
+          <label for="modeSelect">Modo</label>
+          <select id="modeSelect"></select>
+        </div>
+        <div id="dynamic-controls" class="controls-grid"></div>
+      </div>
+
+      <div class="controls-panel">
+        <div class="control-row">
+          <button id="playBtn" class="button">Play</button>
+          <button id="pauseBtn" class="button">Pause</button>
+          <button id="prevBtn" class="button">Prev</button>
+          <button id="nextBtn" class="button">Next</button>
+          <button id="muteBtn" class="button">Unmute</button>
+        </div>
+        <div class="control">
+          <label for="volume">Volumen <span id="volumeValue" class="value">0.00</span></label>
+          <input id="volume" type="range" min="0" max="1" step="0.01" value="0" />
+        </div>
+        <div class="control">
+          <label for="progress">Progreso <span id="progressValue" class="value">0:00</span></label>
+          <input id="progress" type="range" min="0" max="1" step="0.001" value="0" />
+        </div>
+      </div>
+
+      <div class="playlist">
+        <div class="playlist__title">Playlist</div>
+        <ol id="playlist"></ol>
+        <div id="playlistEmpty" class="hint">No se encontró playlist. Añade pistas en data/playlist.json.</div>
+      </div>
+
+      <div class="pill">Tip: toca el fondo para randomizar ✨</div>
+      <div class="hint">Canvas a pantalla completa · Vanilla JS · Audio reactivo</div>
+    </section>
+  </main>
+
+  <button id="randomBtn" class="text-button" type="button">Randomizar</button>
+
+  <audio id="player" preload="auto" crossorigin="anonymous"></audio>
+  <script src="app.js" defer></script>
+</body>
+</html>
