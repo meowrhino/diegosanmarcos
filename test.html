@@ -51,6 +51,7 @@
       gap: 12px;
       align-items:center;
       justify-content: space-between;
+      flex-wrap: wrap;
     }
 
     .brand{
@@ -84,6 +85,37 @@
     }
     button:active{
       transform: translateY(1px);
+    }
+
+    .controls{
+      display:flex;
+      align-items:center;
+      gap: 8px;
+    }
+
+    .segmented{
+      display:flex;
+      align-items:center;
+      padding: 3px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.22);
+      background: rgba(0,0,0,.16);
+      backdrop-filter: blur(10px) saturate(160%);
+      -webkit-backdrop-filter: blur(10px) saturate(160%);
+    }
+    .segmented .seg-btn{
+      border: 0;
+      background: transparent;
+      padding: 7px 12px;
+      font-size: 12px;
+      letter-spacing: .2px;
+      border-radius: 999px;
+      color: rgba(255,255,255,.84);
+    }
+    .segmented .seg-btn.is-active{
+      border: 1px solid rgba(255,255,255,.28);
+      background: rgba(255,255,255,.16);
+      color: rgba(255,255,255,.95);
     }
 
     main{
@@ -184,7 +216,13 @@
       <b>Cielo / Mar</b>
       <span>Generador procedural (tap o botón)</span>
     </div>
-    <button id="btn">Cambiar textura</button>
+    <div class="controls">
+      <div class="segmented" role="group" aria-label="Modo">
+        <button class="seg-btn is-active" data-mode="sky" aria-pressed="true">Cielo</button>
+        <button class="seg-btn" data-mode="sea" aria-pressed="false">Mar</button>
+      </div>
+      <button id="btn">Randomizar</button>
+    </div>
   </header>
 
   <main>
@@ -198,6 +236,7 @@
       <p>
         Ideal para una UI tipo “glass” sobre un fondo orgánico (cielo/mar).
       </p>
+      <div class="pill" id="mode-pill">Modo: Cielo</div>
       <div class="pill">Tip: toca el fondo para randomizar 👆</div>
       <div class="hint">Mobile-first • Canvas a pantalla completa • Sin librerías</div>
     </section>
@@ -252,40 +291,33 @@
 
     let currentSeed = (Date.now() & 0xffffffff) >>> 0;
 
-    function draw(seed) {
-      const rand = mulberry32(seed);
-
-      const w = window.innerWidth;
-      const h = window.innerHeight;
-      const horizon = Math.floor(h * (0.56 + (rand() - 0.5) * 0.10)); // 51–61%
-
-      const pal = palettes[Math.floor(rand() * palettes.length)];
-
-      // --- CIELO (gradiente triple) ---
-      const skyGrad = ctx.createLinearGradient(0, 0, 0, horizon);
+    function drawSky(rand, pal, w, h) {
+      // Gradiente principal del cielo a pantalla completa
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, h);
       skyGrad.addColorStop(0, pal.sky1);
-      skyGrad.addColorStop(0.55, pal.sky2);
+      skyGrad.addColorStop(0.58, pal.sky2);
       skyGrad.addColorStop(1, pal.sky3);
       ctx.fillStyle = skyGrad;
-      ctx.fillRect(0, 0, w, horizon);
+      ctx.fillRect(0, 0, w, h);
 
       // “Sol” suave / glow
       const sunX = w * (0.18 + rand() * 0.64);
-      const sunY = horizon * (0.22 + rand() * 0.25);
-      const sunR = Math.min(w, h) * (0.10 + rand() * 0.12);
+      const sunY = h * (0.18 + rand() * 0.24);
+      const sunR = Math.min(w, h) * (0.12 + rand() * 0.14);
 
-      let rg = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, sunR);
+      const rg = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, sunR);
       rg.addColorStop(0, "rgba(255,255,255,.20)");
       rg.addColorStop(0.35, "rgba(255,255,255,.10)");
       rg.addColorStop(1, "rgba(255,255,255,0)");
       ctx.fillStyle = rg;
-      ctx.fillRect(0, 0, w, horizon);
+      ctx.fillRect(0, 0, w, h);
 
       // Nubes tipo “neblina” (streaks)
       ctx.globalAlpha = 0.18;
-      for (let i = 0; i < 10; i++){
-        const y = rand() * horizon;
-        const cloudH = 18 + rand() * 40;
+      const cloudCount = 12;
+      for (let i = 0; i < cloudCount; i++){
+        const y = rand() * h * 0.78;
+        const cloudH = 18 + rand() * 42;
         const a = 0.10 + rand() * 0.10;
         const g = ctx.createLinearGradient(0, y, w, y);
         g.addColorStop(0, `rgba(255,255,255,0)`);
@@ -297,40 +329,48 @@
       }
       ctx.globalAlpha = 1;
 
-      // --- MAR (gradiente + ondas) ---
-      const seaGrad = ctx.createLinearGradient(0, horizon, 0, h);
+      // Haze suave en la parte baja del cielo
+      const haze = ctx.createLinearGradient(0, h * 0.6, 0, h);
+      haze.addColorStop(0, "rgba(255,255,255,0)");
+      haze.addColorStop(1, "rgba(255,255,255,.08)");
+      ctx.fillStyle = haze;
+      ctx.fillRect(0, h * 0.6, w, h * 0.4);
+    }
+
+    function drawSea(rand, pal, w, h, seed) {
+      // Gradiente del mar a pantalla completa
+      const seaGrad = ctx.createLinearGradient(0, 0, 0, h);
       seaGrad.addColorStop(0, pal.sea2);
       seaGrad.addColorStop(1, pal.sea1);
       ctx.fillStyle = seaGrad;
-      ctx.fillRect(0, horizon, w, h - horizon);
+      ctx.fillRect(0, 0, w, h);
 
-      // Reflejo vertical del “sol” en el mar
+      // Reflejo vertical suave
       const glareW = w * (0.08 + rand() * 0.10);
-      const glareX = sunX - glareW/2;
-      const glareGrad = ctx.createLinearGradient(glareX, horizon, glareX, h);
-      glareGrad.addColorStop(0, "rgba(255,255,255,.18)");
+      const glareX = w * (0.18 + rand() * 0.64) - glareW / 2;
+      const glareGrad = ctx.createLinearGradient(glareX, 0, glareX, h);
+      glareGrad.addColorStop(0, "rgba(255,255,255,.16)");
       glareGrad.addColorStop(0.55, "rgba(255,255,255,.06)");
       glareGrad.addColorStop(1, "rgba(255,255,255,0)");
       ctx.fillStyle = glareGrad;
-      ctx.fillRect(glareX, horizon, glareW, h - horizon);
+      ctx.fillRect(glareX, 0, glareW, h);
 
-      // Ondas (líneas seno) + espuma cerca del horizonte
-      const waveCount = 110;
-      const ampBase = 5 + rand() * 10;
+      // Ondas (líneas seno) + espuma suave en tercio superior
+      const waveCount = 130;
+      const ampBase = 6 + rand() * 12;
       const freqBase = 0.010 + rand() * 0.018;
-      const speedish = 0.8 + rand() * 1.5; // solo para variar el patrón
-      const foamBand = Math.floor((h - horizon) * (0.10 + rand() * 0.12));
+      const speedish = 0.8 + rand() * 1.5;
+      const foamBand = Math.floor(h * (0.20 + rand() * 0.10));
 
       ctx.lineWidth = 1;
       for (let i = 0; i < waveCount; i++) {
         const t = i / (waveCount - 1);
-        const y = horizon + t * (h - horizon);
-        const depth = t * t; // más “denso” abajo
+        const y = t * h;
+        const depth = t * t;
         const amp = ampBase * (0.35 + depth * 1.35);
         const freq = freqBase * (0.7 + depth * 1.15);
         const phase = (seed * 0.0002 * speedish) + i * 0.13;
 
-        // color ondas
         const alpha = 0.05 + (1 - t) * 0.06;
         ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
 
@@ -344,8 +384,7 @@
         }
         ctx.stroke();
 
-        // espuma ligera en banda superior del mar
-        if (y < horizon + foamBand && rand() < 0.055) {
+        if (y < foamBand && rand() < 0.06) {
           ctx.globalAlpha = 0.55;
           ctx.fillStyle = pal.foam;
           const fx = rand() * w;
@@ -355,10 +394,11 @@
           ctx.globalAlpha = 1;
         }
       }
+    }
 
-      // --- GRAIN GLOBAL (ruido muy fino) ---
-      // (rápido: dibuja puntos aleatorios en baja densidad)
-      const grainN = Math.floor((w * h) / 18000); // ajusta densidad
+    function drawGrain(rand, w, h) {
+      // Ruido muy fino global
+      const grainN = Math.floor((w * h) / 18000);
       ctx.globalAlpha = 0.06;
       ctx.fillStyle = "#ffffff";
       for (let i = 0; i < grainN; i++){
@@ -367,12 +407,19 @@
         ctx.fillRect(x, y, 1, 1);
       }
       ctx.globalAlpha = 1;
+    }
 
-      // Línea de horizonte suave
-      ctx.globalAlpha = 0.25;
-      ctx.fillStyle = "rgba(255,255,255,.18)";
-      ctx.fillRect(0, horizon - 1, w, 2);
-      ctx.globalAlpha = 1;
+    function draw(seed) {
+      const rand = mulberry32(seed);
+
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      const pal = palettes[Math.floor(rand() * palettes.length)];
+
+      if (currentMode === "sky") drawSky(rand, pal, w, h);
+      else drawSea(rand, pal, w, h, seed);
+
+      drawGrain(rand, w, h);
     }
 
     function randomize(){
@@ -380,9 +427,27 @@
       draw(currentSeed);
     }
 
+    let currentMode = "sky";
+
+    function setMode(mode) {
+      if (mode === currentMode) return;
+      currentMode = mode;
+      document.querySelectorAll("[data-mode]").forEach((btn) => {
+        const isActive = btn.dataset.mode === currentMode;
+        btn.classList.toggle("is-active", isActive);
+        btn.setAttribute("aria-pressed", isActive ? "true" : "false");
+      });
+      const pill = document.getElementById("mode-pill");
+      if (pill) pill.textContent = currentMode === "sky" ? "Modo: Cielo" : "Modo: Mar";
+      draw(currentSeed);
+    }
+
     document.getElementById("btn").addEventListener("click", randomize);
     canvas.addEventListener("click", randomize);
     window.addEventListener("resize", resize);
+    document.querySelectorAll("[data-mode]").forEach((btn) => {
+      btn.addEventListener("click", () => setMode(btn.dataset.mode));
+    });
 
     resize();
   </script>
