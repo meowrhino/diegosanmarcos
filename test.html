@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Cielo/Mar – Generador</title>
+  <title>Mar – Generador</title>
   <style>
     :root{
       --pad: 16px;
@@ -45,89 +45,37 @@
         linear-gradient(to bottom, rgba(0,0,0,.12), rgba(0,0,0,.28));
     }
 
-    header{
-      padding: calc(var(--pad) + 6px) var(--pad) var(--pad);
-      display:flex;
-      gap: 12px;
-      align-items:center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-    }
-
-    .brand{
-      display:flex;
-      flex-direction:column;
-      line-height:1.1;
-    }
-    .brand b{
-      font-size: 15px;
-      letter-spacing: .2px;
-    }
-    .brand span{
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    button{
-      -webkit-tap-highlight-color: transparent;
-      appearance:none;
-      border: 1px solid rgba(255,255,255,.25);
-      background: rgba(0,0,0,.18);
-      color: rgba(255,255,255,.92);
-      padding: 10px 12px;
-      border-radius: 999px;
+    .text-button{
+      position: fixed;
+      right: var(--pad);
+      bottom: var(--pad);
+      z-index: 2;
+      border: 0;
+      background: transparent;
+      padding: 0;
+      font: inherit;
       font-weight: 600;
       font-size: 13px;
       letter-spacing: .2px;
-      backdrop-filter: blur(10px) saturate(160%);
-      -webkit-backdrop-filter: blur(10px) saturate(160%);
+      color: rgba(255,255,255,.92);
+      text-shadow: 0 2px 10px rgba(0,0,0,.35);
       cursor:pointer;
     }
-    button:active{
+    .text-button:active{
       transform: translateY(1px);
     }
 
-    .controls{
-      display:flex;
-      align-items:center;
-      gap: 8px;
-    }
-
-    .segmented{
-      display:flex;
-      align-items:center;
-      padding: 3px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.22);
-      background: rgba(0,0,0,.16);
-      backdrop-filter: blur(10px) saturate(160%);
-      -webkit-backdrop-filter: blur(10px) saturate(160%);
-    }
-    .segmented .seg-btn{
-      border: 0;
-      background: transparent;
-      padding: 7px 12px;
-      font-size: 12px;
-      letter-spacing: .2px;
-      border-radius: 999px;
-      color: rgba(255,255,255,.84);
-    }
-    .segmented .seg-btn.is-active{
-      border: 1px solid rgba(255,255,255,.28);
-      background: rgba(255,255,255,.16);
-      color: rgba(255,255,255,.95);
-    }
-
     main{
-      padding: 0 var(--pad) calc(var(--pad) * 2);
+      padding: var(--pad);
       display:flex;
-      justify-content:center;
+      align-items:flex-start;
+      justify-content:flex-start;
     }
 
     .card{
-      width: min(560px, 100%);
+      width: min(420px, 100%);
       border-radius: var(--radius);
-      padding: 18px 16px;
+      padding: 14px 14px;
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       box-shadow:
@@ -199,6 +147,46 @@
       margin-top: 6px;
     }
 
+    .controls-panel{
+      margin-top: 14px;
+      display: grid;
+      gap: 10px;
+    }
+    .control{
+      display: grid;
+      gap: 6px;
+    }
+    .control label{
+      font-size: 12px;
+      color: var(--muted);
+      display:flex;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+    .control .value{
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+    }
+    .control input[type="range"]{
+      width: 100%;
+      accent-color: rgba(255,255,255,.9);
+    }
+    .control select{
+      width: 100%;
+      appearance: none;
+      border: 1px solid rgba(255,255,255,.2);
+      background: rgba(0,0,0,.22);
+      color: var(--text);
+      padding: 7px 10px;
+      border-radius: 10px;
+      font-size: 12px;
+      letter-spacing: .2px;
+    }
+    .controls-grid{
+      display: grid;
+      gap: 10px;
+    }
+
     @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
       .card{
         /* fallback cuando no hay backdrop-filter */
@@ -211,20 +199,6 @@
   <canvas id="bg"></canvas>
   <div class="vignette" aria-hidden="true"></div>
 
-  <header>
-    <div class="brand">
-      <b>Cielo / Mar</b>
-      <span>Generador procedural (tap o botón)</span>
-    </div>
-    <div class="controls">
-      <div class="segmented" role="group" aria-label="Modo">
-        <button class="seg-btn is-active" data-mode="sky" aria-pressed="true">Cielo</button>
-        <button class="seg-btn" data-mode="sea" aria-pressed="false">Mar</button>
-      </div>
-      <button id="btn">Randomizar</button>
-    </div>
-  </header>
-
   <main>
     <section class="card">
       <h1>Bloque semitransparente</h1>
@@ -234,13 +208,21 @@
         textura suave encima.
       </p>
       <p>
-        Ideal para una UI tipo “glass” sobre un fondo orgánico (cielo/mar).
+        Ideal para una UI tipo “glass” sobre un fondo generativo.
       </p>
-      <div class="pill" id="mode-pill">Modo: Cielo</div>
+      <div class="controls-panel" aria-label="Controles del generador">
+        <div class="control">
+          <label for="modeSelect">Modo</label>
+          <select id="modeSelect"></select>
+        </div>
+        <div id="dynamic-controls" class="controls-grid"></div>
+      </div>
       <div class="pill">Tip: toca el fondo para randomizar 👆</div>
       <div class="hint">Mobile-first • Canvas a pantalla completa • Sin librerías</div>
     </section>
   </main>
+
+  <button id="btn" class="text-button" type="button">Randomizar</button>
 
   <script>
     const canvas = document.getElementById("bg");
@@ -249,25 +231,209 @@
     const palettes = [
       {
         name: "Amanecer cálido",
-        sky1: "#2b1b3a", sky2: "#ff6b6b", sky3: "#ffd166",
-        sea1: "#0b2a4a", sea2: "#116e8a", foam: "rgba(255,255,255,.35)"
+        sea1: "#0b2a4a", sea2: "#116e8a"
       },
       {
         name: "Azul limpio",
-        sky1: "#061a2d", sky2: "#1d7dd8", sky3: "#b9f5ff",
-        sea1: "#061a2d", sea2: "#0aa6c2", foam: "rgba(255,255,255,.28)"
+        sea1: "#061a2d", sea2: "#0aa6c2"
       },
       {
         name: "Noche violeta",
-        sky1: "#060616", sky2: "#2d1b7a", sky3: "#8be9ff",
-        sea1: "#040614", sea2: "#1b3a8a", foam: "rgba(255,255,255,.22)"
+        sea1: "#040614", sea2: "#1b3a8a"
       },
       {
         name: "Verde raro",
-        sky1: "#071b19", sky2: "#0e6b6f", sky3: "#b7ffb1",
-        sea1: "#041214", sea2: "#0a7c8c", foam: "rgba(255,255,255,.24)"
+        sea1: "#041214", sea2: "#0a7c8c"
       }
     ];
+
+    const modes = {
+      sea: {
+        label: "Mar",
+        settings: {
+          waveCount: { label: "Cantidad de olas", min: 60, max: 200, step: 1, value: 130, type: "int" },
+          waveAmp: { label: "Altura de olas", min: 0.4, max: 2.2, step: 0.05, value: 1, type: "float" },
+          waveFreq: { label: "Frecuencia", min: 0.5, max: 1.8, step: 0.05, value: 1, type: "float" },
+          waveSpeed: { label: "Velocidad", min: 0.2, max: 2.0, step: 0.05, value: 1, type: "float" },
+          grainDensity: { label: "Grano", min: 0, max: 1.8, step: 0.05, value: 1, type: "float" }
+        },
+        draw: drawSea
+      },
+      brightsphere: {
+        label: "Battery: Brightsphere",
+        settings: {
+          orbCount: { label: "Partículas", min: 20, max: 140, step: 1, value: 80, type: "int" },
+          coreSize: { label: "Núcleo", min: 0.6, max: 1.8, step: 0.05, value: 1, type: "float" },
+          orbitSpread: { label: "Órbita", min: 0.6, max: 2.4, step: 0.05, value: 1.2, type: "float" },
+          orbSize: { label: "Tamaño", min: 0.4, max: 2.4, step: 0.05, value: 1, type: "float" },
+          spin: { label: "Giro", min: 0.2, max: 2.2, step: 0.05, value: 1, type: "float" },
+          glow: { label: "Glow", min: 0.2, max: 2.0, step: 0.05, value: 1.1, type: "float" },
+          grainDensity: { label: "Grano", min: 0, max: 1.8, step: 0.05, value: 0.6, type: "float" }
+        },
+        draw: drawBrightsphere
+      },
+      cominatcha: {
+        label: "Battery: Cominatcha",
+        settings: {
+          cometCount: { label: "Cometas", min: 4, max: 60, step: 1, value: 22, type: "int" },
+          tailLength: { label: "Cola", min: 6, max: 40, step: 1, value: 18, type: "int" },
+          speed: { label: "Velocidad", min: 0.2, max: 2.6, step: 0.05, value: 1.1, type: "float" },
+          spread: { label: "Apertura", min: 0.6, max: 2.4, step: 0.05, value: 1.2, type: "float" },
+          thickness: { label: "Grosor", min: 0.4, max: 2.4, step: 0.05, value: 1.1, type: "float" },
+          glow: { label: "Glow", min: 0.3, max: 2.2, step: 0.05, value: 1.1, type: "float" },
+          grainDensity: { label: "Grano", min: 0, max: 1.8, step: 0.05, value: 0.5, type: "float" }
+        },
+        draw: drawCominatcha
+      },
+      ribbons: {
+        label: "Battery: Ribbons",
+        settings: {
+          ribbonCount: { label: "Cintas", min: 3, max: 18, step: 1, value: 8, type: "int" },
+          amplitude: { label: "Amplitud", min: 0.4, max: 2.4, step: 0.05, value: 1, type: "float" },
+          frequency: { label: "Frecuencia", min: 0.4, max: 2.0, step: 0.05, value: 1, type: "float" },
+          speed: { label: "Velocidad", min: 0.2, max: 2.2, step: 0.05, value: 1, type: "float" },
+          thickness: { label: "Grosor", min: 0.6, max: 2.4, step: 0.05, value: 1, type: "float" },
+          hueShift: { label: "Color", min: 0, max: 120, step: 1, value: 24, type: "int" },
+          glow: { label: "Glow", min: 0.2, max: 2.0, step: 0.05, value: 1.1, type: "float" },
+          grainDensity: { label: "Grano", min: 0, max: 1.8, step: 0.05, value: 0.5, type: "float" }
+        },
+        draw: drawRibbons
+      },
+      pulsegrid: {
+        label: "Battery: Pulsegrid",
+        settings: {
+          grid: { label: "Malla", min: 6, max: 26, step: 1, value: 14, type: "int" },
+          pulseSpeed: { label: "Velocidad", min: 0.2, max: 2.2, step: 0.05, value: 1, type: "float" },
+          pulseSize: { label: "Tamano", min: 0.4, max: 2.2, step: 0.05, value: 1, type: "float" },
+          jitter: { label: "Jitter", min: 0, max: 1.6, step: 0.05, value: 0.6, type: "float" },
+          hueShift: { label: "Color", min: 0, max: 180, step: 1, value: 60, type: "int" },
+          glow: { label: "Glow", min: 0.2, max: 2.0, step: 0.05, value: 1, type: "float" },
+          grainDensity: { label: "Grano", min: 0, max: 1.8, step: 0.05, value: 0.4, type: "float" }
+        },
+        draw: drawPulsegrid
+      },
+      spectrum: {
+        label: "Battery: Spectrum",
+        settings: {
+          barCount: { label: "Barras", min: 18, max: 140, step: 1, value: 64, type: "int" },
+          barSpeed: { label: "Velocidad", min: 0.2, max: 2.5, step: 0.05, value: 1.2, type: "float" },
+          barWidth: { label: "Ancho", min: 0.4, max: 1.4, step: 0.05, value: 1, type: "float" },
+          curve: { label: "Curva", min: 0.6, max: 2.4, step: 0.05, value: 1.2, type: "float" },
+          hueShift: { label: "Color", min: 0, max: 180, step: 1, value: 0, type: "int" },
+          glow: { label: "Glow", min: 0.2, max: 2.0, step: 0.05, value: 1.1, type: "float" },
+          grainDensity: { label: "Grano", min: 0, max: 1.8, step: 0.05, value: 0.4, type: "float" }
+        },
+        draw: drawSpectrum
+      },
+      tunnel: {
+        label: "Battery: Tunnel",
+        settings: {
+          ringCount: { label: "Anillos", min: 12, max: 80, step: 1, value: 38, type: "int" },
+          ringSpacing: { label: "Separacion", min: 0.6, max: 1.8, step: 0.05, value: 1, type: "float" },
+          spin: { label: "Giro", min: 0.2, max: 2.2, step: 0.05, value: 1, type: "float" },
+          wobble: { label: "Wobble", min: 0, max: 1.6, step: 0.05, value: 0.8, type: "float" },
+          thickness: { label: "Grosor", min: 0.4, max: 2.4, step: 0.05, value: 1, type: "float" },
+          hueShift: { label: "Color", min: 0, max: 180, step: 1, value: 80, type: "int" },
+          glow: { label: "Glow", min: 0.2, max: 2.0, step: 0.05, value: 1.1, type: "float" },
+          grainDensity: { label: "Grano", min: 0, max: 1.8, step: 0.05, value: 0.4, type: "float" }
+        },
+        draw: drawTunnel
+      },
+      fireflies: {
+        label: "Battery: Fireflies",
+        settings: {
+          bugCount: { label: "Particulas", min: 20, max: 160, step: 1, value: 80, type: "int" },
+          speed: { label: "Velocidad", min: 0.2, max: 2.2, step: 0.05, value: 1.1, type: "float" },
+          size: { label: "Tamano", min: 0.4, max: 2.4, step: 0.05, value: 1, type: "float" },
+          orbit: { label: "Orbita", min: 0.6, max: 2.2, step: 0.05, value: 1, type: "float" },
+          twinkle: { label: "Parpadeo", min: 0.4, max: 2.2, step: 0.05, value: 1, type: "float" },
+          hueShift: { label: "Color", min: 0, max: 180, step: 1, value: 30, type: "int" },
+          glow: { label: "Glow", min: 0.2, max: 2.0, step: 0.05, value: 1.1, type: "float" },
+          grainDensity: { label: "Grano", min: 0, max: 1.8, step: 0.05, value: 0.5, type: "float" }
+        },
+        draw: drawFireflies
+      }
+    };
+
+    const modeValues = {};
+    Object.entries(modes).forEach(([modeId, mode]) => {
+      modeValues[modeId] = {};
+      Object.entries(mode.settings).forEach(([key, def]) => {
+        modeValues[modeId][key] = def.value;
+      });
+    });
+
+    let currentMode = "sea";
+
+    function formatValue(def, value) {
+      return def.type === "int" ? String(Math.round(value)) : value.toFixed(2);
+    }
+
+    function normalizeValue(def, value) {
+      return def.type === "int" ? Math.round(value) : value;
+    }
+
+    function buildControls() {
+      const container = document.getElementById("dynamic-controls");
+      container.innerHTML = "";
+
+      const mode = modes[currentMode];
+      const values = modeValues[currentMode];
+
+      Object.entries(mode.settings).forEach(([key, def]) => {
+        const control = document.createElement("div");
+        control.className = "control";
+
+        const label = document.createElement("label");
+        const inputId = `${currentMode}-${key}`;
+        label.setAttribute("for", inputId);
+        label.textContent = def.label + " ";
+
+        const valueSpan = document.createElement("span");
+        valueSpan.className = "value";
+        label.appendChild(valueSpan);
+
+        const input = document.createElement("input");
+        input.id = inputId;
+        input.type = "range";
+        input.min = def.min;
+        input.max = def.max;
+        input.step = def.step;
+        input.value = values[key];
+
+        const syncValue = () => {
+          valueSpan.textContent = formatValue(def, values[key]);
+        };
+
+        input.addEventListener("input", () => {
+          values[key] = normalizeValue(def, parseFloat(input.value));
+          syncValue();
+        });
+
+        syncValue();
+        control.appendChild(label);
+        control.appendChild(input);
+        container.appendChild(control);
+      });
+    }
+
+    function initControls() {
+      const modeSelect = document.getElementById("modeSelect");
+      Object.entries(modes).forEach(([modeId, mode]) => {
+        const option = document.createElement("option");
+        option.value = modeId;
+        option.textContent = mode.label;
+        modeSelect.appendChild(option);
+      });
+      modeSelect.value = currentMode;
+      modeSelect.addEventListener("change", () => {
+        currentMode = modeSelect.value;
+        buildControls();
+        draw(currentSeed, lastTime);
+      });
+
+      buildControls();
+    }
 
     // RNG determinista simple
     function mulberry32(seed) {
@@ -286,58 +452,15 @@
       canvas.style.width = window.innerWidth + "px";
       canvas.style.height = window.innerHeight + "px";
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      draw(currentSeed);
+      draw(currentSeed, lastTime);
     }
 
     let currentSeed = (Date.now() & 0xffffffff) >>> 0;
+    let lastTime = 0;
 
-    function drawSky(rand, pal, w, h) {
-      // Gradiente principal del cielo a pantalla completa
-      const skyGrad = ctx.createLinearGradient(0, 0, 0, h);
-      skyGrad.addColorStop(0, pal.sky1);
-      skyGrad.addColorStop(0.58, pal.sky2);
-      skyGrad.addColorStop(1, pal.sky3);
-      ctx.fillStyle = skyGrad;
-      ctx.fillRect(0, 0, w, h);
+    function drawSea(rand, pal, w, h, seed, time, settings) {
+      const timeSec = (typeof time === "number" ? time : 0) * 0.001;
 
-      // “Sol” suave / glow
-      const sunX = w * (0.18 + rand() * 0.64);
-      const sunY = h * (0.18 + rand() * 0.24);
-      const sunR = Math.min(w, h) * (0.12 + rand() * 0.14);
-
-      const rg = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, sunR);
-      rg.addColorStop(0, "rgba(255,255,255,.20)");
-      rg.addColorStop(0.35, "rgba(255,255,255,.10)");
-      rg.addColorStop(1, "rgba(255,255,255,0)");
-      ctx.fillStyle = rg;
-      ctx.fillRect(0, 0, w, h);
-
-      // Nubes tipo “neblina” (streaks)
-      ctx.globalAlpha = 0.18;
-      const cloudCount = 12;
-      for (let i = 0; i < cloudCount; i++){
-        const y = rand() * h * 0.78;
-        const cloudH = 18 + rand() * 42;
-        const a = 0.10 + rand() * 0.10;
-        const g = ctx.createLinearGradient(0, y, w, y);
-        g.addColorStop(0, `rgba(255,255,255,0)`);
-        g.addColorStop(0.25, `rgba(255,255,255,${a})`);
-        g.addColorStop(0.75, `rgba(255,255,255,${a * 0.7})`);
-        g.addColorStop(1, `rgba(255,255,255,0)`);
-        ctx.fillStyle = g;
-        ctx.fillRect(0, y, w, cloudH);
-      }
-      ctx.globalAlpha = 1;
-
-      // Haze suave en la parte baja del cielo
-      const haze = ctx.createLinearGradient(0, h * 0.6, 0, h);
-      haze.addColorStop(0, "rgba(255,255,255,0)");
-      haze.addColorStop(1, "rgba(255,255,255,.08)");
-      ctx.fillStyle = haze;
-      ctx.fillRect(0, h * 0.6, w, h * 0.4);
-    }
-
-    function drawSea(rand, pal, w, h, seed) {
       // Gradiente del mar a pantalla completa
       const seaGrad = ctx.createLinearGradient(0, 0, 0, h);
       seaGrad.addColorStop(0, pal.sea2);
@@ -345,33 +468,23 @@
       ctx.fillStyle = seaGrad;
       ctx.fillRect(0, 0, w, h);
 
-      // Reflejo vertical suave
-      const glareW = w * (0.08 + rand() * 0.10);
-      const glareX = w * (0.18 + rand() * 0.64) - glareW / 2;
-      const glareGrad = ctx.createLinearGradient(glareX, 0, glareX, h);
-      glareGrad.addColorStop(0, "rgba(255,255,255,.16)");
-      glareGrad.addColorStop(0.55, "rgba(255,255,255,.06)");
-      glareGrad.addColorStop(1, "rgba(255,255,255,0)");
-      ctx.fillStyle = glareGrad;
-      ctx.fillRect(glareX, 0, glareW, h);
-
-      // Ondas (líneas seno) + espuma suave en tercio superior
-      const waveCount = 130;
-      const ampBase = 6 + rand() * 12;
-      const freqBase = 0.010 + rand() * 0.018;
+      // Ondas (líneas seno)
+      const waveCount = Math.max(20, Math.round(settings.waveCount));
+      const ampBase = (6 + rand() * 12) * settings.waveAmp;
+      const freqBase = (0.010 + rand() * 0.018) * settings.waveFreq;
       const speedish = 0.8 + rand() * 1.5;
-      const foamBand = Math.floor(h * (0.20 + rand() * 0.10));
+      const waveTime = timeSec * (0.9 + speedish * 0.4) * settings.waveSpeed;
 
       ctx.lineWidth = 1;
       for (let i = 0; i < waveCount; i++) {
-        const t = i / (waveCount - 1);
-        const y = t * h;
-        const depth = t * t;
+        const progress = i / (waveCount - 1);
+        const y = progress * h;
+        const depth = progress * progress;
         const amp = ampBase * (0.35 + depth * 1.35);
         const freq = freqBase * (0.7 + depth * 1.15);
-        const phase = (seed * 0.0002 * speedish) + i * 0.13;
+        const phase = (seed * 0.0002 * speedish) + i * 0.13 + waveTime;
 
-        const alpha = 0.05 + (1 - t) * 0.06;
+        const alpha = 0.05 + (1 - progress) * 0.06;
         ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
 
         ctx.beginPath();
@@ -383,22 +496,328 @@
           else ctx.lineTo(x, yy);
         }
         ctx.stroke();
-
-        if (y < foamBand && rand() < 0.06) {
-          ctx.globalAlpha = 0.55;
-          ctx.fillStyle = pal.foam;
-          const fx = rand() * w;
-          const fw = 30 + rand() * 120;
-          const fh = 2 + rand() * 5;
-          ctx.fillRect(fx, y + (rand() - 0.5) * 6, fw, fh);
-          ctx.globalAlpha = 1;
-        }
       }
     }
 
-    function drawGrain(rand, w, h) {
-      // Ruido muy fino global
-      const grainN = Math.floor((w * h) / 18000);
+    function drawBrightsphere(rand, pal, w, h, seed, time, settings) {
+      const timeSec = (typeof time === "number" ? time : 0) * 0.001;
+      const hue = Math.floor(rand() * 360);
+      const cx = w * 0.5 + Math.sin(timeSec * 0.18 + seed * 0.000001) * w * 0.03;
+      const cy = h * 0.48 + Math.cos(timeSec * 0.15 + seed * 0.000002) * h * 0.03;
+      const coreRadius = Math.min(w, h) * 0.14 * settings.coreSize;
+      const glow = Math.max(0, settings.glow);
+      const orbCount = Math.max(8, Math.round(settings.orbCount));
+      const orbitSpread = settings.orbitSpread;
+      const spin = settings.spin;
+      const orbSize = settings.orbSize;
+
+      const bg = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(w, h) * 0.8);
+      bg.addColorStop(0, `hsla(${hue}, 30%, 18%, 1)`);
+      bg.addColorStop(1, "rgba(3,5,12,1)");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+
+      const coreGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreRadius * (1.6 + glow));
+      coreGlow.addColorStop(0, `hsla(${hue}, 85%, 90%, ${Math.min(1, 0.8 * glow)})`);
+      coreGlow.addColorStop(0.4, `hsla(${hue}, 70%, 65%, ${Math.min(1, 0.45 * glow)})`);
+      coreGlow.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = coreGlow;
+      ctx.fillRect(cx - coreRadius * 3, cy - coreRadius * 3, coreRadius * 6, coreRadius * 6);
+
+      ctx.strokeStyle = `rgba(180,220,255,${Math.min(0.2, 0.1 * glow)})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, coreRadius * 1.1, coreRadius * 0.85, 0, 0, Math.PI * 2);
+      ctx.stroke();
+
+      for (let i = 0; i < orbCount; i++) {
+        const dir = rand() < 0.5 ? 1 : -1;
+        const angle = timeSec * (0.6 + spin) * dir + rand() * Math.PI * 2;
+        const radius = coreRadius * (0.8 + rand() * (1.4 * orbitSpread));
+        const tilt = 0.45 + rand() * 0.55;
+        const wobble = 0.85 + rand() * 0.3;
+        const x = cx + Math.cos(angle) * radius;
+        const y = cy + Math.sin(angle * wobble) * radius * tilt;
+        const size = (0.7 + rand() * 1.6) * orbSize;
+        const alpha = Math.min(1, (0.12 + rand() * 0.35) * glow);
+        const localHue = (hue + rand() * 40 - 20 + 360) % 360;
+        ctx.fillStyle = `hsla(${localHue}, 80%, 75%, ${alpha})`;
+        ctx.beginPath();
+        ctx.arc(x, y, size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
+    function drawCominatcha(rand, pal, w, h, seed, time, settings) {
+      const timeSec = (typeof time === "number" ? time : 0) * 0.001;
+      const baseHue = Math.floor(rand() * 360);
+      const cx = w * 0.5;
+      const cy = h * 0.5;
+
+      const bg = ctx.createLinearGradient(0, 0, 0, h);
+      bg.addColorStop(0, `hsla(${baseHue}, 28%, 14%, 1)`);
+      bg.addColorStop(1, "rgba(2,3,8,1)");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+
+      const count = Math.max(3, Math.round(settings.cometCount));
+      const tail = Math.max(4, Math.round(settings.tailLength));
+      const speed = settings.speed;
+      const spread = settings.spread;
+      const thickness = settings.thickness;
+      const glow = settings.glow;
+
+      for (let i = 0; i < count; i++) {
+        const phase = rand() * Math.PI * 2;
+        const orbitSpeed = (0.4 + rand() * 1.4) * speed;
+        const radius = Math.min(w, h) * (0.16 + rand() * 0.34) * spread;
+        const axis = 0.35 + rand() * 0.65;
+        const wobble = 0.85 + rand() * 0.3;
+        const hue = (baseHue + rand() * 120) % 360;
+
+        for (let j = 0; j < tail; j++) {
+          const t = timeSec - j * 0.05;
+          const angle = t * orbitSpeed + phase;
+          const x = cx + Math.cos(angle) * radius;
+          const y = cy + Math.sin(angle * wobble) * radius * axis;
+          const size = (1.6 - j / tail) * thickness;
+          const alpha = Math.min(1, (1 - j / tail) * 0.35 * glow);
+          ctx.fillStyle = `hsla(${hue}, 80%, 70%, ${alpha})`;
+          ctx.beginPath();
+          ctx.arc(x, y, Math.max(0.2, size), 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      ctx.restore();
+    }
+
+    function drawRibbons(rand, pal, w, h, seed, time, settings) {
+      const timeSec = (typeof time === "number" ? time : 0) * 0.001;
+      const baseHue = (Math.floor(rand() * 360) + settings.hueShift) % 360;
+      const ribbonCount = Math.max(2, Math.round(settings.ribbonCount));
+      const amplitude = h * 0.07 * settings.amplitude;
+      const freqBase = 0.0025 * settings.frequency;
+      const speed = settings.speed;
+      const thickness = settings.thickness;
+      const glow = Math.max(0, settings.glow);
+
+      const bg = ctx.createLinearGradient(0, 0, 0, h);
+      bg.addColorStop(0, `hsla(${(baseHue + 20) % 360}, 24%, 16%, 1)`);
+      bg.addColorStop(1, "rgba(3,5,12,1)");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+      ctx.lineJoin = "round";
+      ctx.lineCap = "round";
+
+      for (let i = 0; i < ribbonCount; i++) {
+        const t = ribbonCount === 1 ? 0.5 : i / (ribbonCount - 1);
+        const baseY = h * (0.2 + t * 0.6);
+        const phase = timeSec * (0.6 + t) * speed + rand() * Math.PI * 2;
+        const hue = (baseHue + t * 120 + i * 8) % 360;
+        const alpha = Math.min(1, (0.12 + 0.12 * glow));
+        const lineWidth = (1.2 + t * 2.2) * thickness;
+
+        ctx.strokeStyle = `hsla(${hue}, 85%, 70%, ${alpha})`;
+        ctx.lineWidth = lineWidth;
+        ctx.beginPath();
+        for (let x = 0; x <= w; x += 8) {
+          const wave = Math.sin(x * freqBase + phase);
+          const ripple = Math.sin(x * freqBase * 0.45 - phase * 1.2) * 0.45;
+          const y = baseY + (wave + ripple) * amplitude;
+          if (x === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        ctx.strokeStyle = `hsla(${hue}, 90%, 75%, ${Math.min(1, 0.08 * glow)})`;
+        ctx.lineWidth = lineWidth * 2.4;
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    function drawPulsegrid(rand, pal, w, h, seed, time, settings) {
+      const timeSec = (typeof time === "number" ? time : 0) * 0.001;
+      const baseHue = (Math.floor(rand() * 360) + settings.hueShift) % 360;
+      const grid = Math.max(4, Math.round(settings.grid));
+      const cols = grid;
+      const rows = Math.max(4, Math.round(grid * h / w));
+      const cellW = w / (cols + 1);
+      const cellH = h / (rows + 1);
+      const pulseSpeed = settings.pulseSpeed;
+      const pulseSize = settings.pulseSize;
+      const jitter = settings.jitter;
+      const glow = Math.max(0, settings.glow);
+
+      const bg = ctx.createLinearGradient(0, 0, 0, h);
+      bg.addColorStop(0, `hsla(${(baseHue + 10) % 360}, 22%, 14%, 1)`);
+      bg.addColorStop(1, "rgba(2,4,10,1)");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const phase = timeSec * (1.4 * pulseSpeed) + rand() * Math.PI * 2 + (r + c) * 0.15;
+          const intensity = 0.5 + 0.5 * Math.sin(phase);
+          const x = (c + 1) * cellW + (rand() - 0.5) * cellW * 0.4 * jitter;
+          const y = (r + 1) * cellH + (rand() - 0.5) * cellH * 0.4 * jitter;
+          const radius = Math.min(cellW, cellH) * 0.12 * pulseSize * (0.4 + intensity);
+          const hue = (baseHue + c * 6 + r * 3) % 360;
+          const alpha = Math.min(1, (0.15 + 0.5 * intensity) * glow);
+          ctx.fillStyle = `hsla(${hue}, 80%, 70%, ${alpha})`;
+          ctx.beginPath();
+          ctx.arc(x, y, radius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      ctx.restore();
+    }
+
+    function drawSpectrum(rand, pal, w, h, seed, time, settings) {
+      const timeSec = (typeof time === "number" ? time : 0) * 0.001;
+      const baseHue = (Math.floor(rand() * 360) + settings.hueShift) % 360;
+      const barCount = Math.max(8, Math.round(settings.barCount));
+      const barWidth = (w / barCount) * settings.barWidth;
+      const barSpeed = settings.barSpeed;
+      const curve = settings.curve;
+      const glow = Math.max(0, settings.glow);
+
+      const bg = ctx.createLinearGradient(0, 0, 0, h);
+      bg.addColorStop(0, `hsla(${(baseHue + 5) % 360}, 20%, 12%, 1)`);
+      bg.addColorStop(1, "rgba(2,3,9,1)");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+
+      const gap = w / barCount;
+      for (let i = 0; i < barCount; i++) {
+        const phase = timeSec * 2.0 * barSpeed + i * 0.35 + rand() * Math.PI * 2;
+        const waveA = 0.5 + 0.5 * Math.sin(phase);
+        const waveB = 0.5 + 0.5 * Math.sin(phase * 0.7 + 1.2);
+        const level = Math.pow(waveA * 0.65 + waveB * 0.35, curve);
+        const height = Math.max(4, level * h * 0.7);
+        const x = i * gap + (gap - barWidth) * 0.5;
+        const y = h - height;
+        const hue = (baseHue + i * 3) % 360;
+        const alpha = Math.min(1, (0.18 + 0.5 * level) * glow);
+        ctx.fillStyle = `hsla(${hue}, 85%, 60%, ${alpha})`;
+        ctx.fillRect(x, y, barWidth, height);
+      }
+
+      ctx.restore();
+    }
+
+    function drawTunnel(rand, pal, w, h, seed, time, settings) {
+      const timeSec = (typeof time === "number" ? time : 0) * 0.001;
+      const baseHue = (Math.floor(rand() * 360) + settings.hueShift) % 360;
+      const ringCount = Math.max(6, Math.round(settings.ringCount));
+      const ringSpacing = settings.ringSpacing;
+      const spin = settings.spin;
+      const wobble = settings.wobble;
+      const thickness = settings.thickness;
+      const glow = Math.max(0, settings.glow);
+
+      const bg = ctx.createRadialGradient(w * 0.5, h * 0.5, 0, w * 0.5, h * 0.5, Math.max(w, h) * 0.8);
+      bg.addColorStop(0, `hsla(${(baseHue + 10) % 360}, 22%, 14%, 1)`);
+      bg.addColorStop(1, "rgba(1,2,8,1)");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.save();
+      ctx.translate(w * 0.5, h * 0.5);
+      ctx.globalCompositeOperation = "lighter";
+
+      const maxRadius = Math.min(w, h) * 0.48 * ringSpacing;
+      for (let i = 0; i < ringCount; i++) {
+        const t = (i / ringCount + timeSec * 0.08 * spin) % 1;
+        const radius = maxRadius * (0.12 + t * 0.88);
+        const rotation = timeSec * 0.35 * spin + i * 0.15;
+        const scaleY = 0.55 + Math.sin(timeSec * 0.6 + i * 0.7) * 0.12 * wobble;
+        const hue = (baseHue + t * 160) % 360;
+        const alpha = Math.min(1, (0.05 + (1 - t) * 0.2) * glow);
+
+        ctx.strokeStyle = `hsla(${hue}, 80%, 60%, ${alpha})`;
+        ctx.lineWidth = (1 + (1 - t) * 1.5) * thickness;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, radius, radius * scaleY, rotation, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    function drawFireflies(rand, pal, w, h, seed, time, settings) {
+      const timeSec = (typeof time === "number" ? time : 0) * 0.001;
+      const baseHue = (Math.floor(rand() * 360) + settings.hueShift) % 360;
+      const count = Math.max(6, Math.round(settings.bugCount));
+      const speed = settings.speed;
+      const size = settings.size;
+      const orbit = settings.orbit;
+      const twinkle = settings.twinkle;
+      const glow = Math.max(0, settings.glow);
+      const cx = w * 0.5;
+      const cy = h * 0.5;
+
+      const bg = ctx.createLinearGradient(0, 0, 0, h);
+      bg.addColorStop(0, `hsla(${(baseHue + 18) % 360}, 18%, 12%, 1)`);
+      bg.addColorStop(1, "rgba(2,3,9,1)");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+
+      for (let i = 0; i < count; i++) {
+        const baseAngle = rand() * Math.PI * 2;
+        const dir = rand() < 0.5 ? 1 : -1;
+        const radius = Math.min(w, h) * (0.12 + rand() * 0.4) * orbit;
+        const axis = 0.4 + rand() * 0.6;
+        const wobble = 0.7 + rand() * 0.6;
+        const angle = timeSec * (0.4 + speed) * dir + baseAngle;
+        const x = cx + Math.cos(angle) * radius;
+        const y = cy + Math.sin(angle * wobble) * radius * axis;
+        const tw = 0.5 + 0.5 * Math.sin(timeSec * 2.0 * twinkle + baseAngle * 3);
+        const alpha = Math.min(1, (0.15 + 0.5 * tw) * glow);
+        const orbSize = (0.7 + rand() * 1.4) * size;
+        const hue = (baseHue + rand() * 60) % 360;
+
+        ctx.fillStyle = `hsla(${hue}, 80%, 70%, ${alpha * 0.6})`;
+        ctx.beginPath();
+        ctx.arc(x, y, orbSize * 1.6, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = `hsla(${hue}, 90%, 80%, ${alpha})`;
+        ctx.beginPath();
+        ctx.arc(x, y, Math.max(0.3, orbSize * 0.6), 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
+    function drawGrain(rand, w, h, density) {
+      const grainDensity = Math.max(0, density || 0);
+      if (grainDensity <= 0) return;
+      const grainN = Math.floor((w * h) / 18000 * grainDensity);
       ctx.globalAlpha = 0.06;
       ctx.fillStyle = "#ffffff";
       for (let i = 0; i < grainN; i++){
@@ -409,47 +828,36 @@
       ctx.globalAlpha = 1;
     }
 
-    function draw(seed) {
+    function draw(seed, time) {
       const rand = mulberry32(seed);
 
       const w = window.innerWidth;
       const h = window.innerHeight;
       const pal = palettes[Math.floor(rand() * palettes.length)];
 
-      if (currentMode === "sky") drawSky(rand, pal, w, h);
-      else drawSea(rand, pal, w, h, seed);
+      const mode = modes[currentMode] || modes.sea;
+      const values = modeValues[currentMode] || modeValues.sea;
+      mode.draw(rand, pal, w, h, seed, time, values);
 
-      drawGrain(rand, w, h);
+      drawGrain(rand, w, h, values.grainDensity);
     }
 
     function randomize(){
       currentSeed = ((Math.random() * 0xffffffff) >>> 0);
-      draw(currentSeed);
-    }
-
-    let currentMode = "sky";
-
-    function setMode(mode) {
-      if (mode === currentMode) return;
-      currentMode = mode;
-      document.querySelectorAll("[data-mode]").forEach((btn) => {
-        const isActive = btn.dataset.mode === currentMode;
-        btn.classList.toggle("is-active", isActive);
-        btn.setAttribute("aria-pressed", isActive ? "true" : "false");
-      });
-      const pill = document.getElementById("mode-pill");
-      if (pill) pill.textContent = currentMode === "sky" ? "Modo: Cielo" : "Modo: Mar";
-      draw(currentSeed);
+      draw(currentSeed, lastTime);
     }
 
     document.getElementById("btn").addEventListener("click", randomize);
     canvas.addEventListener("click", randomize);
     window.addEventListener("resize", resize);
-    document.querySelectorAll("[data-mode]").forEach((btn) => {
-      btn.addEventListener("click", () => setMode(btn.dataset.mode));
-    });
 
+    initControls();
     resize();
+    requestAnimationFrame(function animate(time) {
+      lastTime = time;
+      draw(currentSeed, time);
+      requestAnimationFrame(animate);
+    });
   </script>
 </body>
 </html>
