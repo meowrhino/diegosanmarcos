@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Cielo/Mar – Generador</title>
+  <style>
+    :root{
+      --pad: 16px;
+      --radius: 18px;
+      --card-bg: rgba(255,255,255,.18);
+      --card-border: rgba(255,255,255,.28);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.74);
+    }
+
+    *{ box-sizing: border-box; }
+    html, body { height: 100%; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      overflow-x:hidden;
+      background:#081423; /* fallback */
+    }
+
+    /* Fondo canvas a pantalla completa */
+    canvas#bg{
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -2;
+      display:block;
+    }
+
+    /* Vignette suave por encima del fondo */
+    .vignette{
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events:none;
+      background:
+        radial-gradient(1200px 700px at 50% 30%, rgba(0,0,0,.08), rgba(0,0,0,.45)),
+        linear-gradient(to bottom, rgba(0,0,0,.12), rgba(0,0,0,.28));
+    }
+
+    header{
+      padding: calc(var(--pad) + 6px) var(--pad) var(--pad);
+      display:flex;
+      gap: 12px;
+      align-items:center;
+      justify-content: space-between;
+    }
+
+    .brand{
+      display:flex;
+      flex-direction:column;
+      line-height:1.1;
+    }
+    .brand b{
+      font-size: 15px;
+      letter-spacing: .2px;
+    }
+    .brand span{
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    button{
+      -webkit-tap-highlight-color: transparent;
+      appearance:none;
+      border: 1px solid rgba(255,255,255,.25);
+      background: rgba(0,0,0,.18);
+      color: rgba(255,255,255,.92);
+      padding: 10px 12px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 13px;
+      letter-spacing: .2px;
+      backdrop-filter: blur(10px) saturate(160%);
+      -webkit-backdrop-filter: blur(10px) saturate(160%);
+      cursor:pointer;
+    }
+    button:active{
+      transform: translateY(1px);
+    }
+
+    main{
+      padding: 0 var(--pad) calc(var(--pad) * 2);
+      display:flex;
+      justify-content:center;
+    }
+
+    .card{
+      width: min(560px, 100%);
+      border-radius: var(--radius);
+      padding: 18px 16px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      box-shadow:
+        0 18px 60px rgba(0,0,0,.35),
+        inset 0 1px 0 rgba(255,255,255,.18);
+
+      /* El efecto clave “a través del bloque” */
+      backdrop-filter: blur(16px) saturate(170%) contrast(112%) hue-rotate(8deg);
+      -webkit-backdrop-filter: blur(16px) saturate(170%) contrast(112%) hue-rotate(8deg);
+
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Grain / textura sutil dentro del bloque */
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-40px;
+      pointer-events:none;
+      opacity:.18;
+      background:
+        repeating-linear-gradient(
+          0deg,
+          rgba(255,255,255,.10) 0px,
+          rgba(255,255,255,.10) 1px,
+          rgba(0,0,0,0) 2px,
+          rgba(0,0,0,0) 5px
+        ),
+        repeating-linear-gradient(
+          90deg,
+          rgba(0,0,0,.08) 0px,
+          rgba(0,0,0,.08) 1px,
+          rgba(0,0,0,0) 2px,
+          rgba(0,0,0,0) 6px
+        );
+      mix-blend-mode: overlay;
+      filter: blur(.2px);
+    }
+
+    h1{
+      margin: 0 0 8px;
+      font-size: 18px;
+      letter-spacing: .2px;
+    }
+    p{
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .hint{
+      margin-top: 10px;
+      font-size: 12px;
+      opacity: .85;
+    }
+
+    /* Un “pill” informativo dentro de la card */
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.16);
+      border: 1px solid rgba(255,255,255,.18);
+      color: rgba(255,255,255,.86);
+      font-size: 12px;
+      margin-top: 6px;
+    }
+
+    @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+      .card{
+        /* fallback cuando no hay backdrop-filter */
+        background: rgba(0,0,0,.32);
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bg"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <header>
+    <div class="brand">
+      <b>Cielo / Mar</b>
+      <span>Generador procedural (tap o botón)</span>
+    </div>
+    <button id="btn">Cambiar textura</button>
+  </header>
+
+  <main>
+    <section class="card">
+      <h1>Bloque semitransparente</h1>
+      <p>
+        Esto es un texto de prueba. Lo que ves “a través” del bloque es el fondo,
+        pero con un efecto añadido: <b>blur + saturación + contraste + hue</b>, además de una
+        textura suave encima.
+      </p>
+      <p>
+        Ideal para una UI tipo “glass” sobre un fondo orgánico (cielo/mar).
+      </p>
+      <div class="pill">Tip: toca el fondo para randomizar 👆</div>
+      <div class="hint">Mobile-first • Canvas a pantalla completa • Sin librerías</div>
+    </section>
+  </main>
+
+  <script>
+    const canvas = document.getElementById("bg");
+    const ctx = canvas.getContext("2d", { alpha: false });
+
+    const palettes = [
+      {
+        name: "Amanecer cálido",
+        sky1: "#2b1b3a", sky2: "#ff6b6b", sky3: "#ffd166",
+        sea1: "#0b2a4a", sea2: "#116e8a", foam: "rgba(255,255,255,.35)"
+      },
+      {
+        name: "Azul limpio",
+        sky1: "#061a2d", sky2: "#1d7dd8", sky3: "#b9f5ff",
+        sea1: "#061a2d", sea2: "#0aa6c2", foam: "rgba(255,255,255,.28)"
+      },
+      {
+        name: "Noche violeta",
+        sky1: "#060616", sky2: "#2d1b7a", sky3: "#8be9ff",
+        sea1: "#040614", sea2: "#1b3a8a", foam: "rgba(255,255,255,.22)"
+      },
+      {
+        name: "Verde raro",
+        sky1: "#071b19", sky2: "#0e6b6f", sky3: "#b7ffb1",
+        sea1: "#041214", sea2: "#0a7c8c", foam: "rgba(255,255,255,.24)"
+      }
+    ];
+
+    // RNG determinista simple
+    function mulberry32(seed) {
+      return function() {
+        let t = seed += 0x6D2B79F5;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+
+    function resize() {
+      const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+      canvas.width = Math.floor(window.innerWidth * dpr);
+      canvas.height = Math.floor(window.innerHeight * dpr);
+      canvas.style.width = window.innerWidth + "px";
+      canvas.style.height = window.innerHeight + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      draw(currentSeed);
+    }
+
+    let currentSeed = (Date.now() & 0xffffffff) >>> 0;
+
+    function draw(seed) {
+      const rand = mulberry32(seed);
+
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      const horizon = Math.floor(h * (0.56 + (rand() - 0.5) * 0.10)); // 51–61%
+
+      const pal = palettes[Math.floor(rand() * palettes.length)];
+
+      // --- CIELO (gradiente triple) ---
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, horizon);
+      skyGrad.addColorStop(0, pal.sky1);
+      skyGrad.addColorStop(0.55, pal.sky2);
+      skyGrad.addColorStop(1, pal.sky3);
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, w, horizon);
+
+      // “Sol” suave / glow
+      const sunX = w * (0.18 + rand() * 0.64);
+      const sunY = horizon * (0.22 + rand() * 0.25);
+      const sunR = Math.min(w, h) * (0.10 + rand() * 0.12);
+
+      let rg = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, sunR);
+      rg.addColorStop(0, "rgba(255,255,255,.20)");
+      rg.addColorStop(0.35, "rgba(255,255,255,.10)");
+      rg.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = rg;
+      ctx.fillRect(0, 0, w, horizon);
+
+      // Nubes tipo “neblina” (streaks)
+      ctx.globalAlpha = 0.18;
+      for (let i = 0; i < 10; i++){
+        const y = rand() * horizon;
+        const cloudH = 18 + rand() * 40;
+        const a = 0.10 + rand() * 0.10;
+        const g = ctx.createLinearGradient(0, y, w, y);
+        g.addColorStop(0, `rgba(255,255,255,0)`);
+        g.addColorStop(0.25, `rgba(255,255,255,${a})`);
+        g.addColorStop(0.75, `rgba(255,255,255,${a * 0.7})`);
+        g.addColorStop(1, `rgba(255,255,255,0)`);
+        ctx.fillStyle = g;
+        ctx.fillRect(0, y, w, cloudH);
+      }
+      ctx.globalAlpha = 1;
+
+      // --- MAR (gradiente + ondas) ---
+      const seaGrad = ctx.createLinearGradient(0, horizon, 0, h);
+      seaGrad.addColorStop(0, pal.sea2);
+      seaGrad.addColorStop(1, pal.sea1);
+      ctx.fillStyle = seaGrad;
+      ctx.fillRect(0, horizon, w, h - horizon);
+
+      // Reflejo vertical del “sol” en el mar
+      const glareW = w * (0.08 + rand() * 0.10);
+      const glareX = sunX - glareW/2;
+      const glareGrad = ctx.createLinearGradient(glareX, horizon, glareX, h);
+      glareGrad.addColorStop(0, "rgba(255,255,255,.18)");
+      glareGrad.addColorStop(0.55, "rgba(255,255,255,.06)");
+      glareGrad.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = glareGrad;
+      ctx.fillRect(glareX, horizon, glareW, h - horizon);
+
+      // Ondas (líneas seno) + espuma cerca del horizonte
+      const waveCount = 110;
+      const ampBase = 5 + rand() * 10;
+      const freqBase = 0.010 + rand() * 0.018;
+      const speedish = 0.8 + rand() * 1.5; // solo para variar el patrón
+      const foamBand = Math.floor((h - horizon) * (0.10 + rand() * 0.12));
+
+      ctx.lineWidth = 1;
+      for (let i = 0; i < waveCount; i++) {
+        const t = i / (waveCount - 1);
+        const y = horizon + t * (h - horizon);
+        const depth = t * t; // más “denso” abajo
+        const amp = ampBase * (0.35 + depth * 1.35);
+        const freq = freqBase * (0.7 + depth * 1.15);
+        const phase = (seed * 0.0002 * speedish) + i * 0.13;
+
+        // color ondas
+        const alpha = 0.05 + (1 - t) * 0.06;
+        ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
+
+        ctx.beginPath();
+        for (let x = 0; x <= w; x += 6) {
+          const dy = Math.sin(x * freq + phase) * amp;
+          const bump = Math.sin(x * (freq * 0.55) - phase * 1.7) * (amp * 0.35);
+          const yy = y + dy + bump;
+          if (x === 0) ctx.moveTo(x, yy);
+          else ctx.lineTo(x, yy);
+        }
+        ctx.stroke();
+
+        // espuma ligera en banda superior del mar
+        if (y < horizon + foamBand && rand() < 0.055) {
+          ctx.globalAlpha = 0.55;
+          ctx.fillStyle = pal.foam;
+          const fx = rand() * w;
+          const fw = 30 + rand() * 120;
+          const fh = 2 + rand() * 5;
+          ctx.fillRect(fx, y + (rand() - 0.5) * 6, fw, fh);
+          ctx.globalAlpha = 1;
+        }
+      }
+
+      // --- GRAIN GLOBAL (ruido muy fino) ---
+      // (rápido: dibuja puntos aleatorios en baja densidad)
+      const grainN = Math.floor((w * h) / 18000); // ajusta densidad
+      ctx.globalAlpha = 0.06;
+      ctx.fillStyle = "#ffffff";
+      for (let i = 0; i < grainN; i++){
+        const x = rand() * w;
+        const y = rand() * h;
+        ctx.fillRect(x, y, 1, 1);
+      }
+      ctx.globalAlpha = 1;
+
+      // Línea de horizonte suave
+      ctx.globalAlpha = 0.25;
+      ctx.fillStyle = "rgba(255,255,255,.18)";
+      ctx.fillRect(0, horizon - 1, w, 2);
+      ctx.globalAlpha = 1;
+    }
+
+    function randomize(){
+      currentSeed = ((Math.random() * 0xffffffff) >>> 0);
+      draw(currentSeed);
+    }
+
+    document.getElementById("btn").addEventListener("click", randomize);
+    canvas.addEventListener("click", randomize);
+    window.addEventListener("resize", resize);
+
+    resize();
+  </script>
+</body>
+</html>
