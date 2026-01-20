@@ -186,6 +186,45 @@
       display: grid;
       gap: 10px;
     }
+    .control-row{
+      display:flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .button{
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.2);
+      padding: 6px 12px;
+      background: rgba(0,0,0,.24);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .audio-panel{
+      margin-top: 12px;
+    }
+    .status{
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.2);
+      background: rgba(0,0,0,.28);
+    }
+    .track{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .track__label{
+      letter-spacing: .2px;
+      text-transform: uppercase;
+      opacity: .85;
+    }
 
     @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
       .card{
@@ -217,6 +256,22 @@
         </div>
         <div id="dynamic-controls" class="controls-grid"></div>
       </div>
+      <div class="controls-panel audio-panel" aria-label="Controles de audio">
+        <div class="control-row">
+          <button id="playBtn" class="button" type="button">Play</button>
+          <button id="pauseBtn" class="button" type="button">Pause</button>
+          <button id="muteBtn" class="button" type="button">Unmute</button>
+        </div>
+        <div class="control">
+          <label for="volume">Volumen <span id="volumeValue" class="value">0.00</span></label>
+          <input id="volume" type="range" min="0" max="1" step="0.01" value="0" />
+        </div>
+        <div class="track">
+          <span class="track__label">Pista</span>
+          <span class="track__title">Diego San Marcos - Abre Tus Manos</span>
+        </div>
+        <div id="audioStatus" class="status">Muteado · Pausado</div>
+      </div>
       <div class="pill">Tip: toca el fondo para randomizar 👆</div>
       <div class="hint">Mobile-first • Canvas a pantalla completa • Sin librerías</div>
     </section>
@@ -224,9 +279,19 @@
 
   <button id="btn" class="text-button" type="button">Randomizar</button>
 
+  <audio id="player" preload="auto" crossorigin="anonymous"></audio>
+
   <script>
     const canvas = document.getElementById("bg");
     const ctx = canvas.getContext("2d", { alpha: false });
+    const audio = document.getElementById("player");
+    const audioStatus = document.getElementById("audioStatus");
+    const playBtn = document.getElementById("playBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
+    const muteBtn = document.getElementById("muteBtn");
+    const volumeSlider = document.getElementById("volume");
+    const volumeValue = document.getElementById("volumeValue");
+    const audioSrc = "Diego San Marcos - Abre Tus Manos.mp3";
 
     const palettes = [
       {
@@ -445,6 +510,88 @@
       };
     }
 
+    let audioContext;
+    let analyser;
+    let gainNode;
+    let sourceNode;
+    let freqData;
+    let timeData;
+    let isMuted = true;
+    let desiredVolume = 0.6;
+    const silentAudio = {
+      avg: 0,
+      bass: 0,
+      mid: 0,
+      treble: 0,
+      freqData: null,
+      timeData: null
+    };
+
+    function ensureAudioGraph() {
+      if (audioContext) return;
+      audioContext = new AudioContext();
+      analyser = audioContext.createAnalyser();
+      analyser.fftSize = 2048;
+      analyser.smoothingTimeConstant = 0.85;
+      freqData = new Uint8Array(analyser.frequencyBinCount);
+      timeData = new Uint8Array(analyser.fftSize);
+      gainNode = audioContext.createGain();
+      gainNode.gain.value = 0;
+      sourceNode = audioContext.createMediaElementSource(audio);
+      sourceNode.connect(analyser);
+      analyser.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+    }
+
+    function updateGain() {
+      if (!gainNode) return;
+      gainNode.gain.value = isMuted ? 0 : desiredVolume;
+    }
+
+    function updateStatus() {
+      const mutedLabel = isMuted ? "Muteado" : "Sonando";
+      const playLabel = audio.paused ? "Pausado" : "Reproduciendo";
+      audioStatus.textContent = `${mutedLabel} · ${playLabel}`;
+      muteBtn.textContent = isMuted ? "Unmute" : "Mute";
+    }
+
+    function getAudioMetrics() {
+      if (!analyser) return silentAudio;
+
+      analyser.getByteFrequencyData(freqData);
+      analyser.getByteTimeDomainData(timeData);
+
+      const len = freqData.length;
+      let total = 0;
+      let bass = 0;
+      let mid = 0;
+      let treble = 0;
+      const bassEnd = Math.floor(len * 0.15);
+      const midEnd = Math.floor(len * 0.55);
+
+      for (let i = 0; i < len; i++) {
+        const value = freqData[i];
+        total += value;
+        if (i < bassEnd) bass += value;
+        else if (i < midEnd) mid += value;
+        else treble += value;
+      }
+
+      const avg = total / len / 255;
+      const bassAvg = bass / Math.max(1, bassEnd) / 255;
+      const midAvg = mid / Math.max(1, midEnd - bassEnd) / 255;
+      const trebleAvg = treble / Math.max(1, len - midEnd) / 255;
+
+      return {
+        avg,
+        bass: bassAvg,
+        mid: midAvg,
+        treble: trebleAvg,
+        freqData,
+        timeData
+      };
+    }
+
     function resize() {
       const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
       canvas.width = Math.floor(window.innerWidth * dpr);
@@ -457,8 +604,9 @@
 
     let currentSeed = (Date.now() & 0xffffffff) >>> 0;
     let lastTime = 0;
+    audio.src = encodeURI(audioSrc);
 
-    function drawSea(rand, pal, w, h, seed, time, settings) {
+    function drawSea(rand, pal, w, h, seed, time, settings, audioData) {
       const timeSec = (typeof time === "number" ? time : 0) * 0.001;
 
       // Gradiente del mar a pantalla completa
@@ -470,7 +618,8 @@
 
       // Ondas (líneas seno)
       const waveCount = Math.max(20, Math.round(settings.waveCount));
-      const ampBase = (6 + rand() * 12) * settings.waveAmp;
+      const ampBoost = 0.7 + audioData.bass * 1.2;
+      const ampBase = (6 + rand() * 12) * settings.waveAmp * ampBoost;
       const freqBase = (0.010 + rand() * 0.018) * settings.waveFreq;
       const speedish = 0.8 + rand() * 1.5;
       const waveTime = timeSec * (0.9 + speedish * 0.4) * settings.waveSpeed;
@@ -499,13 +648,13 @@
       }
     }
 
-    function drawBrightsphere(rand, pal, w, h, seed, time, settings) {
+    function drawBrightsphere(rand, pal, w, h, seed, time, settings, audioData) {
       const timeSec = (typeof time === "number" ? time : 0) * 0.001;
       const hue = Math.floor(rand() * 360);
       const cx = w * 0.5 + Math.sin(timeSec * 0.18 + seed * 0.000001) * w * 0.03;
       const cy = h * 0.48 + Math.cos(timeSec * 0.15 + seed * 0.000002) * h * 0.03;
-      const coreRadius = Math.min(w, h) * 0.14 * settings.coreSize;
-      const glow = Math.max(0, settings.glow);
+      const coreRadius = Math.min(w, h) * 0.14 * settings.coreSize * (0.8 + audioData.bass * 0.8);
+      const glow = Math.max(0, settings.glow) * (0.7 + audioData.avg * 0.9);
       const orbCount = Math.max(8, Math.round(settings.orbCount));
       const orbitSpread = settings.orbitSpread;
       const spin = settings.spin;
@@ -553,7 +702,7 @@
       ctx.restore();
     }
 
-    function drawCominatcha(rand, pal, w, h, seed, time, settings) {
+    function drawCominatcha(rand, pal, w, h, seed, time, settings, audioData) {
       const timeSec = (typeof time === "number" ? time : 0) * 0.001;
       const baseHue = Math.floor(rand() * 360);
       const cx = w * 0.5;
@@ -570,10 +719,10 @@
 
       const count = Math.max(3, Math.round(settings.cometCount));
       const tail = Math.max(4, Math.round(settings.tailLength));
-      const speed = settings.speed;
+      const speed = settings.speed * (0.7 + audioData.avg * 1.2);
       const spread = settings.spread;
       const thickness = settings.thickness;
-      const glow = settings.glow;
+      const glow = settings.glow * (0.7 + audioData.treble * 1.2);
 
       for (let i = 0; i < count; i++) {
         const phase = rand() * Math.PI * 2;
@@ -600,15 +749,15 @@
       ctx.restore();
     }
 
-    function drawRibbons(rand, pal, w, h, seed, time, settings) {
+    function drawRibbons(rand, pal, w, h, seed, time, settings, audioData) {
       const timeSec = (typeof time === "number" ? time : 0) * 0.001;
       const baseHue = (Math.floor(rand() * 360) + settings.hueShift) % 360;
       const ribbonCount = Math.max(2, Math.round(settings.ribbonCount));
-      const amplitude = h * 0.07 * settings.amplitude;
+      const amplitude = h * 0.07 * settings.amplitude * (0.8 + audioData.avg * 1.1);
       const freqBase = 0.0025 * settings.frequency;
-      const speed = settings.speed;
+      const speed = settings.speed * (0.8 + audioData.mid);
       const thickness = settings.thickness;
-      const glow = Math.max(0, settings.glow);
+      const glow = Math.max(0, settings.glow) * (0.7 + audioData.treble);
 
       const bg = ctx.createLinearGradient(0, 0, 0, h);
       bg.addColorStop(0, `hsla(${(baseHue + 20) % 360}, 24%, 16%, 1)`);
@@ -649,7 +798,7 @@
       ctx.restore();
     }
 
-    function drawPulsegrid(rand, pal, w, h, seed, time, settings) {
+    function drawPulsegrid(rand, pal, w, h, seed, time, settings, audioData) {
       const timeSec = (typeof time === "number" ? time : 0) * 0.001;
       const baseHue = (Math.floor(rand() * 360) + settings.hueShift) % 360;
       const grid = Math.max(4, Math.round(settings.grid));
@@ -657,10 +806,10 @@
       const rows = Math.max(4, Math.round(grid * h / w));
       const cellW = w / (cols + 1);
       const cellH = h / (rows + 1);
-      const pulseSpeed = settings.pulseSpeed;
-      const pulseSize = settings.pulseSize;
+      const pulseSpeed = settings.pulseSpeed * (0.8 + audioData.avg * 1.3);
+      const pulseSize = settings.pulseSize * (0.7 + audioData.bass * 1.4);
       const jitter = settings.jitter;
-      const glow = Math.max(0, settings.glow);
+      const glow = Math.max(0, settings.glow) * (0.7 + audioData.mid);
 
       const bg = ctx.createLinearGradient(0, 0, 0, h);
       bg.addColorStop(0, `hsla(${(baseHue + 10) % 360}, 22%, 14%, 1)`);
@@ -690,14 +839,14 @@
       ctx.restore();
     }
 
-    function drawSpectrum(rand, pal, w, h, seed, time, settings) {
+    function drawSpectrum(rand, pal, w, h, seed, time, settings, audioData) {
       const timeSec = (typeof time === "number" ? time : 0) * 0.001;
       const baseHue = (Math.floor(rand() * 360) + settings.hueShift) % 360;
       const barCount = Math.max(8, Math.round(settings.barCount));
       const barWidth = (w / barCount) * settings.barWidth;
       const barSpeed = settings.barSpeed;
       const curve = settings.curve;
-      const glow = Math.max(0, settings.glow);
+      const glow = Math.max(0, settings.glow) * (0.8 + audioData.avg);
 
       const bg = ctx.createLinearGradient(0, 0, 0, h);
       bg.addColorStop(0, `hsla(${(baseHue + 5) % 360}, 20%, 12%, 1)`);
@@ -709,32 +858,52 @@
       ctx.globalCompositeOperation = "lighter";
 
       const gap = w / barCount;
-      for (let i = 0; i < barCount; i++) {
-        const phase = timeSec * 2.0 * barSpeed + i * 0.35 + rand() * Math.PI * 2;
-        const waveA = 0.5 + 0.5 * Math.sin(phase);
-        const waveB = 0.5 + 0.5 * Math.sin(phase * 0.7 + 1.2);
-        const level = Math.pow(waveA * 0.65 + waveB * 0.35, curve);
-        const height = Math.max(4, level * h * 0.7);
-        const x = i * gap + (gap - barWidth) * 0.5;
-        const y = h - height;
-        const hue = (baseHue + i * 3) % 360;
-        const alpha = Math.min(1, (0.18 + 0.5 * level) * glow);
-        ctx.fillStyle = `hsla(${hue}, 85%, 60%, ${alpha})`;
-        ctx.fillRect(x, y, barWidth, height);
+      const data = audioData.freqData;
+
+      if (data) {
+        const step = Math.max(1, Math.floor(data.length / barCount));
+        for (let i = 0; i < barCount; i++) {
+          let sum = 0;
+          for (let j = 0; j < step; j++) {
+            sum += data[i * step + j] || 0;
+          }
+          const level = sum / step / 255;
+          const height = Math.max(4, level * h * 0.7);
+          const x = i * gap + (gap - barWidth) * 0.5;
+          const y = h - height;
+          const hue = (baseHue + i * 3) % 360;
+          const alpha = Math.min(1, (0.18 + 0.6 * level) * glow);
+          ctx.fillStyle = `hsla(${hue}, 85%, 60%, ${alpha})`;
+          ctx.fillRect(x, y, barWidth, height);
+        }
+      } else {
+        for (let i = 0; i < barCount; i++) {
+          const phase = timeSec * 2.0 * barSpeed + i * 0.35 + rand() * Math.PI * 2;
+          const waveA = 0.5 + 0.5 * Math.sin(phase);
+          const waveB = 0.5 + 0.5 * Math.sin(phase * 0.7 + 1.2);
+          const level = Math.pow(waveA * 0.65 + waveB * 0.35, curve);
+          const height = Math.max(4, level * h * 0.7);
+          const x = i * gap + (gap - barWidth) * 0.5;
+          const y = h - height;
+          const hue = (baseHue + i * 3) % 360;
+          const alpha = Math.min(1, (0.18 + 0.5 * level) * glow);
+          ctx.fillStyle = `hsla(${hue}, 85%, 60%, ${alpha})`;
+          ctx.fillRect(x, y, barWidth, height);
+        }
       }
 
       ctx.restore();
     }
 
-    function drawTunnel(rand, pal, w, h, seed, time, settings) {
+    function drawTunnel(rand, pal, w, h, seed, time, settings, audioData) {
       const timeSec = (typeof time === "number" ? time : 0) * 0.001;
       const baseHue = (Math.floor(rand() * 360) + settings.hueShift) % 360;
       const ringCount = Math.max(6, Math.round(settings.ringCount));
       const ringSpacing = settings.ringSpacing;
-      const spin = settings.spin;
+      const spin = settings.spin * (0.7 + audioData.avg * 1.2);
       const wobble = settings.wobble;
       const thickness = settings.thickness;
-      const glow = Math.max(0, settings.glow);
+      const glow = Math.max(0, settings.glow) * (0.8 + audioData.treble);
 
       const bg = ctx.createRadialGradient(w * 0.5, h * 0.5, 0, w * 0.5, h * 0.5, Math.max(w, h) * 0.8);
       bg.addColorStop(0, `hsla(${(baseHue + 10) % 360}, 22%, 14%, 1)`);
@@ -765,15 +934,15 @@
       ctx.restore();
     }
 
-    function drawFireflies(rand, pal, w, h, seed, time, settings) {
+    function drawFireflies(rand, pal, w, h, seed, time, settings, audioData) {
       const timeSec = (typeof time === "number" ? time : 0) * 0.001;
       const baseHue = (Math.floor(rand() * 360) + settings.hueShift) % 360;
       const count = Math.max(6, Math.round(settings.bugCount));
-      const speed = settings.speed;
+      const speed = settings.speed * (0.7 + audioData.avg * 1.1);
       const size = settings.size;
       const orbit = settings.orbit;
       const twinkle = settings.twinkle;
-      const glow = Math.max(0, settings.glow);
+      const glow = Math.max(0, settings.glow) * (0.7 + audioData.treble);
       const cx = w * 0.5;
       const cy = h * 0.5;
 
@@ -834,10 +1003,11 @@
       const w = window.innerWidth;
       const h = window.innerHeight;
       const pal = palettes[Math.floor(rand() * palettes.length)];
+      const audioData = getAudioMetrics();
 
       const mode = modes[currentMode] || modes.sea;
       const values = modeValues[currentMode] || modeValues.sea;
-      mode.draw(rand, pal, w, h, seed, time, values);
+      mode.draw(rand, pal, w, h, seed, time, values, audioData);
 
       drawGrain(rand, w, h, values.grainDensity);
     }
@@ -847,12 +1017,47 @@
       draw(currentSeed, lastTime);
     }
 
+    playBtn.addEventListener("click", () => {
+      ensureAudioGraph();
+      audioContext.resume();
+      if (!audio.src) audio.src = encodeURI(audioSrc);
+      audio.play().catch(() => {
+        updateStatus();
+      });
+    });
+
+    pauseBtn.addEventListener("click", () => {
+      audio.pause();
+      updateStatus();
+    });
+
+    muteBtn.addEventListener("click", () => {
+      isMuted = !isMuted;
+      updateGain();
+      volumeSlider.value = isMuted ? 0 : desiredVolume;
+      volumeValue.textContent = Number(volumeSlider.value).toFixed(2);
+      updateStatus();
+    });
+
+    volumeSlider.addEventListener("input", () => {
+      desiredVolume = parseFloat(volumeSlider.value);
+      volumeValue.textContent = desiredVolume.toFixed(2);
+      if (!isMuted) updateGain();
+    });
+
+    audio.addEventListener("play", updateStatus);
+    audio.addEventListener("pause", updateStatus);
+    audio.addEventListener("ended", updateStatus);
+
     document.getElementById("btn").addEventListener("click", randomize);
     canvas.addEventListener("click", randomize);
     window.addEventListener("resize", resize);
 
     initControls();
     resize();
+    volumeValue.textContent = Number(volumeSlider.value).toFixed(2);
+    updateGain();
+    updateStatus();
     requestAnimationFrame(function animate(time) {
       lastTime = time;
       draw(currentSeed, time);
