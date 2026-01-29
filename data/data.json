@@ -1,0 +1,97 @@
+{
+  "projects": [
+    {
+      "slug": "mde",
+      "titulo": "MDE",
+      "tipo": "audiovisual",
+      "principal": [
+        "mde.mp4"
+      ],
+      "texto1": [
+        "MDE (Carlos Carvento)"
+      ],
+      "audio": [],
+      "texto2": [],
+      "galeria": [],
+      "creditos": [
+        "Música Original y Mezcla para Pieza de Danza Contemporánea"
+      ]
+    },
+    {
+      "slug": "purnima",
+      "titulo": "Purnima Midlife Moksha podcast jingle",
+      "tipo": "identidadSonora",
+      "principal": [],
+      "texto1": [],
+      "audio": [
+        "FIRST PART_INTRO VARIATION_REV1.wav",
+        "FIRST PART_LOGO_INTRO_OUTRO_REV1.wav",
+        "SECOND PART_NIDRA BACKGROUND SOUNDSCAPE.wav"
+      ],
+      "texto2": [],
+      "galeria": [],
+      "creditos": [
+        "Logo sonoro e introducción musical para podcast y loop para meditación Nidra"
+      ]
+    },
+    {
+      "slug": "robertaNikita",
+      "titulo": "ROBIE DEBUT 3000",
+      "tipo": "musicaMezcla",
+      "principal": [],
+      "texto1": [
+        "01. BEBE_ROBERTANIKITA (master).wav",
+        "02. ME KIERE_ROBERTANIKITA (master).wav",
+        "03. NUNCA MÁS_ROBERTANIKITA (master).wav",
+        "04. SOLO PIENSO EN TI_ROBERTANIKITA (master).wav",
+        "05. INFIERNO_ROBERTANIKITA (master).wav",
+        "06. FERRARI_ROBERTANIKITA (master).wav",
+        "07. CARTA_ROBERTANIKITA (master).wav",
+        "08. SORRY PERO ADIOS_ROBERTANIKITA (master).wav",
+        "09. ENAMORÁ_ROBERTANIKITA (master).wav",
+        "10. TU Y YO -V2.wav",
+        "11. DESNUDARÉ_ROBERTANIKITA (master).wav",
+        "12. 1 ángel (voice note version)_ROBERTANIKITA.wav"
+      ],
+      "audio": [],
+      "texto2": [],
+      "galeria": [],
+      "creditos": [
+        "Co-producción del álbum Debut 3000 de Roberta Nikita"
+      ]
+    },
+    {
+      "slug": "reflejos",
+      "titulo": "Reflejos (Diego San Marcos)",
+      "tipo": "miMusica",
+      "principal": [
+        ""
+      ],
+      "texto1": [],
+      "audio": [
+        "REFLEJOS_MASTER V4.wav"
+      ],
+      "texto2": [],
+      "galeria": [
+        "REFLEJOS_3000x3000",
+        "REFLEJOS_3",
+        "REFLEJOS_4"
+      ],
+      "creditos": [
+        "Interpretación, producción y mezcla"
+      ]
+    }
+  ],
+  "categories": {
+    "portfolio": [
+      "audiovisual",
+      "identidadSonora",
+      "audioInmersivo",
+      "musicaMezcla"
+    ],
+    "personal": [
+      "miMusica",
+      "textos"
+    ]
+  }
+}

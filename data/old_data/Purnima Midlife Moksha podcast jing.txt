@@ -1,0 +1,7 @@
+Purnima Midlife Moksha podcast jingle
+principal: [MID-LIFE MOKSHA PODCAST (Purnima)]]
+texto1: []
+audio: ["FIRST PART_INTRO VARIATION_REV1.wav""FIRST PART_LOGO_INTRO_OUTRO_REV1.wav""SECOND PART_NIDRA BACKGROUND SOUNDSCAPE.wav"]
+texto2: []
+galeria: []
+creditos: [Logo sonoro e introducción musical para podcast y loop para meditación Nidra]
