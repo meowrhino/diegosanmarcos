@@ -80,6 +80,23 @@
       "creditos": [
         "Interpretación, producción y mezcla"
       ]
+    },
+    {
+      "slug": "about",
+      "titulo": "BIO",
+      "tipo": "about",
+      "principal": [],
+      "texto1": [
+        "Diego Saint-Mard, alias Diego San Marcos, nació en Madrid, con parte de su familia y su nacionalidad vinculadas a Bélgica. En 2020 se trasladó a Asturias para completar sus estudios en Historia y Ciencias de la Música en la Universidad de Oviedo. Formado en saxofón (Grado Elemental, Conservatorio Teresa Berganza) y piano (Escuela Municipal de Música), comenzó a desarrollar su práctica artística en el entorno digital, explorando la creación de música electrónica, el diseño sonoro y la edición de audio.",
+        "Actualmente trabaja como editor de audio y compositor para entornos multimedia, y cursa el Máster en Formación del Profesorado con especialidad en Música. Su investigación sonora nace de una necesidad de introspección y comprensión simbólica del mundo, entendiendo el sonido como medio de contacto, percepción alterada y experiencia compartida.",
+        "Su obra se sitúa entre la cultura de baile, la estética ritual y una línea de trabajo orientada hacia el arte sonoro y la instalación. Ha compuesto música para danza contemporánea (Maricón de España, 2022; Taller de danza sobre Picasso,2023), ha participado en la producción del álbum Debut3000 (Roberta Nikita, 2024) y publicado en el recopilatorio Igoera (sello Lotura, 2023). Su interés actual se centra en la creación de espacios de escucha inmersiva, donde arquitectura, cuerpo y sonido dialogan activamente."
+      ],
+      "audio": [],
+      "texto2": [
+        "<a href=\"mailto:diegosanmarcos21@gmail.com\">diegosanmarcos21@gmail.com</a>"
+      ],
+      "galeria": [],
+      "creditos": []
     }
   ],
   "categories": {
@@ -92,6 +109,9 @@
     "personal": [
       "miMusica",
       "textos"
+    ],
+    "about": [
+      "about"
     ]
   }
 }
