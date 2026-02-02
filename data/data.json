@@ -5,7 +5,7 @@
       "titulo": "MDE",
       "tipo": "audiovisual",
       "principal": [
-        "mde.mp4"
+        "mde_baja.webm"
       ],
       "texto1": [
         "MDE (Carlos Carvento)"
@@ -35,11 +35,12 @@
       ]
     },
     {
-      "slug": "robertaNikita",
+      "slug": "robie",
       "titulo": "ROBIE DEBUT 3000",
       "tipo": "musicaMezcla",
       "principal": [],
-      "texto1": [
+      "texto1": [],
+      "audio": [
         "01. BEBE_ROBERTANIKITA (master).wav",
         "02. ME KIERE_ROBERTANIKITA (master).wav",
         "03. NUNCA MÁS_ROBERTANIKITA (master).wav",
@@ -53,7 +54,6 @@
         "11. DESNUDARÉ_ROBERTANIKITA (master).wav",
         "12. 1 ángel (voice note version)_ROBERTANIKITA.wav"
       ],
-      "audio": [],
       "texto2": [],
       "galeria": [],
       "creditos": [
@@ -79,6 +79,22 @@
       ],
       "creditos": [
         "Interpretación, producción y mezcla"
+      ]
+    },
+    {
+      "slug": "textos",
+      "titulo": "Textos",
+      "tipo": "textos",
+      "principal": [],
+      "texto1": [],
+      "audio": [],
+      "texto2": [],
+      "galeria": [],
+      "creditos": [],
+      "archivosTexto": [
+        "1. El Oro del Rin, segunda escena Tran.txt",
+        "2. LAGOS DE CRISTAL BRILLANTE.txt",
+        "3. DESPERTAR.txt"
       ]
     },
     {
