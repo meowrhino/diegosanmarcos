@@ -62,6 +62,9 @@ function setupBackground() {
     } else {
         bgContainer.classList.add('personal');
     }
+
+    // Añadir clase de tipo al body para estilos específicos
+    document.body.classList.add(`tipo-${currentProject.tipo}`);
 }
 
 // ===== RENDERIZAR PROYECTO =====

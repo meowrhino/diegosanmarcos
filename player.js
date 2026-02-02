@@ -1,18 +1,40 @@
 // ===== REPRODUCTOR DE AUDIO GLOBAL (persiste entre paginas) =====
 
 const DSM_Player = {
+    // Estado
     element: null,
     canvas: null,
     ctx: null,
+    playerEl: null,
     currentPlaylist: [],
     currentIndex: 0,
     currentProjectSlug: '',
     isPlaying: false,
+    startTime: Date.now(),
+
+    // Drag
     isDragging: false,
+    dragStarted: false,
     dragOffset: { x: 0, y: 0 },
-    animationId: null,
-    particles: [],
+    dragStartPos: { x: 0, y: 0 },
+
+    // UI
     playlistOpen: false,
+    controlsVisible: false,
+    controlsTimeout: null,
+    animationId: null,
+    _restoring: false,
+
+    // Ambience settings (del generador de fondos)
+    ambience: {
+        lineCount: 8,
+        amplitude: 1,
+        frequency: 1,
+        trail: 0.7,
+        glow: 1.1,
+        colorSpeed: 1,
+        hueShift: 20
+    },
 
     // ===== INICIALIZAR =====
     init() {
@@ -25,14 +47,12 @@ const DSM_Player = {
 
         this.createPlayerDOM();
         this.setupEvents();
-        this.restoreState();
-        this.initParticles();
+        this.restoreStateIfPlaying();
         this.animate();
     },
 
     // ===== CREAR DOM DEL REPRODUCTOR =====
     createPlayerDOM() {
-        // Eliminar player viejo si existe
         const old = document.getElementById('audio-player');
         if (old) old.remove();
 
@@ -80,19 +100,22 @@ const DSM_Player = {
         this.canvas = document.getElementById('player-canvas');
         this.ctx = this.canvas.getContext('2d');
 
-        // Restaurar posicion
+        // Restaurar posicion guardada
         const savedPos = sessionStorage.getItem('dsm_player_pos');
         if (savedPos) {
-            const pos = JSON.parse(savedPos);
-            player.style.left = pos.x + 'px';
-            player.style.top = pos.y + 'px';
-            player.style.bottom = 'auto';
-            player.style.right = 'auto';
+            try {
+                const pos = JSON.parse(savedPos);
+                player.style.left = pos.x + 'px';
+                player.style.top = pos.y + 'px';
+                player.style.bottom = 'auto';
+                player.style.right = 'auto';
+            } catch (e) { /* posicion corrupta, usar default */ }
         }
     },
 
     // ===== EVENTOS =====
     setupEvents() {
+        // Controles del player
         document.getElementById('play-btn').addEventListener('click', () => this.togglePlay());
         document.getElementById('prev-btn').addEventListener('click', () => this.playPrevious());
         document.getElementById('next-btn').addEventListener('click', () => this.playNext());
@@ -101,44 +124,73 @@ const DSM_Player = {
         document.querySelector('.playlist-close').addEventListener('click', () => this.togglePlaylist());
         document.getElementById('progress-bar').addEventListener('input', (e) => this.seek(e));
 
+        // Audio events
         this.element.addEventListener('timeupdate', () => this.updateProgress());
         this.element.addEventListener('ended', () => this.playNext());
         this.element.addEventListener('loadedmetadata', () => this.updateDuration());
 
-        // Drag
-        const handle = this.playerEl.querySelector('.player-drag-handle');
-        handle.addEventListener('mousedown', (e) => this.startDrag(e));
-        handle.addEventListener('touchstart', (e) => this.startDrag(e), { passive: false });
+        // Drag — todo el player cuando controles ocultos, solo handle cuando visibles
+        this.playerEl.addEventListener('mousedown', (e) => this.handlePointerDown(e));
+        this.playerEl.addEventListener('touchstart', (e) => this.handlePointerDown(e), { passive: false });
         document.addEventListener('mousemove', (e) => this.onDrag(e));
         document.addEventListener('touchmove', (e) => this.onDrag(e), { passive: false });
-        document.addEventListener('mouseup', () => this.endDrag());
-        document.addEventListener('touchend', () => this.endDrag());
+        document.addEventListener('mouseup', () => this.handlePointerUp());
+        document.addEventListener('touchend', () => this.handlePointerUp());
+
+        // Hover para mostrar/ocultar controles (desktop)
+        this.playerEl.addEventListener('mouseenter', () => this.showControls());
+        this.playerEl.addEventListener('mouseleave', () => {
+            if (!this.playlistOpen) this.hideControls();
+        });
     },
 
-    // ===== DRAG =====
-    startDrag(e) {
+    // ===== POINTER HANDLING (drag + tap-to-toggle) =====
+    handlePointerDown(e) {
+        const target = e.target;
+
+        // No iniciar drag desde controles interactivos
+        if (target.closest('button') || target.closest('input') || target.closest('.playlist-panel')) {
+            return;
+        }
+
+        // Si controles visibles, solo drag desde el handle
+        if (this.controlsVisible && !target.closest('.player-drag-handle')) {
+            return;
+        }
+
         e.preventDefault();
         this.isDragging = true;
+        this.dragStarted = false;
+
         const rect = this.playerEl.getBoundingClientRect();
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
         this.dragOffset.x = clientX - rect.left;
         this.dragOffset.y = clientY - rect.top;
+        this.dragStartPos.x = clientX;
+        this.dragStartPos.y = clientY;
         this.playerEl.style.transition = 'none';
     },
 
     onDrag(e) {
         if (!this.isDragging) return;
-        e.preventDefault();
+
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        let x = clientX - this.dragOffset.x;
-        let y = clientY - this.dragOffset.y;
 
-        // Limitar a viewport
-        const size = this.playerEl.offsetWidth;
-        x = Math.max(0, Math.min(x, window.innerWidth - size));
-        y = Math.max(0, Math.min(y, window.innerHeight - size));
+        // Threshold de 5px para distinguir tap de drag
+        if (!this.dragStarted) {
+            const dx = clientX - this.dragStartPos.x;
+            const dy = clientY - this.dragStartPos.y;
+            if (Math.abs(dx) < 5 && Math.abs(dy) < 5) return;
+            this.dragStarted = true;
+        }
+
+        e.preventDefault();
+        const w = this.playerEl.offsetWidth;
+        const h = this.playerEl.offsetHeight;
+        const x = Math.max(0, Math.min(clientX - this.dragOffset.x, window.innerWidth - w));
+        const y = Math.max(0, Math.min(clientY - this.dragOffset.y, window.innerHeight - h));
 
         this.playerEl.style.left = x + 'px';
         this.playerEl.style.top = y + 'px';
@@ -146,120 +198,112 @@ const DSM_Player = {
         this.playerEl.style.right = 'auto';
     },
 
-    endDrag() {
+    handlePointerUp() {
         if (!this.isDragging) return;
         this.isDragging = false;
         this.playerEl.style.transition = '';
-        // Guardar posicion
-        const rect = this.playerEl.getBoundingClientRect();
-        sessionStorage.setItem('dsm_player_pos', JSON.stringify({ x: rect.left, y: rect.top }));
-    },
 
-    // ===== AMBIENCE PARTICLES =====
-    initParticles() {
-        this.particles = [];
-        for (let i = 0; i < 40; i++) {
-            this.particles.push({
-                x: Math.random(),
-                y: Math.random(),
-                r: Math.random() * 3 + 1,
-                vx: (Math.random() - 0.5) * 0.003,
-                vy: (Math.random() - 0.5) * 0.003,
-                alpha: Math.random() * 0.5 + 0.1,
-                pulse: Math.random() * Math.PI * 2
-            });
+        if (this.dragStarted) {
+            // Fue un drag real — guardar posicion
+            const rect = this.playerEl.getBoundingClientRect();
+            sessionStorage.setItem('dsm_player_pos', JSON.stringify({ x: rect.left, y: rect.top }));
+        } else {
+            // Fue un tap sin mover — toggle controles (solo movil)
+            const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            if (isTouchDevice) this.toggleControls();
         }
     },
 
+    // ===== CONTROLES VISIBILIDAD =====
+    showControls() {
+        this.controlsVisible = true;
+        this.playerEl.classList.add('controls-visible');
+        clearTimeout(this.controlsTimeout);
+    },
+
+    hideControls() {
+        this.controlsVisible = false;
+        this.playerEl.classList.remove('controls-visible');
+        if (this.playlistOpen) {
+            this.playlistOpen = false;
+            const panel = document.getElementById('playlist-panel');
+            if (panel) panel.classList.add('hidden');
+        }
+    },
+
+    toggleControls() {
+        if (this.controlsVisible) {
+            this.hideControls();
+        } else {
+            this.showControls();
+            // Auto-hide en movil despues de 5s
+            clearTimeout(this.controlsTimeout);
+            this.controlsTimeout = setTimeout(() => {
+                if (!this.playlistOpen) this.hideControls();
+            }, 5000);
+        }
+    },
+
+    // ===== AMBIENCE ANIMATION (adaptado del generador de fondos) =====
     animate() {
         if (!this.canvas) return;
+
+        // No renderizar si el player esta oculto (ahorra CPU)
+        if (this.playerEl && this.playerEl.classList.contains('hidden')) {
+            this.animationId = requestAnimationFrame(() => this.animate());
+            return;
+        }
+
         const w = this.canvas.width = this.canvas.offsetWidth * 2;
         const h = this.canvas.height = this.canvas.offsetHeight * 2;
-        this.ctx.clearRect(0, 0, w, h);
+        if (w === 0 || h === 0) {
+            this.animationId = requestAnimationFrame(() => this.animate());
+            return;
+        }
 
+        const timeSec = (Date.now() - this.startTime) * 0.001;
         const playing = this.isPlaying;
-        const time = Date.now() * 0.001;
+        const s = this.ambience;
 
-        // Fondo gradiente sutil
-        const grad = this.ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w * 0.7);
-        grad.addColorStop(0, 'rgba(15, 15, 25, 0.95)');
-        grad.addColorStop(1, 'rgba(5, 5, 10, 0.98)');
-        this.ctx.fillStyle = grad;
+        // Trail fade (fondo semitransparente para efecto estela)
+        const fade = 0.08 + (1 - s.trail) * 0.15;
+        this.ctx.fillStyle = `rgba(0, 0, 0, ${fade})`;
         this.ctx.fillRect(0, 0, w, h);
 
-        // Ondas de fondo
-        if (playing) {
-            for (let wave = 0; wave < 3; wave++) {
-                this.ctx.beginPath();
-                this.ctx.strokeStyle = `rgba(100, 160, 255, ${0.04 + wave * 0.02})`;
-                this.ctx.lineWidth = 1;
-                for (let x = 0; x < w; x += 2) {
-                    const y = h / 2 + Math.sin(x * 0.01 + time * (1 + wave * 0.5) + wave) * (20 + wave * 15) * (playing ? 1 : 0.2);
-                    if (x === 0) this.ctx.moveTo(x, y);
-                    else this.ctx.lineTo(x, y);
-                }
-                this.ctx.stroke();
-            }
-        }
+        // Hue rotando con el tiempo
+        const hue = (s.hueShift + timeSec * s.colorSpeed * 20) % 360;
+        const lines = Math.max(4, Math.round(s.lineCount));
 
-        // Particulas
-        this.particles.forEach(p => {
-            const speed = playing ? 1 : 0.15;
-            p.x += p.vx * speed;
-            p.y += p.vy * speed;
-            p.pulse += 0.02 * speed;
+        // Amplitud y velocidad reducidas cuando no reproduce
+        const mul = playing ? 1.0 : 0.3;
+        const amplitude = Math.min(w, h) * 0.12 * s.amplitude * (0.7 + 0.3 * mul);
+        const freq = 0.004 * s.frequency;
+        const animTime = timeSec * (playing ? 1.0 : 0.3);
 
-            // Wrap
-            if (p.x < 0) p.x = 1;
-            if (p.x > 1) p.x = 0;
-            if (p.y < 0) p.y = 1;
-            if (p.y > 1) p.y = 0;
+        this.ctx.save();
+        this.ctx.globalCompositeOperation = 'lighter';
+        this.ctx.lineWidth = 1.4;
 
-            const px = p.x * w;
-            const py = p.y * h;
-            const pulseR = p.r + Math.sin(p.pulse) * (playing ? 1.5 : 0.5);
-            const alpha = p.alpha * (playing ? (0.6 + Math.sin(p.pulse) * 0.4) : 0.25);
-
+        for (let i = 0; i < lines; i++) {
+            const offset = (i / lines) * Math.PI * 2;
+            const alpha = (0.15 + s.glow * 0.25) * (playing ? 1 : 0.5);
+            this.ctx.strokeStyle = `hsla(${(hue + i * 22) % 360}, 80%, 70%, ${alpha})`;
             this.ctx.beginPath();
-            this.ctx.arc(px, py, pulseR * 2, 0, Math.PI * 2);
-            this.ctx.fillStyle = `rgba(120, 180, 255, ${alpha})`;
-            this.ctx.fill();
-
-            // Glow
-            if (playing) {
-                this.ctx.beginPath();
-                this.ctx.arc(px, py, pulseR * 5, 0, Math.PI * 2);
-                this.ctx.fillStyle = `rgba(80, 140, 255, ${alpha * 0.15})`;
-                this.ctx.fill();
+            for (let x = 0; x <= w; x += 8) {
+                const wave = Math.sin(x * freq + animTime + offset);
+                const ripple = Math.cos(x * freq * 0.7 - animTime * 0.8 + offset) * 0.4;
+                const y = h * 0.5 + (wave + ripple) * amplitude + (i - lines / 2) * 12;
+                if (x === 0) this.ctx.moveTo(x, y);
+                else this.ctx.lineTo(x, y);
             }
-        });
-
-        // Lineas conectando particulas cercanas
-        if (playing) {
-            for (let i = 0; i < this.particles.length; i++) {
-                for (let j = i + 1; j < this.particles.length; j++) {
-                    const a = this.particles[i];
-                    const b = this.particles[j];
-                    const dx = (a.x - b.x) * w;
-                    const dy = (a.y - b.y) * h;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < w * 0.15) {
-                        const lineAlpha = (1 - dist / (w * 0.15)) * 0.08;
-                        this.ctx.beginPath();
-                        this.ctx.moveTo(a.x * w, a.y * h);
-                        this.ctx.lineTo(b.x * w, b.y * h);
-                        this.ctx.strokeStyle = `rgba(100, 160, 255, ${lineAlpha})`;
-                        this.ctx.lineWidth = 0.5;
-                        this.ctx.stroke();
-                    }
-                }
-            }
+            this.ctx.stroke();
         }
 
+        this.ctx.restore();
         this.animationId = requestAnimationFrame(() => this.animate());
     },
 
-    // ===== CARGAR PLAYLIST =====
+    // ===== PLAYLIST =====
     loadPlaylist(playlist, projectSlug, startIndex = 0) {
         this.currentPlaylist = playlist;
         this.currentProjectSlug = projectSlug;
@@ -285,13 +329,12 @@ const DSM_Player = {
         document.querySelector('#audio-player .track-title').textContent = track.title;
         document.querySelector('#audio-player .track-project').textContent = track.project;
 
-        const audioPath = `./data/projects/${this.currentProjectSlug}/${track.file}`;
-        this.element.src = audioPath;
+        this.element.src = `./data/projects/${this.currentProjectSlug}/${track.file}`;
         this.saveState();
         this.highlightPlaylistItem();
     },
 
-    // ===== CONTROLES =====
+    // ===== CONTROLES DE REPRODUCCION =====
     togglePlay() {
         if (this.isPlaying) {
             this.element.pause();
@@ -310,22 +353,20 @@ const DSM_Player = {
     },
 
     playPrevious() {
-        let idx = this.currentIndex - 1;
-        if (idx < 0) idx = this.currentPlaylist.length - 1;
+        const idx = this.currentIndex <= 0 ? this.currentPlaylist.length - 1 : this.currentIndex - 1;
         this.loadTrack(idx);
         if (this.isPlaying) this.element.play();
     },
 
     playNext() {
-        let idx = this.currentIndex + 1;
-        if (idx >= this.currentPlaylist.length) idx = 0;
+        const idx = this.currentIndex >= this.currentPlaylist.length - 1 ? 0 : this.currentIndex + 1;
         this.loadTrack(idx);
         if (this.isPlaying) this.element.play();
     },
 
     seek(e) {
-        const seekTime = (e.target.value / 100) * this.element.duration;
-        this.element.currentTime = seekTime;
+        if (!this.element.duration) return;
+        this.element.currentTime = (e.target.value / 100) * this.element.duration;
     },
 
     updateProgress() {
@@ -353,9 +394,7 @@ const DSM_Player = {
     togglePlaylist() {
         this.playlistOpen = !this.playlistOpen;
         const panel = document.getElementById('playlist-panel');
-        if (panel) {
-            panel.classList.toggle('hidden', !this.playlistOpen);
-        }
+        if (panel) panel.classList.toggle('hidden', !this.playlistOpen);
     },
 
     renderPlaylistPanel() {
@@ -376,8 +415,7 @@ const DSM_Player = {
     },
 
     highlightPlaylistItem() {
-        const items = document.querySelectorAll('.playlist-item');
-        items.forEach((item, i) => {
+        document.querySelectorAll('.playlist-item').forEach((item, i) => {
             item.classList.toggle('active', i === this.currentIndex);
         });
     },
@@ -392,12 +430,13 @@ const DSM_Player = {
         this.isPlaying = false;
         if (this.playerEl) this.playerEl.classList.add('hidden');
         this.updatePlayButton();
+        this.hideControls();
         sessionStorage.removeItem('dsm_player_state');
     },
 
     // ===== PERSISTENCIA =====
-    saveState() {
-        const state = {
+    _buildState() {
+        return {
             playlist: this.currentPlaylist,
             slug: this.currentProjectSlug,
             index: this.currentIndex,
@@ -405,47 +444,68 @@ const DSM_Player = {
             time: this.element ? this.element.currentTime : 0,
             volume: this.element ? this.element.volume : 0.7
         };
-        sessionStorage.setItem('dsm_player_state', JSON.stringify(state));
     },
 
-    restoreState() {
+    saveState() {
+        if (this._restoring) return;
+        sessionStorage.setItem('dsm_player_state', JSON.stringify(this._buildState()));
+    },
+
+    restoreStateIfPlaying() {
         const saved = sessionStorage.getItem('dsm_player_state');
         if (!saved) return;
 
         try {
             const state = JSON.parse(saved);
             if (!state.playlist || state.playlist.length === 0) return;
+            if (!state.playing) return; // Solo restaurar si estaba reproduciendo
+
+            this._restoring = true;
 
             this.currentPlaylist = state.playlist;
             this.currentProjectSlug = state.slug;
             this.currentIndex = state.index;
             this.element.volume = state.volume || 0.7;
 
-            this.loadTrack(state.index);
+            const track = this.currentPlaylist[state.index];
+            if (!track) { this._restoring = false; return; }
+
+            // Cargar track sin disparar saveState
+            document.querySelector('#audio-player .track-title').textContent = track.title;
+            document.querySelector('#audio-player .track-project').textContent = track.project;
+            this.element.src = `./data/projects/${this.currentProjectSlug}/${track.file}`;
+
             this.show();
             this.renderPlaylistPanel();
+            this.highlightPlaylistItem();
 
-            // Restaurar posicion y auto-play
             this.element.addEventListener('loadedmetadata', () => {
                 this.element.currentTime = state.time || 0;
-                if (state.playing) {
-                    this.element.play().then(() => {
-                        this.isPlaying = true;
-                        this.updatePlayButton();
-                    }).catch(() => {
-                        // Autoplay bloqueado por browser
-                        this.isPlaying = false;
-                        this.updatePlayButton();
-                    });
-                }
+                this.element.play().then(() => {
+                    this.isPlaying = true;
+                    this.updatePlayButton();
+                    this._restoring = false;
+                    this.saveState();
+                }).catch(() => {
+                    // Autoplay bloqueado por browser — ocultar player
+                    this.isPlaying = false;
+                    this.updatePlayButton();
+                    this._restoring = false;
+                    if (this.playerEl) this.playerEl.classList.add('hidden');
+                });
             }, { once: true });
         } catch (e) {
-            // Silently fail
+            this._restoring = false;
         }
     }
 };
 
 // Inicializar cuando el DOM este listo
-document.addEventListener('DOMContentLoaded', () => {
-    DSM_Player.init();
+document.addEventListener('DOMContentLoaded', () => DSM_Player.init());
+
+// Guardar estado justo antes de navegar a otra pagina
+window.addEventListener('beforeunload', () => {
+    if (DSM_Player.currentPlaylist.length > 0) {
+        sessionStorage.setItem('dsm_player_state', JSON.stringify(DSM_Player._buildState()));
+    }
 });

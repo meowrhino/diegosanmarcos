@@ -3,45 +3,48 @@ let appData = null;
 let coloresData = null;
 let currentMode = 'portfolio';
 
-// Posibles tamanos de tile
-const TILE_SIZES = ['1x1', '1x1', '1x1', '2x1', '2x1', '2x2'];
+// Posibles tamanos de tile [w, h] — basados en la celda cuadrada del grid
+const TILE_SIZES = [
+    [1,1], [1,1], [1,1], [1,1], [1,1],
+    [2,1], [2,1],
+    [1,2], [1,2],
+    [2,2]
+];
 
-// Calcular columnas y tamaño de tile según el viewport
+// Calcular grid con tiles cuadrados perfectos
 function calculateGrid() {
     const container = document.getElementById('projects-container');
-    const style = getComputedStyle(container);
-    const paddingLeft = parseFloat(style.paddingLeft);
-    const paddingRight = parseFloat(style.paddingRight);
-    const availableWidth = window.innerWidth - paddingLeft - paddingRight;
     const gap = 3;
+    const minPad = 16; // padding minimo en px
 
-    // Tamaño base de tile deseado (~120px) — calcular cuántas caben
-    const desiredTileSize = 120;
-    let cols = Math.floor((availableWidth + gap) / (desiredTileSize + gap));
-    cols = Math.max(4, Math.min(cols, 10)); // entre 4 y 10 columnas
+    const viewW = window.innerWidth;
+    const viewH = window.innerHeight;
 
-    // Calcular tamaño real del tile para que llene todo el ancho
-    const tileSize = Math.floor((availableWidth - (cols - 1) * gap) / cols);
+    // Calcular cols y tileSize basandose en ancho (deseo ~120px)
+    const desired = 120;
+    let cols = Math.floor((viewW - 2 * minPad + gap) / (desired + gap));
+    cols = Math.max(4, Math.min(cols, 12));
+    const tileSize = Math.floor((viewW - 2 * minPad - (cols - 1) * gap) / cols);
 
-    // Aplicar como CSS custom properties
+    // Calcular rows que caben en el alto
+    let rows = Math.floor((viewH - 2 * minPad + gap) / (tileSize + gap));
+    rows = Math.max(3, rows);
+
+    // Espacio real que ocupa el grid
+    const gridW = cols * tileSize + (cols - 1) * gap;
+    const gridH = rows * tileSize + (rows - 1) * gap;
+
+    // Padding para centrar: minimo de minPad, el resto se reparte
+    const padX = Math.floor((viewW - gridW) / 2);
+    const padY = Math.floor((viewH - gridH) / 2);
+
+    // Aplicar padding calculado y CSS custom properties
+    container.style.padding = `${Math.max(minPad, padY)}px ${Math.max(minPad, padX)}px`;
     container.style.setProperty('--grid-cols', cols);
+    container.style.setProperty('--grid-rows', rows);
     container.style.setProperty('--tile-size', tileSize + 'px');
 
-    return cols;
-}
-
-// Seed random basado en string (para que el layout sea consistente por sesion)
-function seededRandom(seed) {
-    let h = 0;
-    for (let i = 0; i < seed.length; i++) {
-        h = Math.imul(31, h) + seed.charCodeAt(i) | 0;
-    }
-    return function() {
-        h = Math.imul(h ^ (h >>> 16), 2246822507);
-        h = Math.imul(h ^ (h >>> 13), 3266489909);
-        h ^= h >>> 16;
-        return (h >>> 0) / 4294967296;
-    };
+    return { cols, rows, tileSize };
 }
 
 // ===== INICIALIZACION =====
@@ -49,7 +52,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadData();
     initializeUI();
 
-    // Re-render on resize para adaptar columnas
     let resizeTimeout;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimeout);
@@ -78,7 +80,7 @@ function initializeUI() {
     renderProjects();
 }
 
-// ===== RENDERIZADO DE PROYECTOS CON LAYOUT ALEATORIO =====
+// ===== RENDERIZADO DE PROYECTOS =====
 function renderProjects() {
     const container = document.getElementById('projects-container');
     container.innerHTML = '';
@@ -88,27 +90,29 @@ function renderProjects() {
         categories.includes(project.tipo)
     );
 
-    // Generar layout con posiciones aleatorias en un grid
-    const cols = calculateGrid();
-    const rand = seededRandom(currentMode + '_v3');
-    const grid = []; // track ocupacion: grid[row][col] = true/false
+    const { cols, rows } = calculateGrid();
 
-    function ensureRows(n) {
-        while (grid.length < n) grid.push(new Array(cols).fill(false));
+    // Grid de ocupacion
+    const grid = [];
+    for (let r = 0; r < rows; r++) {
+        grid.push(new Array(cols).fill(false));
     }
 
+    // Reservar celda del switch: ultima fila, ultima columna
+    grid[rows - 1][cols - 1] = true;
+
+    // Helpers
     function canPlace(r, c, w, h) {
-        ensureRows(r + h);
+        if (r + h > rows || c + w > cols) return false;
         for (let dr = 0; dr < h; dr++) {
             for (let dc = 0; dc < w; dc++) {
-                if (c + dc >= cols || grid[r + dr][c + dc]) return false;
+                if (grid[r + dr][c + dc]) return false;
             }
         }
         return true;
     }
 
-    function place(r, c, w, h) {
-        ensureRows(r + h);
+    function markPlaced(r, c, w, h) {
         for (let dr = 0; dr < h; dr++) {
             for (let dc = 0; dc < w; dc++) {
                 grid[r + dr][c + dc] = true;
@@ -116,71 +120,75 @@ function renderProjects() {
         }
     }
 
-    function findSpot(w, h) {
-        ensureRows(1);
-        for (let r = 0; r < 50; r++) {
-            ensureRows(r + h);
-            for (let c = 0; c <= cols - w; c++) {
-                if (canPlace(r, c, w, h)) return { r, c };
+    // Cola de proyectos a colocar (en orden de data.json)
+    const queue = [...filteredProjects];
+    let queueIdx = 0;
+    const placed = [];
+
+    // Probabilidad de "skip" (dejar hueco) — baja para que no quede tan vacio
+    const totalCells = cols * rows - 1; // -1 por el switch
+    const skipChance = Math.max(0.02, Math.min(0.12, 1 - (queue.length * 4 / totalCells)));
+
+    // Recorrer celdas en orden: izq->der, arriba->abajo
+    for (let r = 0; r < rows && queueIdx < queue.length; r++) {
+        for (let c = 0; c < cols && queueIdx < queue.length; c++) {
+            if (grid[r][c]) continue; // celda ya ocupada
+
+            // Decidir: ¿skip (hueco) o colocar proyecto?
+            if (Math.random() < skipChance) {
+                continue; // dejar hueco, pasar a la siguiente celda
+            }
+
+            // Elegir tamaño aleatorio de los que caben
+            const sizePool = TILE_SIZES.filter(([w, h]) => canPlace(r, c, w, h));
+            if (sizePool.length === 0) continue;
+
+            const [w, h] = sizePool[Math.floor(Math.random() * sizePool.length)];
+
+            markPlaced(r, c, w, h);
+            placed.push({
+                project: queue[queueIdx],
+                row: r + 1, // CSS grid es 1-indexed
+                col: c + 1,
+                w, h
+            });
+            queueIdx++;
+        }
+    }
+
+    // Si quedan proyectos sin colocar, buscar huecos libres como 1x1
+    for (; queueIdx < queue.length; queueIdx++) {
+        let found = false;
+        for (let r = 0; r < rows && !found; r++) {
+            for (let c = 0; c < cols && !found; c++) {
+                if (!grid[r][c]) {
+                    grid[r][c] = true;
+                    placed.push({
+                        project: queue[queueIdx],
+                        row: r + 1,
+                        col: c + 1,
+                        w: 1, h: 1
+                    });
+                    found = true;
+                }
             }
         }
-        return null;
     }
 
-    // Preparar items: proyectos + huecos (switch se coloca aparte)
-    const items = filteredProjects.map(p => ({ type: 'project', project: p }));
-
-    // Anadir huecos aleatorios intercalados
-    const numGaps = Math.floor(rand() * 3) + 2;
-    for (let i = 0; i < numGaps; i++) {
-        const pos = Math.floor(rand() * (items.length + 1));
-        items.splice(pos, 0, { type: 'gap' });
-    }
-
-    // Asignar tamanos aleatorios (ajustar según columnas disponibles)
-    const tileSizes = cols >= 7
-        ? ['1x1', '1x1', '1x1', '2x1', '2x1', '2x2', '2x2', '3x1']
-        : TILE_SIZES;
-
-    items.forEach(item => {
-        if (item.type === 'gap') {
-            item.w = 1; item.h = 1;
-        } else {
-            const size = tileSizes[Math.floor(rand() * tileSizes.length)];
-            const [w, h] = size.split('x').map(Number);
-            item.w = w; item.h = h;
-        }
-    });
-
-    // Colocar cada item en el grid
-    items.forEach(item => {
-        const spot = findSpot(item.w, item.h);
-        if (!spot) return;
-        place(spot.r, spot.c, item.w, item.h);
-        item.row = spot.r + 1; // CSS grid es 1-indexed
-        item.col = spot.c + 1;
-    });
-
-    // Renderizar proyectos y huecos
-    items.forEach(item => {
-        let el;
-        if (item.type === 'project') {
-            el = createProjectCard(item.project);
-        } else {
-            el = document.createElement('div');
-            el.className = 'tile-gap';
-        }
-
+    // Renderizar con animacion escalonada
+    placed.forEach((item, i) => {
+        const el = createProjectCard(item.project);
         el.style.gridRow = `${item.row} / span ${item.h}`;
         el.style.gridColumn = `${item.col} / span ${item.w}`;
+        el.style.animationDelay = `${i * 0.04}s`;
         container.appendChild(el);
     });
 
-    // Colocar switch: una fila despues del contenido, columna derecha
-    const lastRow = grid.length + 1;
+    // Switch en ultima fila, ultima columna
     const switchEl = createSwitchTile();
-    switchEl.style.gridRow = `${lastRow}`;
+    switchEl.style.gridRow = `${rows}`;
     switchEl.style.gridColumn = `${cols}`;
+    switchEl.style.animationDelay = `${placed.length * 0.04}s`;
     container.appendChild(switchEl);
 }
 
@@ -189,7 +197,6 @@ function createProjectCard(project) {
     const card = document.createElement('div');
     card.className = 'project-card';
 
-    // Color de fondo
     const colorName = appData.typeColors[project.tipo] || 'Gray';
     const colorHex = coloresData.colores[colorName] || '#808080';
     card.style.background = colorHex;
@@ -197,14 +204,12 @@ function createProjectCard(project) {
     const inner = document.createElement('div');
     inner.className = 'project-card-inner';
 
-    // Icono
     const icon = document.createElement('img');
     icon.className = 'project-icon';
     icon.src = `./data/icons/${project.tipo}.png`;
     icon.alt = project.tipo;
     icon.onerror = () => { icon.style.display = 'none'; };
 
-    // Titulo
     const title = document.createElement('span');
     title.className = 'project-title';
     title.textContent = project.titulo;

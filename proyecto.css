@@ -49,7 +49,7 @@
 
 /* ===== SECCIONES ===== */
 .project-section {
-    margin-bottom: 2.5rem;
+    margin-bottom: 6rem;
     opacity: 0;
     animation: fadeIn 0.6s ease forwards;
 }
@@ -78,7 +78,7 @@
 
 .section-title {
     font-family: 'Fidelma', serif;
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     font-weight: normal;
     color: rgba(255, 255, 255, 0.6);
     margin-bottom: 1.2rem;
@@ -103,10 +103,15 @@
 
 /* ===== CONTENIDO DE TEXTO ===== */
 .text-content {
-    font-family: 'PaulDavid', 'Georgia', serif;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
     color: #ddd;
     line-height: 1.85;
     font-size: 1.05rem;
+    text-align: center;
+}
+
+/* Textos literarios: alineados a la izquierda */
+.project-page.tipo-textos .text-content {
     text-align: left;
 }
 
@@ -181,7 +186,7 @@
     flex: 1;
     font-family: 'Segoe UI', Tahoma, sans-serif;
     color: #ccc;
-    font-size: 0.85rem;
+    font-size: 0.95rem;
 }
 
 /* ===== GALERIA ===== */
@@ -214,45 +219,45 @@
 .credits-content p {
     font-family: 'Segoe UI', Tahoma, sans-serif;
     color: rgba(255, 255, 255, 0.35);
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     line-height: 1.6;
     margin-bottom: 0.2rem;
+    text-align: center;
 }
 
 .credits-content p:last-child {
     margin-bottom: 0;
 }
 
-/* ===== BOTON VOLVER (TILE AL FINAL, ALINEADO IZQUIERDA) ===== */
+/* ===== BOTON VOLVER (BARRA COMPLETA AL FINAL) ===== */
 .back-section {
     margin-top: 3rem;
-    text-align: left;
 }
 
 .back-button {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 120px;
-    height: 120px;
-    background: rgba(255, 255, 255, 0.12);
-    color: #fff;
+    width: 100%;
+    height: 56px;
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.6);
     text-decoration: none;
     font-family: 'Segoe UI', Tahoma, sans-serif;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 600;
     text-transform: lowercase;
-    letter-spacing: 0.03em;
-    transition: transform 0.1s ease, filter 0.15s ease;
+    letter-spacing: 0.05em;
+    transition: background 0.15s ease;
 }
 
 .back-button:hover {
-    transform: scale(1.04);
-    filter: brightness(1.15);
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
 }
 
 .back-button:active {
-    transform: scale(0.97);
+    background: rgba(255, 255, 255, 0.05);
 }
 
 /* ===== RESPONSIVE ===== */
@@ -270,7 +275,7 @@
     }
 
     .text-content {
-        font-size: 0.95rem;
+        font-size: 0.9rem;
     }
 
     .gallery-grid {
@@ -278,15 +283,13 @@
     }
 
     .back-button {
-        width: 100px;
-        height: 100px;
+        height: 48px;
     }
 }
 
 @media (max-width: 480px) {
     .back-button {
-        width: 80px;
-        height: 80px;
-        font-size: 0.6rem;
+        height: 44px;
+        font-size: 0.65rem;
     }
 }
