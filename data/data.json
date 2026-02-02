@@ -104,14 +104,21 @@
       "audiovisual",
       "identidadSonora",
       "audioInmersivo",
-      "musicaMezcla"
+      "musicaMezcla",
+      "about"
     ],
     "personal": [
       "miMusica",
       "textos"
-    ],
-    "about": [
-      "about"
     ]
+  },
+  "typeColors": {
+    "audiovisual": "DodgerBlue",
+    "identidadSonora": "MediumPurple",
+    "audioInmersivo": "Teal",
+    "musicaMezcla": "Coral",
+    "miMusica": "HotPink",
+    "textos": "Gold",
+    "about": "MediumSeaGreen"
   }
 }
