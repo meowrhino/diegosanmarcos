@@ -48,10 +48,6 @@ body {
     overflow: hidden;
 }
 
-.tile-gap {
-    /* huecos invisibles en el grid */
-}
-
 /* ===== ANIMACION ENTRADA TILES ===== */
 @keyframes tileIn {
     from {

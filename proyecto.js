@@ -3,9 +3,10 @@ let appData = null;
 let coloresData = null;
 let currentProject = null;
 
-// ===== INICIALIZACIÓN =====
+// ===== INICIALIZACION =====
 document.addEventListener('DOMContentLoaded', async () => {
     await loadData();
+    if (!appData || !coloresData) return;
     await loadProjectFromURL();
 });
 
@@ -17,9 +18,13 @@ async function loadData() {
             fetch('./data/colores.json')
         ]);
 
+        if (!dataResponse.ok || !coloresResponse.ok) {
+            console.error('Error cargando datos: respuesta no ok');
+            return;
+        }
+
         appData = await dataResponse.json();
         coloresData = await coloresResponse.json();
-
     } catch (error) {
         console.error('Error cargando datos:', error);
     }
@@ -27,15 +32,13 @@ async function loadData() {
 
 // ===== CARGAR PROYECTO DESDE URL =====
 async function loadProjectFromURL() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const projectSlug = urlParams.get('proyecto');
+    const projectSlug = new URLSearchParams(window.location.search).get('proyecto');
 
     if (!projectSlug) {
-        console.error('No se especificó un proyecto en la URL');
+        console.error('No se especifico un proyecto en la URL');
         return;
     }
 
-    // Buscar proyecto en los datos
     currentProject = appData.projects.find(p => p.slug === projectSlug);
 
     if (!currentProject) {
@@ -43,48 +46,34 @@ async function loadProjectFromURL() {
         return;
     }
 
-    // Configurar fondo según tipo
     setupBackground();
-
-    // Renderizar proyecto
     await renderProject();
 }
 
 // ===== CONFIGURAR FONDO =====
 function setupBackground() {
     const bgContainer = document.getElementById('background-container');
-
-    // Determinar si el proyecto es de portfolio o personal
     const isPortfolio = appData.categories.portfolio.includes(currentProject.tipo);
+    bgContainer.classList.add(isPortfolio ? 'portfolio' : 'personal');
 
-    if (isPortfolio) {
-        bgContainer.classList.add('portfolio');
-    } else {
-        bgContainer.classList.add('personal');
-    }
-
-    // Añadir clase de tipo al body para estilos específicos
+    // Clase de tipo en body para estilos especificos (ej: tipo-textos)
     document.body.classList.add(`tipo-${currentProject.tipo}`);
 }
 
 // ===== RENDERIZAR PROYECTO =====
 async function renderProject() {
-    // Actualizar título de la página
     document.getElementById('page-title').textContent = `${currentProject.titulo} - diego san marcos`;
 
-    // Renderizar titulo dentro del main
     renderTitle();
 
-    // Si tiene archivos de texto externos, cargarlos
     if (currentProject.archivosTexto && currentProject.archivosTexto.length > 0) {
         await renderArchivosTexto();
     }
 
-    // Renderizar cada sección
     renderPrincipal();
-    renderTexto1();
+    renderTextSection('texto1-section', 'texto1-content', currentProject.texto1);
     renderAudios();
-    renderTexto2();
+    renderTextSection('texto2-section', 'texto2-content', currentProject.texto2);
     renderGaleria();
     renderCreditos();
 }
@@ -92,12 +81,14 @@ async function renderProject() {
 // ===== RENDERIZAR TITULO =====
 function renderTitle() {
     const main = document.querySelector('.project-main');
-    const titleSection = document.createElement('div');
-    titleSection.className = 'project-title-section project-section';
+    const section = document.createElement('div');
+    section.className = 'project-title-section project-section';
+
     const h1 = document.createElement('h1');
     h1.textContent = currentProject.titulo;
-    titleSection.appendChild(h1);
-    main.insertBefore(titleSection, main.firstChild);
+    section.appendChild(h1);
+
+    main.insertBefore(section, main.firstChild);
 }
 
 // ===== RENDERIZAR ARCHIVOS DE TEXTO EXTERNOS =====
@@ -115,7 +106,7 @@ async function renderArchivosTexto() {
             const section = document.createElement('section');
             section.className = 'project-section';
 
-            // Titulo del texto: extraer del nombre de archivo sin numero ni extension
+            // Titulo: extraer del nombre de archivo sin numero ni extension
             const titulo = archivo
                 .replace(/^\d+\.\s*/, '')
                 .replace(/\.txt$/i, '');
@@ -128,12 +119,10 @@ async function renderArchivosTexto() {
             const content = document.createElement('div');
             content.className = 'text-content';
 
-            // Dividir por lineas para respetar saltos del texto original
-            const lines = text.split('\n');
-            lines.forEach(line => {
+            // Respetar saltos de linea del texto original
+            text.split('\n').forEach(line => {
                 const trimmed = line.trim();
                 if (!trimmed) {
-                    // Linea vacia = espaciado entre bloques
                     const spacer = document.createElement('div');
                     spacer.style.height = '1em';
                     content.appendChild(spacer);
@@ -147,50 +136,49 @@ async function renderArchivosTexto() {
             section.appendChild(content);
             main.insertBefore(section, principalSection);
         } catch (e) {
-            // Silently skip files that can't be loaded
+            // Skip archivos que no se pueden cargar
         }
     }
 }
 
-// ===== RENDERIZAR ELEMENTO PRINCIPAL =====
+// ===== RENDERIZAR ELEMENTO PRINCIPAL (VIDEO/IMAGEN) =====
 function renderPrincipal() {
     const section = document.getElementById('principal-section');
     const container = document.getElementById('principal-content');
 
-    if (!currentProject.principal || currentProject.principal.length === 0 || currentProject.principal[0] === '') {
+    if (!currentProject.principal || !currentProject.principal.length || !currentProject.principal[0]) {
         section.style.display = 'none';
         return;
     }
 
-    const principalFile = currentProject.principal[0];
-    const principalPath = `./data/projects/${currentProject.slug}/${principalFile}`;
+    const file = currentProject.principal[0];
+    const path = `./data/projects/${currentProject.slug}/${file}`;
 
-    // Determinar si es video o imagen
-    if (principalFile.match(/\.(mp4|webm|ogg)$/i)) {
+    if (file.match(/\.(mp4|webm|ogg)$/i)) {
         const video = document.createElement('video');
-        video.src = principalPath;
+        video.src = path;
         video.controls = true;
         video.autoplay = false;
         container.appendChild(video);
-    } else if (principalFile.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+    } else if (file.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
         const img = document.createElement('img');
-        img.src = principalPath;
+        img.src = path;
         img.alt = currentProject.titulo;
         container.appendChild(img);
     }
 }
 
-// ===== RENDERIZAR TEXTO 1 =====
-function renderTexto1() {
-    const section = document.getElementById('texto1-section');
-    const container = document.getElementById('texto1-content');
+// ===== RENDERIZAR SECCION DE TEXTO (reutilizable para texto1 y texto2) =====
+function renderTextSection(sectionId, contentId, textos) {
+    const section = document.getElementById(sectionId);
+    const container = document.getElementById(contentId);
 
-    if (!currentProject.texto1 || currentProject.texto1.length === 0) {
+    if (!textos || textos.length === 0) {
         section.style.display = 'none';
         return;
     }
 
-    currentProject.texto1.forEach(texto => {
+    textos.forEach(texto => {
         const p = document.createElement('p');
         p.innerHTML = texto;
         container.appendChild(p);
@@ -207,6 +195,13 @@ function renderAudios() {
         return;
     }
 
+    // Construir playlist una vez
+    const playlist = currentProject.audio.map(f => ({
+        file: f,
+        title: f.replace(/\.(wav|mp3)$/i, ''),
+        project: currentProject.titulo
+    }));
+
     currentProject.audio.forEach((audioFile, index) => {
         const item = document.createElement('div');
         item.className = 'audio-item';
@@ -221,14 +216,7 @@ function renderAudios() {
 
         item.appendChild(icon);
         item.appendChild(name);
-
-        // Event listener para reproducir usando DSM_Player
         item.addEventListener('click', () => {
-            const playlist = currentProject.audio.map(f => ({
-                file: f,
-                title: f.replace(/\.(wav|mp3)$/i, ''),
-                project: currentProject.titulo
-            }));
             DSM_Player.loadPlaylist(playlist, currentProject.slug, index);
         });
 
@@ -236,24 +224,7 @@ function renderAudios() {
     });
 }
 
-// ===== RENDERIZAR TEXTO 2 =====
-function renderTexto2() {
-    const section = document.getElementById('texto2-section');
-    const container = document.getElementById('texto2-content');
-
-    if (!currentProject.texto2 || currentProject.texto2.length === 0) {
-        section.style.display = 'none';
-        return;
-    }
-
-    currentProject.texto2.forEach(texto => {
-        const p = document.createElement('p');
-        p.innerHTML = texto;
-        container.appendChild(p);
-    });
-}
-
-// ===== RENDERIZAR GALERÍA =====
+// ===== RENDERIZAR GALERIA =====
 function renderGaleria() {
     const section = document.getElementById('galeria-section');
     const container = document.getElementById('galeria-content');
@@ -268,19 +239,18 @@ function renderGaleria() {
         item.className = 'gallery-item';
 
         const img = document.createElement('img');
-
-        // Intentar diferentes extensiones
         let imagePath = `./data/projects/${currentProject.slug}/${imageName}`;
 
-        // Si no tiene extensión, probar con .jpg por defecto
+        // Si no tiene extension, probar con .jpg por defecto
         if (!imageName.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
             imagePath += '.jpg';
         }
 
         img.src = imagePath;
         img.alt = imageName;
+        img.loading = 'lazy';
         img.onerror = () => {
-            // Si falla con .jpg, probar con .png
+            // Fallback: probar .png si .jpg fallo
             if (imagePath.endsWith('.jpg')) {
                 img.src = imagePath.replace('.jpg', '.png');
             }
@@ -291,7 +261,7 @@ function renderGaleria() {
     });
 }
 
-// ===== RENDERIZAR CRÉDITOS =====
+// ===== RENDERIZAR CREDITOS =====
 function renderCreditos() {
     const section = document.getElementById('creditos-section');
     const container = document.getElementById('creditos-content');

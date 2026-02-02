@@ -7,14 +7,6 @@
     font-display: swap;
 }
 
-@font-face {
-    font-family: 'PaulDavid';
-    src: url('./data/fonts/OPTIPaulDavid.otf') format('opentype');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-}
-
 /* ===== PROYECTO ===== */
 
 .project-page {
