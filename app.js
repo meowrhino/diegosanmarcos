@@ -12,7 +12,7 @@ const TILE_SIZES = [
     [2,2]
 ];
 
-// ===== INICIALIZACION =====
+// ===== INICIALIZACION ======
 document.addEventListener('DOMContentLoaded', async () => {
     await loadData();
     if (!appData || !coloresData) return; // Datos no cargados
