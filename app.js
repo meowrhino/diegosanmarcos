@@ -113,8 +113,9 @@ function renderProjects() {
     // Grid de ocupacion (false = libre, true = ocupada)
     const grid = Array.from({ length: rows }, () => new Array(cols).fill(false));
 
-    // Reservar celda del switch: ultima fila, ultima columna
+    // Reservar celdas: switch (ultima fila, ultima col) e idioma (penultima col)
     grid[rows - 1][cols - 1] = true;
+    grid[rows - 1][cols - 2] = true;
 
     // Comprobar si un tile de tamaño w×h cabe en la posicion (r, c)
     function canPlace(r, c, w, h) {
@@ -202,6 +203,13 @@ function renderProjects() {
     switchEl.style.gridColumn = `${cols}`;
     switchEl.style.animationDelay = `${placed.length * 0.04}s`;
     container.appendChild(switchEl);
+
+    // Idioma en ultima fila, penultima columna (junto al switch)
+    const langEl = createLanguageTile();
+    langEl.style.gridRow = `${rows}`;
+    langEl.style.gridColumn = `${cols - 1}`;
+    langEl.style.animationDelay = `${(placed.length + 1) * 0.04}s`;
+    container.appendChild(langEl);
 }
 
 // ===== CREACION DE TARJETA DE PROYECTO =====
@@ -223,7 +231,9 @@ function createProjectCard(project) {
 
     const icon = document.createElement('img');
     icon.className = 'project-icon';
-    icon.src = `./data/icons/${project.tipo}.png`;
+    // about usa SVG, el resto PNG
+    const iconExt = project.tipo === 'about' ? 'svg' : 'png';
+    icon.src = `./data/icons/${project.tipo}.${iconExt}`;
     icon.alt = project.tipo;
     icon.onerror = () => { icon.style.display = 'none'; };
 
@@ -241,35 +251,40 @@ function createProjectCard(project) {
     return card;
 }
 
-// ===== TILE DE SWITCH =====
-// Colores invertidos segun modo: portfolio = claro sobre oscuro, personal = oscuro sobre claro
-const SWITCH_COLORS = {
+// ===== TILES ESPECIALES (SWITCH + IDIOMA) =====
+// Colores invertidos segun modo: portfolio = oscuro, personal = claro
+const SPECIAL_TILE_COLORS = {
     portfolio: { bg: '#222222', text: '#fff' },
     personal: { bg: '#dddddd', text: '#111' }
 };
 
+// Helper: configura un tile especial con glassmorphism y misma estructura que project-card
+function setupSpecialTile(el, tag) {
+    const colors = SPECIAL_TILE_COLORS[currentMode];
+    el.className = tag + '-tile special-tile';
+    const r = parseInt(colors.bg.slice(1, 3), 16);
+    const g = parseInt(colors.bg.slice(3, 5), 16);
+    const b = parseInt(colors.bg.slice(5, 7), 16);
+    el.style.setProperty('--tile-rgb', `${r}, ${g}, ${b}`);
+    el.style.background = `rgba(${r}, ${g}, ${b}, 0.6)`;
+    el.style.color = colors.text;
+}
+
+// --- SWITCH ---
 function createSwitchTile() {
     const nextMode = currentMode === 'portfolio' ? 'personal' : 'portfolio';
-    const colors = SWITCH_COLORS[currentMode];
+    const colors = SPECIAL_TILE_COLORS[currentMode];
 
     const tile = document.createElement('button');
-    tile.className = 'switch-tile';
-    // Glassmorphism en switch: ligeramente menos transparente que project cards
-    const sr = parseInt(colors.bg.slice(1, 3), 16);
-    const sg = parseInt(colors.bg.slice(3, 5), 16);
-    const sb = parseInt(colors.bg.slice(5, 7), 16);
-    tile.style.setProperty('--tile-rgb', `${sr}, ${sg}, ${sb}`);
-    tile.style.background = `rgba(${sr}, ${sg}, ${sb}, 0.7)`;
-    tile.style.color = colors.text;
+    setupSpecialTile(tile, 'switch');
 
     const inner = document.createElement('div');
-    inner.className = 'switch-tile-inner';
+    inner.className = 'special-tile-inner';
 
     const icon = document.createElement('img');
     icon.src = './data/icons/switch.png';
     icon.alt = 'switch';
-    icon.className = 'switch-icon';
-    // Portfolio (fondo oscuro): icono blanco. Personal (fondo claro): icono negro
+    icon.className = 'special-tile-icon';
     if (currentMode === 'portfolio') {
         icon.style.filter = 'invert(1) brightness(2)';
     }
@@ -282,7 +297,48 @@ function createSwitchTile() {
     inner.appendChild(icon);
     inner.appendChild(label);
     tile.appendChild(inner);
-    tile.addEventListener('click', () => switchMode(nextMode));
+    tile.addEventListener('click', () => {
+        // Animacion de transicion al clicar
+        tile.classList.add('switch-activating');
+        setTimeout(() => switchMode(nextMode), 350);
+    });
+    return tile;
+}
+
+// --- IDIOMA ---
+const LANGUAGES = ['ES', 'EN', 'FR'];
+let currentLangIndex = 0;
+
+function createLanguageTile() {
+    const colors = SPECIAL_TILE_COLORS[currentMode];
+
+    const tile = document.createElement('button');
+    setupSpecialTile(tile, 'lang');
+
+    const inner = document.createElement('div');
+    inner.className = 'special-tile-inner';
+
+    const icon = document.createElement('span');
+    icon.className = 'special-tile-icon lang-icon';
+    icon.textContent = LANGUAGES[currentLangIndex];
+    icon.style.color = colors.text;
+    if (currentMode === 'portfolio') {
+        icon.style.color = '#fff';
+    }
+
+    const label = document.createElement('span');
+    label.className = 'project-title';
+    label.style.color = colors.text;
+    label.textContent = 'idioma';
+
+    inner.appendChild(icon);
+    inner.appendChild(label);
+    tile.appendChild(inner);
+    tile.addEventListener('click', () => {
+        currentLangIndex = (currentLangIndex + 1) % LANGUAGES.length;
+        // Actualizar solo el texto del icono sin re-renderizar todo
+        icon.textContent = LANGUAGES[currentLangIndex];
+    });
     return tile;
 }
 
