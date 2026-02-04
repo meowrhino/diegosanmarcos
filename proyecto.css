@@ -7,6 +7,14 @@
     font-display: swap;
 }
 
+@font-face {
+    font-family: 'Gill Sans MT Light';
+    src: url('./data/fonts/gill-sans-mt-light.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
 /* ===== PROYECTO ===== */
 
 .project-page {
@@ -20,8 +28,14 @@
 /* ===== CONTENEDOR PRINCIPAL ===== */
 .project-main {
     max-width: 700px;
-    margin: 0 auto;
-    padding: 5rem 2rem 4rem;
+    /* Margenes del contenedor entero respecto al viewport */
+    margin: 20dvh auto;
+    margin-left: max(5dvw, calc((100% - 700px) / 2));
+    margin-right: max(5dvw, calc((100% - 700px) / 2));
+    /* Padding interno (entre frame y contenido) */
+    padding: 10dvh 2rem;
+    /* border necesario para que border-image funcione (se aplica desde JS) */
+    border: 16px solid transparent;
 }
 
 /* ===== TITULO DEL PROYECTO ===== */
@@ -95,7 +109,7 @@
 
 /* ===== CONTENIDO DE TEXTO ===== */
 .text-content {
-    font-family: 'Segoe UI', Tahoma, sans-serif;
+    font-family: 'Gill Sans MT Light', 'Gill Sans', 'Gill Sans MT', sans-serif;
     color: #ddd;
     line-height: 1.85;
     font-size: 1.05rem;
@@ -176,7 +190,7 @@
 
 .audio-name {
     flex: 1;
-    font-family: 'Segoe UI', Tahoma, sans-serif;
+    font-family: 'Gill Sans MT Light', 'Gill Sans', 'Gill Sans MT', sans-serif;
     color: #ccc;
     font-size: 0.95rem;
 }
@@ -209,7 +223,7 @@
 
 /* ===== CREDITOS ===== */
 .credits-content p {
-    font-family: 'Segoe UI', Tahoma, sans-serif;
+    font-family: 'Gill Sans MT Light', 'Gill Sans', 'Gill Sans MT', sans-serif;
     color: rgba(255, 255, 255, 0.35);
     font-size: 0.9rem;
     line-height: 1.6;
@@ -235,7 +249,7 @@
     background: rgba(255, 255, 255, 0.08);
     color: rgba(255, 255, 255, 0.6);
     text-decoration: none;
-    font-family: 'Segoe UI', Tahoma, sans-serif;
+    font-family: 'Gill Sans MT Light', 'Gill Sans', 'Gill Sans MT', sans-serif;
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: lowercase;
@@ -255,7 +269,8 @@
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
     .project-main {
-        padding: 3.5rem 1.5rem 3rem;
+        margin: 15dvh 5dvw;
+        padding: 7dvh 1.5rem;
     }
 
     .project-main .project-title-section h1 {

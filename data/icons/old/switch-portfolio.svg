@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Eye of Horus - portfolio version (facing right) -->
+  <!-- Upper eyelid / brow -->
+  <path d="M4 26 C4 26 18 10 52 22" fill="none"/>
+  <!-- Eyebrow line above -->
+  <path d="M4 20 C4 20 20 6 56 18" fill="none"/>
+  <!-- Lower eyelid -->
+  <path d="M12 30 C12 30 24 40 42 30" fill="none"/>
+  <!-- Iris/pupil -->
+  <circle cx="28" cy="28" r="5" fill="white" stroke="none"/>
+  <!-- Tail extending right -->
+  <path d="M42 30 C46 30 52 28 58 24" fill="none"/>
+  <!-- Tear drop / falcon marking going down -->
+  <path d="M24 36 C22 42 20 50 22 56" fill="none"/>
+  <!-- Spiral at bottom of tear -->
+  <path d="M22 56 C26 56 28 52 26 50" fill="none"/>
+</svg>

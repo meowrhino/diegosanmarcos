@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Clapperboard - square/geometric style matching sinusoidal simplicity -->
+  <!-- Board body -->
+  <rect x="8" y="35" width="84" height="58" rx="0" fill="black"/>
+  <!-- Clapper top bar -->
+  <rect x="8" y="22" width="84" height="16" rx="0" fill="black"/>
+  <!-- Diagonal stripes on clapper (3 white cuts) -->
+  <line x1="30" y1="22" x2="38" y2="38" stroke="white" stroke-width="5"/>
+  <line x1="52" y1="22" x2="60" y2="38" stroke="white" stroke-width="5"/>
+  <line x1="74" y1="22" x2="82" y2="38" stroke="white" stroke-width="5"/>
+</svg>

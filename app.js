@@ -3,6 +3,14 @@ let appData = null;
 let coloresData = null;
 let currentMode = 'portfolio';
 
+// Convierte hex (#RRGGBB) a rgba con opacidad para glassmorphism
+function hexToRgba(hex, alpha) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 // Posibles tamanos de tile [w, h] — basados en la celda cuadrada del grid
 // Ponderacion: mas probabilidad de 1x1, menos de 2x2
 const TILE_SIZES = [
@@ -47,9 +55,17 @@ async function loadData() {
 
 // ===== INICIALIZACION DE UI =====
 function initializeUI() {
-    const bgContainer = document.getElementById('background-container');
-    bgContainer.classList.add('portfolio');
+    setBackground('portfolio');
     renderProjects();
+}
+
+// ===== FONDO DINAMICO (desde data.json) =====
+function setBackground(mode) {
+    const bgContainer = document.getElementById('background-container');
+    const bgFile = appData.backgrounds && appData.backgrounds[mode];
+    if (bgFile) {
+        bgContainer.style.backgroundImage = `url('./data/backgrounds/${bgFile}')`;
+    }
 }
 
 // ===== CALCULO DEL GRID =====
@@ -195,7 +211,12 @@ function createProjectCard(project) {
 
     const colorName = appData.typeColors[project.tipo] || 'Gray';
     const colorHex = coloresData.colores[colorName] || '#808080';
-    card.style.background = colorHex;
+    // Glassmorphism: colores originales con leve transparencia para blur
+    const r = parseInt(colorHex.slice(1, 3), 16);
+    const g = parseInt(colorHex.slice(3, 5), 16);
+    const b = parseInt(colorHex.slice(5, 7), 16);
+    card.style.setProperty('--tile-rgb', `${r}, ${g}, ${b}`);
+    card.style.background = `rgba(${r}, ${g}, ${b}, 0.6)`;
 
     const inner = document.createElement('div');
     inner.className = 'project-card-inner';
@@ -221,21 +242,46 @@ function createProjectCard(project) {
 }
 
 // ===== TILE DE SWITCH =====
+// Colores invertidos segun modo: portfolio = claro sobre oscuro, personal = oscuro sobre claro
+const SWITCH_COLORS = {
+    portfolio: { bg: '#222222', text: '#fff' },
+    personal: { bg: '#dddddd', text: '#111' }
+};
+
 function createSwitchTile() {
     const nextMode = currentMode === 'portfolio' ? 'personal' : 'portfolio';
+    const colors = SWITCH_COLORS[currentMode];
+
     const tile = document.createElement('button');
     tile.className = 'switch-tile';
+    // Glassmorphism en switch: ligeramente menos transparente que project cards
+    const sr = parseInt(colors.bg.slice(1, 3), 16);
+    const sg = parseInt(colors.bg.slice(3, 5), 16);
+    const sb = parseInt(colors.bg.slice(5, 7), 16);
+    tile.style.setProperty('--tile-rgb', `${sr}, ${sg}, ${sb}`);
+    tile.style.background = `rgba(${sr}, ${sg}, ${sb}, 0.7)`;
+    tile.style.color = colors.text;
+
+    const inner = document.createElement('div');
+    inner.className = 'switch-tile-inner';
 
     const icon = document.createElement('img');
-    icon.src = './data/icons/switch.svg';
+    icon.src = './data/icons/switch.png';
     icon.alt = 'switch';
     icon.className = 'switch-icon';
+    // Portfolio (fondo oscuro): icono blanco. Personal (fondo claro): icono negro
+    if (currentMode === 'portfolio') {
+        icon.style.filter = 'invert(1) brightness(2)';
+    }
 
     const label = document.createElement('span');
+    label.className = 'project-title';
+    label.style.color = colors.text;
     label.textContent = nextMode;
 
-    tile.appendChild(icon);
-    tile.appendChild(label);
+    inner.appendChild(icon);
+    inner.appendChild(label);
+    tile.appendChild(inner);
     tile.addEventListener('click', () => switchMode(nextMode));
     return tile;
 }
@@ -244,10 +290,6 @@ function createSwitchTile() {
 function switchMode(mode) {
     if (mode === currentMode) return;
     currentMode = mode;
-
-    const bgContainer = document.getElementById('background-container');
-    bgContainer.classList.remove('portfolio', 'personal');
-    bgContainer.classList.add(mode);
-
+    setBackground(mode);
     renderProjects();
 }

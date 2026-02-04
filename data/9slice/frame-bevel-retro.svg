@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <!-- Bevel/emboss retro style (Windows 95 / early RPG Maker) -->
+  <!-- Outer highlight (top-left light, bottom-right dark) -->
+  <rect x="0" y="0" width="48" height="48" fill="#555"/>
+  <!-- Top and left bright edges -->
+  <line x1="0" y1="0" x2="48" y2="0" stroke="#bbb" stroke-width="2"/>
+  <line x1="0" y1="0" x2="0" y2="48" stroke="#bbb" stroke-width="2"/>
+  <!-- Bottom and right dark edges -->
+  <line x1="0" y1="47" x2="48" y2="47" stroke="#222" stroke-width="2"/>
+  <line x1="47" y1="0" x2="47" y2="48" stroke="#222" stroke-width="2"/>
+  <!-- Inner border (second bevel) -->
+  <line x1="3" y1="3" x2="45" y2="3" stroke="#999" stroke-width="1"/>
+  <line x1="3" y1="3" x2="3" y2="45" stroke="#999" stroke-width="1"/>
+  <line x1="3" y1="44" x2="45" y2="44" stroke="#333" stroke-width="1"/>
+  <line x1="44" y1="3" x2="44" y2="45" stroke="#333" stroke-width="1"/>
+  <!-- Inner fill -->
+  <rect x="4" y="4" width="40" height="40" fill="#444"/>
+</svg>

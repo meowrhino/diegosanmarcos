@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Musical note (corchea) - geometric/simple style -->
+  <!-- Note head - ellipse -->
+  <ellipse cx="35" cy="78" rx="16" ry="12" transform="rotate(-20 35 78)" fill="black"/>
+  <!-- Stem -->
+  <rect x="48" y="15" width="6" height="67" fill="black"/>
+  <!-- Flag -->
+  <path d="M54 15 Q75 25 60 50" fill="none" stroke="black" stroke-width="6" stroke-linecap="round"/>
+</svg>

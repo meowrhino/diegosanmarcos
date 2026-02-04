@@ -21,7 +21,9 @@
       "slug": "purnima",
       "titulo": "Purnima Midlife Moksha podcast jingle",
       "tipo": "identidadSonora",
-      "principal": [],
+      "principal": [
+        "PURNIMA.jpg"
+      ],
       "texto1": [],
       "audio": [
         "FIRST PART_INTRO VARIATION_REV1.wav",
@@ -136,5 +138,13 @@
     "miMusica": "HotPink",
     "textos": "Gold",
     "about": "MediumSeaGreen"
+  },
+  "backgrounds": {
+    "portfolio": "portfolio.jpg",
+    "personal": "personal.jpg.avif"
+  },
+  "frames": {
+    "portfolio": "frame-ff-blue.svg",
+    "personal": "frame-bevel-retro.svg"
   }
 }

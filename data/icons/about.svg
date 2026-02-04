@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- About: minimal person icon, geometric -->
+  <circle cx="50" cy="28" r="14" fill="black"/>
+  <path d="M22 90 L22 68 Q22 50 50 50 Q78 50 78 68 L78 90" fill="black"/>
+</svg>

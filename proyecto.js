@@ -50,11 +50,24 @@ async function loadProjectFromURL() {
     await renderProject();
 }
 
-// ===== CONFIGURAR FONDO =====
+// ===== CONFIGURAR FONDO Y FRAME =====
 function setupBackground() {
     const bgContainer = document.getElementById('background-container');
     const isPortfolio = appData.categories.portfolio.includes(currentProject.tipo);
-    bgContainer.classList.add(isPortfolio ? 'portfolio' : 'personal');
+    const mode = isPortfolio ? 'portfolio' : 'personal';
+
+    // Fondo dinamico desde data.json
+    const bgFile = appData.backgrounds && appData.backgrounds[mode];
+    if (bgFile) {
+        bgContainer.style.backgroundImage = `url('./data/backgrounds/${bgFile}')`;
+    }
+
+    // Frame 9-slice desde data.json
+    const frameFile = appData.frames && appData.frames[mode];
+    if (frameFile) {
+        const main = document.querySelector('.project-main');
+        main.style.borderImage = `url('./data/9slice/${frameFile}') 16 fill / 16px / 0 round`;
+    }
 
     // Clase de tipo en body para estilos especificos (ej: tipo-textos)
     document.body.classList.add(`tipo-${currentProject.tipo}`);
