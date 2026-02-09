@@ -3,12 +3,13 @@ let appData = null;
 let coloresData = null;
 let currentMode = 'portfolio';
 
-// Convierte hex (#RRGGBB) a rgba con opacidad para glassmorphism
-function hexToRgba(hex, alpha) {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+// Convierte hex (#RRGGBB) a objeto {r, g, b}
+function hexToRgb(hex) {
+    return {
+        r: parseInt(hex.slice(1, 3), 16),
+        g: parseInt(hex.slice(3, 5), 16),
+        b: parseInt(hex.slice(5, 7), 16)
+    };
 }
 
 // Posibles tamanos de tile [w, h] — basados en la celda cuadrada del grid
@@ -20,7 +21,7 @@ const TILE_SIZES = [
     [2,2]
 ];
 
-// ===== INICIALIZACION ======
+// ===== INICIALIZACION =====
 document.addEventListener('DOMContentLoaded', async () => {
     await loadData();
     if (!appData || !coloresData) return; // Datos no cargados
@@ -217,14 +218,11 @@ function createProjectCard(project) {
     const card = document.createElement('div');
     card.className = 'project-card';
 
-    const colorName = appData.typeColors[project.tipo] || 'Gray';
-    const colorHex = coloresData.colores[colorName] || '#808080';
-    // Glassmorphism: colores originales con leve transparencia para blur
-    const r = parseInt(colorHex.slice(1, 3), 16);
-    const g = parseInt(colorHex.slice(3, 5), 16);
-    const b = parseInt(colorHex.slice(5, 7), 16);
+    const colorValue = appData.typeColors[project.tipo] || '#808080';
+    const colorHex = colorValue.startsWith('#') ? colorValue : (coloresData.colores[colorValue] || '#808080');
+    const { r, g, b } = hexToRgb(colorHex);
     card.style.setProperty('--tile-rgb', `${r}, ${g}, ${b}`);
-    card.style.background = `rgba(${r}, ${g}, ${b}, 0.6)`;
+    card.style.background = `rgba(${r}, ${g}, ${b}, 0.5)`;
 
     const inner = document.createElement('div');
     inner.className = 'project-card-inner';
@@ -254,19 +252,17 @@ function createProjectCard(project) {
 // ===== TILES ESPECIALES (SWITCH + IDIOMA) =====
 // Colores invertidos segun modo: portfolio = oscuro, personal = claro
 const SPECIAL_TILE_COLORS = {
-    portfolio: { bg: '#222222', text: '#fff' },
-    personal: { bg: '#dddddd', text: '#111' }
+    portfolio: { bg: '#0a0a6e', text: '#fff' },
+    personal: { bg: '#7B68EE', text: '#fff' }
 };
 
 // Helper: configura un tile especial con glassmorphism y misma estructura que project-card
 function setupSpecialTile(el, tag) {
     const colors = SPECIAL_TILE_COLORS[currentMode];
     el.className = tag + '-tile special-tile';
-    const r = parseInt(colors.bg.slice(1, 3), 16);
-    const g = parseInt(colors.bg.slice(3, 5), 16);
-    const b = parseInt(colors.bg.slice(5, 7), 16);
+    const { r, g, b } = hexToRgb(colors.bg);
     el.style.setProperty('--tile-rgb', `${r}, ${g}, ${b}`);
-    el.style.background = `rgba(${r}, ${g}, ${b}, 0.6)`;
+    el.style.background = `rgba(${r}, ${g}, ${b}, 0.5)`;
     el.style.color = colors.text;
 }
 
@@ -282,12 +278,11 @@ function createSwitchTile() {
     inner.className = 'special-tile-inner';
 
     const icon = document.createElement('img');
-    icon.src = './data/icons/switch.png';
+    icon.src = currentMode === 'portfolio'
+        ? './data/icons/OJO RA_PORTFOLIO.png'
+        : './data/icons/OJO HORUS_PESONAL.png';
     icon.alt = 'switch';
     icon.className = 'special-tile-icon';
-    if (currentMode === 'portfolio') {
-        icon.style.filter = 'invert(1) brightness(2)';
-    }
 
     const label = document.createElement('span');
     label.className = 'project-title';
@@ -322,9 +317,6 @@ function createLanguageTile() {
     icon.className = 'special-tile-icon lang-icon';
     icon.textContent = LANGUAGES[currentLangIndex];
     icon.style.color = colors.text;
-    if (currentMode === 'portfolio') {
-        icon.style.color = '#fff';
-    }
 
     const label = document.createElement('span');
     label.className = 'project-title';

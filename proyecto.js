@@ -1,30 +1,23 @@
 // ===== ESTADO GLOBAL =====
 let appData = null;
-let coloresData = null;
 let currentProject = null;
 
 // ===== INICIALIZACION =====
 document.addEventListener('DOMContentLoaded', async () => {
     await loadData();
-    if (!appData || !coloresData) return;
+    if (!appData) return;
     await loadProjectFromURL();
 });
 
 // ===== CARGA DE DATOS =====
 async function loadData() {
     try {
-        const [dataResponse, coloresResponse] = await Promise.all([
-            fetch('./data/data.json'),
-            fetch('./data/colores.json')
-        ]);
-
-        if (!dataResponse.ok || !coloresResponse.ok) {
+        const response = await fetch('./data/data.json');
+        if (!response.ok) {
             console.error('Error cargando datos: respuesta no ok');
             return;
         }
-
-        appData = await dataResponse.json();
-        coloresData = await coloresResponse.json();
+        appData = await response.json();
     } catch (error) {
         console.error('Error cargando datos:', error);
     }
@@ -48,6 +41,7 @@ async function loadProjectFromURL() {
 
     setupBackground();
     await renderProject();
+    setupClickOutsideBack();
 }
 
 // ===== CONFIGURAR FONDO Y FRAME =====
@@ -66,7 +60,7 @@ function setupBackground() {
     const frameFile = appData.frames && appData.frames[mode];
     if (frameFile) {
         const main = document.querySelector('.project-main');
-        main.style.borderImage = `url('./data/9slice/${frameFile}') 16 fill / 16px / 0 round`;
+        main.style.borderImage = `url('./data/9slice/${frameFile}') 16 fill / 16px / 0 stretch`;
     }
 
     // Clase de tipo en body para estilos especificos (ej: tipo-textos)
@@ -288,5 +282,16 @@ function renderCreditos() {
         const p = document.createElement('p');
         p.textContent = credito;
         container.appendChild(p);
+    });
+}
+
+// ===== CLICK FUERA DEL MAIN PARA VOLVER =====
+function setupClickOutsideBack() {
+    document.addEventListener('click', (e) => {
+        const main = document.querySelector('.project-main');
+        const player = document.getElementById('audio-player');
+        if (main && !main.contains(e.target) && (!player || !player.contains(e.target))) {
+            window.location.href = './index.html';
+        }
     });
 }

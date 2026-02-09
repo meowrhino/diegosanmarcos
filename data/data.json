@@ -131,17 +131,17 @@
     ]
   },
   "typeColors": {
-    "audiovisual": "DodgerBlue",
-    "identidadSonora": "MediumPurple",
-    "audioInmersivo": "Teal",
-    "musicaMezcla": "Coral",
-    "miMusica": "HotPink",
-    "textos": "Gold",
-    "about": "MediumSeaGreen"
+    "audiovisual": "#808080",
+    "identidadSonora": "#808080",
+    "audioInmersivo": "#808080",
+    "musicaMezcla": "#808080",
+    "miMusica": "#4A4A4A",
+    "textos": "#4A4A4A",
+    "about": "#808080"
   },
   "backgrounds": {
     "portfolio": "portfolio.jpg",
-    "personal": "personal.jpg.avif"
+    "personal": "personal.jpg"
   },
   "frames": {
     "portfolio": "frame-ff-blue.svg",
