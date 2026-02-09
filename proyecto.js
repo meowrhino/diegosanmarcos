@@ -1,6 +1,19 @@
 // ===== ESTADO GLOBAL =====
 let appData = null;
 let currentProject = null;
+const VALID_MODES = new Set(['portfolio', 'personal']);
+
+function getModeFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    const mode = params.get('modo') || params.get('mode');
+    return VALID_MODES.has(mode) ? mode : null;
+}
+
+function getInferredMode() {
+    if (!appData || !currentProject) return 'portfolio';
+    const isPortfolio = appData.categories.portfolio.includes(currentProject.tipo);
+    return isPortfolio ? 'portfolio' : 'personal';
+}
 
 // ===== INICIALIZACION =====
 document.addEventListener('DOMContentLoaded', async () => {
@@ -47,8 +60,7 @@ async function loadProjectFromURL() {
 // ===== CONFIGURAR FONDO Y FRAME =====
 function setupBackground() {
     const bgContainer = document.getElementById('background-container');
-    const isPortfolio = appData.categories.portfolio.includes(currentProject.tipo);
-    const mode = isPortfolio ? 'portfolio' : 'personal';
+    const mode = getInferredMode();
 
     // Fondo dinamico desde data.json
     const bgFile = appData.backgrounds && appData.backgrounds[mode];
@@ -291,7 +303,8 @@ function setupClickOutsideBack() {
         const main = document.querySelector('.project-main');
         const player = document.getElementById('audio-player');
         if (main && !main.contains(e.target) && (!player || !player.contains(e.target))) {
-            window.location.href = './index.html';
+            const returnMode = getModeFromURL() || getInferredMode();
+            window.location.href = `./index.html?modo=${returnMode}`;
         }
     });
 }

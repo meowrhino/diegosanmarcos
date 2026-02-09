@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" shape-rendering="crispEdges">
+  <!-- GBA pixel style: thinner, single bright border with bevel hint -->
+  <!-- Outer bg -->
+  <rect width="48" height="48" fill="#101020"/>
+  <!-- Top-left highlight -->
+  <line x1="2" y1="2" x2="46" y2="2" stroke="#8888bb" stroke-width="1"/>
+  <line x1="2" y1="2" x2="2" y2="46" stroke="#8888bb" stroke-width="1"/>
+  <!-- Bottom-right shadow -->
+  <line x1="2" y1="46" x2="46" y2="46" stroke="#222244" stroke-width="1"/>
+  <line x1="46" y1="2" x2="46" y2="46" stroke="#222244" stroke-width="1"/>
+  <!-- Inner top-left highlight -->
+  <line x1="4" y1="4" x2="44" y2="4" stroke="#6666aa" stroke-width="1"/>
+  <line x1="4" y1="4" x2="4" y2="44" stroke="#6666aa" stroke-width="1"/>
+  <!-- Inner bottom-right shadow -->
+  <line x1="4" y1="44" x2="44" y2="44" stroke="#181830" stroke-width="1"/>
+  <line x1="44" y1="4" x2="44" y2="44" stroke="#181830" stroke-width="1"/>
+  <!-- Inner fill -->
+  <rect x="5" y="5" width="38" height="38" fill="#0c0c1a"/>
+</svg>

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <!-- FF Crystal: deep purple-blue gradient with silver ornate border -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0c0820"/>
+      <stop offset="100%" stop-color="#1a0e30"/>
+    </linearGradient>
+    <linearGradient id="border" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#9999cc"/>
+      <stop offset="50%" stop-color="#ccccee"/>
+      <stop offset="100%" stop-color="#8888aa"/>
+    </linearGradient>
+  </defs>
+  <rect width="48" height="48" fill="url(#bg)"/>
+  <!-- Outer silver border -->
+  <rect x="1" y="1" width="46" height="46" fill="none" stroke="url(#border)" stroke-width="1.5"/>
+  <!-- Inner thin line -->
+  <rect x="3.5" y="3.5" width="41" height="41" fill="none" stroke="#555577" stroke-width="0.5"/>
+  <!-- Corner accents (small diamonds) -->
+  <rect x="1" y="1" width="4" height="4" fill="#aaaacc" opacity="0.6"/>
+  <rect x="43" y="1" width="4" height="4" fill="#aaaacc" opacity="0.6"/>
+  <rect x="1" y="43" width="4" height="4" fill="#aaaacc" opacity="0.6"/>
+  <rect x="43" y="43" width="4" height="4" fill="#aaaacc" opacity="0.6"/>
+  <!-- Inner fill -->
+  <rect x="5" y="5" width="38" height="38" fill="#0a0618"/>
+</svg>

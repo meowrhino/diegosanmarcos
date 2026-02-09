@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" shape-rendering="crispEdges">
+  <!-- Earthbound/Mother style: quirky, thick colored border with inner stripe -->
+  <!-- Outer bg -->
+  <rect width="48" height="48" fill="#0a0414"/>
+  <!-- Thick outer colored border -->
+  <rect x="1" y="1" width="46" height="46" fill="none" stroke="#7744aa" stroke-width="3"/>
+  <!-- Accent stripe (offset, creates layered feel) -->
+  <rect x="5" y="5" width="38" height="38" fill="none" stroke="#553388" stroke-width="1.5"/>
+  <!-- Inner bright accent dots at corners -->
+  <rect x="1" y="1" width="3" height="3" fill="#aa77dd"/>
+  <rect x="44" y="1" width="3" height="3" fill="#aa77dd"/>
+  <rect x="1" y="44" width="3" height="3" fill="#aa77dd"/>
+  <rect x="44" y="44" width="3" height="3" fill="#aa77dd"/>
+  <!-- Inner fill -->
+  <rect x="7" y="7" width="34" height="34" fill="#060210"/>
+</svg>

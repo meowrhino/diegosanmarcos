@@ -2,6 +2,26 @@
 let appData = null;
 let coloresData = null;
 let currentMode = 'portfolio';
+const VALID_MODES = new Set(['portfolio', 'personal']);
+
+function normalizeMode(value) {
+    return VALID_MODES.has(value) ? value : null;
+}
+
+function getInitialModeFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    return normalizeMode(params.get('modo')) || normalizeMode(params.get('mode')) || 'portfolio';
+}
+
+function updateModeInURL(mode) {
+    const normalized = normalizeMode(mode);
+    if (!normalized) return;
+    const params = new URLSearchParams(window.location.search);
+    params.set('modo', normalized);
+    const query = params.toString();
+    const newUrl = query ? `${window.location.pathname}?${query}` : window.location.pathname;
+    history.replaceState(null, '', newUrl);
+}
 
 // Convierte hex (#RRGGBB) a objeto {r, g, b}
 function hexToRgb(hex) {
@@ -56,7 +76,8 @@ async function loadData() {
 
 // ===== INICIALIZACION DE UI =====
 function initializeUI() {
-    setBackground('portfolio');
+    currentMode = getInitialModeFromURL();
+    setBackground(currentMode);
     renderProjects();
 }
 
@@ -243,7 +264,8 @@ function createProjectCard(project) {
     inner.appendChild(title);
     card.appendChild(inner);
     card.addEventListener('click', () => {
-        window.location.href = `./proyecto.html?proyecto=${project.slug}`;
+        const slug = encodeURIComponent(project.slug);
+        window.location.href = `./proyecto.html?proyecto=${slug}&modo=${currentMode}`;
     });
 
     return card;
@@ -338,6 +360,7 @@ function createLanguageTile() {
 function switchMode(mode) {
     if (mode === currentMode) return;
     currentMode = mode;
+    updateModeInURL(mode);
     setBackground(mode);
     renderProjects();
 }

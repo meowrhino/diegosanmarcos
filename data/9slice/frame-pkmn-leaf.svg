@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <!-- Pokemon LeafGreen style: dark forest bg, green rounded border -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#081208"/>
+      <stop offset="100%" stop-color="#050e05"/>
+    </linearGradient>
+    <linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#338833"/>
+      <stop offset="50%" stop-color="#55bb55"/>
+      <stop offset="100%" stop-color="#226622"/>
+    </linearGradient>
+  </defs>
+  <rect width="48" height="48" rx="6" fill="url(#bg)"/>
+  <!-- Outer leaf gradient border -->
+  <rect x="2" y="2" width="44" height="44" rx="5" fill="none" stroke="url(#leaf)" stroke-width="2"/>
+  <!-- Inner nature glow -->
+  <rect x="4.5" y="4.5" width="39" height="39" rx="3" fill="none" stroke="#1a3318" stroke-width="0.7"/>
+  <!-- Inner fill -->
+  <rect x="6" y="6" width="36" height="36" rx="2" fill="#040a04"/>
+</svg>

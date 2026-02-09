@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <!-- Neon circuit: dark base with electric corners -->
+  <defs>
+    <linearGradient id="neonFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0b0716"/>
+      <stop offset="100%" stop-color="#05040b"/>
+    </linearGradient>
+    <linearGradient id="neonBorder" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#00e5ff"/>
+      <stop offset="100%" stop-color="#ff2bd6"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="48" height="48" fill="url(#neonFill)"/>
+  <rect x="1" y="1" width="46" height="46" fill="none" stroke="url(#neonBorder)" stroke-width="2"/>
+  <rect x="5" y="5" width="38" height="38" fill="none" stroke="#3c1e5a" stroke-width="1"/>
+  <rect x="6" y="6" width="36" height="36" fill="#07060f"/>
+
+  <!-- Corner nodes (kept inside 16x16 corners for 9-slice) -->
+  <rect x="3" y="3" width="6" height="6" fill="#00e5ff"/>
+  <rect x="39" y="3" width="6" height="6" fill="#ff2bd6"/>
+  <rect x="3" y="39" width="6" height="6" fill="#ff2bd6"/>
+  <rect x="39" y="39" width="6" height="6" fill="#00e5ff"/>
+
+  <!-- Simple circuit traces -->
+  <line x1="6" y1="10" x2="12" y2="10" stroke="#00e5ff" stroke-width="1"/>
+  <line x1="10" y1="6" x2="10" y2="12" stroke="#00e5ff" stroke-width="1"/>
+  <line x1="36" y1="6" x2="36" y2="12" stroke="#ff2bd6" stroke-width="1"/>
+  <line x1="36" y1="10" x2="42" y2="10" stroke="#ff2bd6" stroke-width="1"/>
+  <line x1="6" y1="38" x2="12" y2="38" stroke="#ff2bd6" stroke-width="1"/>
+  <line x1="10" y1="36" x2="10" y2="42" stroke="#ff2bd6" stroke-width="1"/>
+  <line x1="36" y1="36" x2="36" y2="42" stroke="#00e5ff" stroke-width="1"/>
+  <line x1="36" y1="38" x2="42" y2="38" stroke="#00e5ff" stroke-width="1"/>
+</svg>
