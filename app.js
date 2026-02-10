@@ -96,8 +96,9 @@ function calculateGrid() {
     const container = document.getElementById('projects-container');
     const gap = 3;
     const minPad = 16;
-    const viewW = window.innerWidth;
-    const viewH = window.innerHeight;
+    // Leer del contenedor (usa 100dvh/dvw en CSS) para respetar viewport dinamico en movil
+    const viewW = container.clientWidth || window.innerWidth;
+    const viewH = container.clientHeight || window.innerHeight;
 
     // Columnas y tamano de tile basados en ancho (objetivo ~120px por tile)
     const desired = 120;
