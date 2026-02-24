@@ -76,12 +76,19 @@ function hexToRgb(hex) {
 }
 
 // Posibles tamanos de tile [w, h] — basados en la celda cuadrada del grid
-// Ponderacion: mas probabilidad de 1x1, menos de 2x2
-const TILE_SIZES = [
+// Desktop: mas probabilidad de 1x1, pero manteniendo variedad
+const TILE_SIZES_DESKTOP = [
     [1,1], [1,1], [1,1], [1,1], [1,1],
     [2,1], [2,1],
     [1,2], [1,2],
     [2,2]
+];
+
+// Mobile (<=768): tiles mas pequenos, evitando 2x2
+const TILE_SIZES_MOBILE = [
+    [1,1], [1,1], [1,1], [1,1], [1,1], [1,1], [1,1], [1,1],
+    [2,1],
+    [1,2]
 ];
 
 // ===== INICIALIZACION =====
@@ -124,6 +131,18 @@ function initializeUI() {
     setBackground(currentMode);
     DSM_SHARED.updateFavicon(currentMode);
     renderProjects();
+    loadBgmIfNeeded();
+}
+
+// ===== BGM (MUSICA DE FONDO) =====
+function loadBgmIfNeeded() {
+    // No cargar BGM si el player ya restauro estado previo (ej: playlist de proyecto)
+    if (DSM_Player.stateRestored) return;
+
+    const bgm = appData.bgm;
+    if (!bgm || !bgm.file) return;
+
+    DSM_Player.loadBgm(bgm.file, bgm.title, bgm.project);
 }
 
 // ===== FONDO DINAMICO (desde data.json) =====
@@ -177,6 +196,8 @@ function renderProjects() {
     const categories = appData.categories[currentMode] || [];
     const filteredProjects = appData.projects.filter(p => categories.includes(p.tipo));
     const { cols, rows } = calculateGrid();
+    const isMobileGrid = window.matchMedia('(max-width: 768px)').matches;
+    const tileSizes = isMobileGrid ? TILE_SIZES_MOBILE : TILE_SIZES_DESKTOP;
 
     // Grid de ocupacion (false = libre, true = ocupada)
     const grid = Array.from({ length: rows }, () => new Array(cols).fill(false));
@@ -212,7 +233,10 @@ function renderProjects() {
 
     // Probabilidad de skip (hueco): baja para que no quede vacio
     const totalCells = cols * rows - 1;
-    const skipChance = Math.max(0.02, Math.min(0.12, 1 - (queue.length * 4 / totalCells)));
+    const baseSkipChance = 1 - (queue.length * 4 / totalCells);
+    const skipChance = isMobileGrid
+        ? Math.max(0.01, Math.min(0.04, baseSkipChance))
+        : Math.max(0.02, Math.min(0.12, baseSkipChance));
 
     // Recorrer celdas izq→der, arriba→abajo
     for (let r = 0; r < rows && queueIdx < queue.length; r++) {
@@ -223,7 +247,7 @@ function renderProjects() {
             if (Math.random() < skipChance) continue;
 
             // Elegir tamano aleatorio de los que caben
-            const sizePool = TILE_SIZES.filter(([w, h]) => canPlace(r, c, w, h));
+            const sizePool = tileSizes.filter(([w, h]) => canPlace(r, c, w, h));
             if (sizePool.length === 0) continue;
 
             const [w, h] = sizePool[Math.floor(Math.random() * sizePool.length)];

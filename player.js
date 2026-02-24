@@ -47,7 +47,7 @@ const DSM_Player = {
 
         this.createPlayerDOM();
         this.setupEvents();
-        this.restoreStateIfPlaying();
+        this.stateRestored = this.restoreStateIfPlaying();
         this.animate();
     },
 
@@ -303,8 +303,44 @@ const DSM_Player = {
         this.animationId = requestAnimationFrame(() => this.animate());
     },
 
+    // ===== BGM (MUSICA DE FONDO) =====
+    isBgm: false,
+
+    loadBgm(path, title, project) {
+        this.isBgm = true;
+        this.element.loop = true;
+        this.currentPlaylist = [{ file: path, title: title || 'bgm', project: project || '' }];
+        this.currentProjectSlug = '';
+        this.currentIndex = 0;
+
+        document.querySelector('#audio-player .track-title').textContent = title || 'bgm';
+        document.querySelector('#audio-player .track-project').textContent = project || '';
+
+        // Ruta directa (no relativa a proyecto)
+        this.element.src = path;
+        this.show();
+        this.renderPlaylistPanel();
+
+        setTimeout(() => {
+            this.element.play().then(() => {
+                this.isPlaying = true;
+                this.updatePlayButton();
+                this.saveState();
+            }).catch(() => {
+                // Autoplay bloqueado — mostrar player pausado
+                this.isPlaying = false;
+                this.updatePlayButton();
+                this.saveState();
+            });
+        }, 100);
+    },
+
     // ===== PLAYLIST =====
     loadPlaylist(playlist, projectSlug, startIndex = 0) {
+        // Desactivar modo BGM
+        this.isBgm = false;
+        this.element.loop = false;
+
         this.currentPlaylist = playlist;
         this.currentProjectSlug = projectSlug;
         this.currentIndex = startIndex;
@@ -329,7 +365,12 @@ const DSM_Player = {
         document.querySelector('#audio-player .track-title').textContent = track.title;
         document.querySelector('#audio-player .track-project').textContent = track.project;
 
-        this.element.src = `./data/projects/${this.currentProjectSlug}/${track.file}`;
+        // BGM usa ruta directa, playlists usan ruta relativa al proyecto
+        if (this.isBgm) {
+            this.element.src = track.file;
+        } else {
+            this.element.src = `./data/projects/${this.currentProjectSlug}/${track.file}`;
+        }
         this.saveState();
         this.highlightPlaylistItem();
     },
@@ -442,7 +483,8 @@ const DSM_Player = {
             index: this.currentIndex,
             playing: this.isPlaying,
             time: this.element ? this.element.currentTime : 0,
-            volume: this.element ? this.element.volume : 0.7
+            volume: this.element ? this.element.volume : 0.7,
+            isBgm: this.isBgm
         };
     },
 
@@ -453,12 +495,12 @@ const DSM_Player = {
 
     restoreStateIfPlaying() {
         const saved = sessionStorage.getItem('dsm_player_state');
-        if (!saved) return;
+        if (!saved) return false;
 
         try {
             const state = JSON.parse(saved);
-            if (!state.playlist || state.playlist.length === 0) return;
-            if (!state.playing) return; // Solo restaurar si estaba reproduciendo
+            if (!state.playlist || state.playlist.length === 0) return false;
+            if (!state.playing) return false; // Solo restaurar si estaba reproduciendo
 
             this._restoring = true;
 
@@ -466,14 +508,22 @@ const DSM_Player = {
             this.currentProjectSlug = state.slug;
             this.currentIndex = state.index;
             this.element.volume = state.volume || 0.7;
+            this.isBgm = !!state.isBgm;
+            this.element.loop = this.isBgm;
 
             const track = this.currentPlaylist[state.index];
-            if (!track) { this._restoring = false; return; }
+            if (!track) { this._restoring = false; return false; }
 
             // Cargar track sin disparar saveState
             document.querySelector('#audio-player .track-title').textContent = track.title;
             document.querySelector('#audio-player .track-project').textContent = track.project;
-            this.element.src = `./data/projects/${this.currentProjectSlug}/${track.file}`;
+
+            // BGM usa ruta directa, playlists usan ruta relativa al proyecto
+            if (this.isBgm) {
+                this.element.src = track.file;
+            } else {
+                this.element.src = `./data/projects/${this.currentProjectSlug}/${track.file}`;
+            }
 
             this.show();
             this.renderPlaylistPanel();
@@ -494,8 +544,11 @@ const DSM_Player = {
                     if (this.playerEl) this.playerEl.classList.add('hidden');
                 });
             }, { once: true });
+
+            return true; // Estado restaurado
         } catch (e) {
             this._restoring = false;
+            return false;
         }
     }
 };

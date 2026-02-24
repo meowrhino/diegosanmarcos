@@ -4,7 +4,9 @@
       "Bash(tree:*)",
       "Bash(ls:*)",
       "Bash(sips --help:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "WebFetch(domain:www.soundspectrum.com)",
+      "WebFetch(domain:github.com)"
     ]
   }
 }

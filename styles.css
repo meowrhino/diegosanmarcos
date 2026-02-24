@@ -201,7 +201,7 @@ span.special-tile-icon.lang-icon {
     display: block !important; /* evitar que .hidden generico lo oculte con display:none */
     position: fixed;
     bottom: 2rem;
-    right: 2rem;
+    left: 2rem;
     width: 260px;
     height: 260px;
     z-index: 200;
@@ -504,7 +504,7 @@ span.special-tile-icon.lang-icon {
         width: 180px;
         height: 180px;
         bottom: 1rem;
-        right: 1rem;
+        left: 1rem;
     }
 
     .control-btn {

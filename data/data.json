@@ -573,6 +573,11 @@
     "textos": "#4A4A4A",
     "about": "#808080"
   },
+  "bgm": {
+    "file": "./data/bgm/A Través Del Sonido.mp3",
+    "title": "A Través Del Sonido",
+    "project": "diego san marcos"
+  },
   "backgrounds": {
     "portfolio": "portfolio.jpg",
     "personal": "personal.jpg"
