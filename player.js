@@ -33,7 +33,27 @@ const DSM_Player = {
     freqData: null,
     waveData: null,
 
-    // Ambience settings (del generador de fondos)
+    // Butterchurn (Milkdrop visualizer)
+    butterchurn: null,        // modulo butterchurn (cargado dinamicamente)
+    visualizer: null,         // instancia del visualizador
+    canvasGL: null,           // canvas WebGL dedicado
+    bcPresets: null,          // objeto { key: presetData } con los presets seleccionados
+    bcPresetKeys: [],         // array de keys de presets
+    bcPresetIndex: 0,         // indice del preset actual
+    bcCycleInterval: null,    // intervalo para ciclar presets
+    bcReady: false,           // true cuando butterchurn esta listo para renderizar
+
+    // Presets prioritarios — van al principio de la lista, en este orden
+    BC_PRIORITY_PRESETS: [
+        'martin - castle in the air',
+        '_Mig_085',
+        'Aderrasi - Potion of Spirits'
+    ],
+    BC_CYCLE_SECONDS: 18,     // segundos entre cambio de preset
+    BC_BLEND_SECONDS: 2.7,    // duracion del crossfade entre presets
+    bcAutoCycle: true,         // ciclo automatico activado por defecto
+
+    // Ambience settings (del generador de fondos — fallback sin WebGL2)
     ambience: {
         lineCount: 8,
         amplitude: 1,
@@ -58,6 +78,7 @@ const DSM_Player = {
         this.setupEvents();
         this.syncVolumeUI();
         this.stateRestored = this.restoreStateIfPlaying();
+        this.initButterchurn(); // Carga asincrona, no bloquea
         this.animate();
     },
 
@@ -71,8 +92,10 @@ const DSM_Player = {
         player.className = 'hidden';
         player.innerHTML = `
             <canvas id="player-canvas"></canvas>
+            <canvas id="player-canvas-webgl"></canvas>
             <div class="player-overlay">
                 <div class="player-drag-handle">
+                    <button class="player-fullscreen" id="fullscreen-btn" aria-label="fullscreen">&#x26F6;</button>
                     <button class="player-close">&times;</button>
                 </div>
                 <div class="player-center">
@@ -105,6 +128,12 @@ const DSM_Player = {
                 </div>
             </div>
             <div id="playlist-panel" class="playlist-panel hidden">
+                <div class="preset-nav" id="preset-nav">
+                    <button class="preset-nav-btn" id="preset-prev-btn">&#x2039;</button>
+                    <button class="preset-cycle-btn" id="preset-cycle-btn" title="pausar ciclo">&#x23F8;</button>
+                    <span class="preset-nav-name" id="preset-nav-name">—</span>
+                    <button class="preset-nav-btn" id="preset-next-btn">&#x203A;</button>
+                </div>
                 <div class="playlist-header">
                     <span>playlist</span>
                     <button class="playlist-close">&times;</button>
@@ -117,6 +146,9 @@ const DSM_Player = {
         this.playerEl = player;
         this.canvas = document.getElementById('player-canvas');
         this.ctx = this.canvas.getContext('2d');
+
+        // Canvas WebGL para Butterchurn (encima del canvas 2D)
+        this.canvasGL = document.getElementById('player-canvas-webgl');
 
         // Restaurar posicion guardada
         const savedPos = sessionStorage.getItem('dsm_player_pos');
@@ -154,6 +186,14 @@ const DSM_Player = {
             if (!e.target.closest('.volume-control')) this.toggleVolumePopover(false);
         });
 
+        // Fullscreen
+        document.getElementById('fullscreen-btn').addEventListener('click', () => this.toggleFullscreen());
+
+        // Preset navigation
+        document.getElementById('preset-prev-btn').addEventListener('click', () => this.prevPreset());
+        document.getElementById('preset-next-btn').addEventListener('click', () => this.nextPreset());
+        document.getElementById('preset-cycle-btn').addEventListener('click', () => this.toggleAutoCycle());
+
         // Audio events
         this.element.addEventListener('timeupdate', () => this.updateProgress());
         this.element.addEventListener('ended', () => this.playNext());
@@ -176,6 +216,7 @@ const DSM_Player = {
         // Intentar desbloquear/resumir AudioContext en el primer gesto real del usuario.
         document.addEventListener('pointerdown', () => this.ensureAudioContext(), { once: true, passive: true });
         document.addEventListener('keydown', () => this.ensureAudioContext(), { once: true });
+
     },
 
     // ===== POINTER HANDLING (drag + tap-to-toggle) =====
@@ -334,6 +375,11 @@ const DSM_Player = {
             // Buffers para leer datos
             this.freqData = new Uint8Array(this.analyser.frequencyBinCount);
             this.waveData = new Uint8Array(this.analyser.frequencyBinCount);
+
+            // Si Butterchurn esta cargado pero no inicializado (faltaba AudioContext), inicializar ahora
+            if (this.butterchurn && !this.bcReady) {
+                this.setupButterchurn();
+            }
         } catch (e) {
             // Si falla (ej: MediaElementSource ya conectado), no romper nada
             console.warn('DSM_Player: No se pudo crear AudioContext:', e.message);
@@ -364,12 +410,213 @@ const DSM_Player = {
         return this.waveData;
     },
 
+    // ===== BUTTERCHURN (MILKDROP VISUALIZER) =====
+    initButterchurn() {
+        // Verificar WebGL2 con canvas temporal
+        if (!this.canvasGL) return;
+        const testCanvas = document.createElement('canvas');
+        if (!testCanvas.getContext('webgl2')) {
+            console.warn('DSM_Player: WebGL2 no disponible, usando fallback de ondas');
+            this.canvasGL.style.display = 'none';
+            return;
+        }
+
+        // Cargar presets del pack base (window.base cargado via <script> tag)
+        if (!window.base || !window.base.default) {
+            console.warn('DSM_Player: Presets de Butterchurn no encontrados');
+            this.canvasGL.style.display = 'none';
+            return;
+        }
+
+        const allPresets = window.base.default;
+        const allKeys = Object.keys(allPresets);
+        if (allKeys.length === 0) {
+            console.warn('DSM_Player: Ningun preset encontrado en el pack');
+            this.canvasGL.style.display = 'none';
+            return;
+        }
+
+        // Ordenar: prioritarios primero (en orden), despues el resto alfabeticamente
+        const prioritySet = new Set(this.BC_PRIORITY_PRESETS);
+        const priorityKeys = this.BC_PRIORITY_PRESETS.filter(k => allPresets[k]);
+        const restKeys = allKeys.filter(k => !prioritySet.has(k)).sort();
+        this.bcPresetKeys = [...priorityKeys, ...restKeys];
+
+        this.bcPresets = {};
+        for (const key of this.bcPresetKeys) {
+            this.bcPresets[key] = allPresets[key];
+        }
+
+        // Butterchurn core se carga como ES module (deferred)
+        // Puede estar listo ya o llegar despues via evento 'butterchurn-ready'
+        if (window.butterchurn && typeof window.butterchurn.createVisualizer === 'function') {
+            this.butterchurn = window.butterchurn;
+            this.setupButterchurn();
+        } else {
+            window.addEventListener('butterchurn-ready', () => {
+                this.butterchurn = window.butterchurn;
+                this.setupButterchurn();
+            }, { once: true });
+        }
+    },
+
+    setupButterchurn() {
+        if (!this.butterchurn || !this.canvasGL || !this.audioCtx || !this.analyser) return;
+        if (this.bcReady) return; // Ya inicializado
+
+        // Usar tamaño fijo si el player esta oculto (getBoundingClientRect devuelve 0)
+        const rect = this.canvasGL.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        let w = Math.round(rect.width * dpr);
+        let h = Math.round(rect.height * dpr);
+        // Fallback a tamaño razonable si el canvas no es visible aun
+        if (w === 0 || h === 0) {
+            w = 400; h = 400;
+        }
+        this.canvasGL.width = w;
+        this.canvasGL.height = h;
+
+        try {
+            this.visualizer = this.butterchurn.createVisualizer(this.audioCtx, this.canvasGL, {
+                width: w,
+                height: h,
+                pixelRatio: dpr,
+                textureRatio: 1
+            });
+
+            // Conectar nuestro analyser existente
+            this.visualizer.connectAudio(this.analyser);
+
+            // Cargar primer preset — siempre empieza por el primero (castle in the air)
+            this.bcPresetIndex = 0;
+            this.visualizer.loadPreset(this.bcPresets[this.bcPresetKeys[0]], 0.0);
+
+            // Ocultar canvas 2D, mostrar WebGL
+            this.canvas.style.display = 'none';
+            this.canvasGL.style.display = 'block';
+            this.bcReady = true;
+
+            // Mostrar nombre del preset actual
+            this.updatePresetNavName();
+
+            // Iniciar ciclo de presets
+            this.startPresetCycle();
+        } catch (err) {
+            console.warn('DSM_Player: Error inicializando Butterchurn:', err.message);
+            this.canvasGL.style.display = 'none';
+            this.canvas.style.display = 'block';
+            this.bcReady = false;
+        }
+    },
+
+    startPresetCycle() {
+        if (this.bcCycleInterval) clearInterval(this.bcCycleInterval);
+        this.bcCycleInterval = null;
+        if (!this.bcAutoCycle || this.bcPresetKeys.length <= 1) return;
+
+        this.bcCycleInterval = setInterval(() => {
+            if (!this.bcReady || !this.visualizer) return;
+            this.bcPresetIndex = (this.bcPresetIndex + 1) % this.bcPresetKeys.length;
+            this.visualizer.loadPreset(
+                this.bcPresets[this.bcPresetKeys[this.bcPresetIndex]],
+                this.BC_BLEND_SECONDS
+            );
+            this.updatePresetNavName();
+        }, this.BC_CYCLE_SECONDS * 1000);
+    },
+
+    toggleAutoCycle() {
+        this.bcAutoCycle = !this.bcAutoCycle;
+        if (this.bcAutoCycle) {
+            this.startPresetCycle();
+        } else {
+            if (this.bcCycleInterval) clearInterval(this.bcCycleInterval);
+            this.bcCycleInterval = null;
+        }
+        this.updateAutoCycleBtn();
+    },
+
+    updateAutoCycleBtn() {
+        const btn = document.getElementById('preset-cycle-btn');
+        if (!btn) return;
+        btn.textContent = this.bcAutoCycle ? '\u23F8' : '\u25B6';
+        btn.title = this.bcAutoCycle ? 'pausar ciclo' : 'activar ciclo';
+    },
+
+    resizeButterchurn() {
+        if (!this.visualizer || !this.canvasGL) return;
+        const rect = this.canvasGL.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        const w = Math.round(rect.width * dpr);
+        const h = Math.round(rect.height * dpr);
+        if (w === 0 || h === 0) return;
+        this.canvasGL.width = w;
+        this.canvasGL.height = h;
+        this.visualizer.setRendererSize(w, h);
+    },
+
+    // Cambiar al preset anterior (manual)
+    prevPreset() {
+        if (!this.bcReady || this.bcPresetKeys.length === 0) return;
+        this.bcPresetIndex = (this.bcPresetIndex - 1 + this.bcPresetKeys.length) % this.bcPresetKeys.length;
+        this.visualizer.loadPreset(this.bcPresets[this.bcPresetKeys[this.bcPresetIndex]], this.BC_BLEND_SECONDS);
+        this.updatePresetNavName();
+        // Reiniciar el ciclo automatico
+        this.startPresetCycle();
+    },
+
+    // Cambiar al preset siguiente (manual)
+    nextPreset() {
+        if (!this.bcReady || this.bcPresetKeys.length === 0) return;
+        this.bcPresetIndex = (this.bcPresetIndex + 1) % this.bcPresetKeys.length;
+        this.visualizer.loadPreset(this.bcPresets[this.bcPresetKeys[this.bcPresetIndex]], this.BC_BLEND_SECONDS);
+        this.updatePresetNavName();
+        // Reiniciar el ciclo automatico
+        this.startPresetCycle();
+    },
+
+    // Actualizar el nombre del preset en el navegador
+    updatePresetNavName() {
+        const nameEl = document.getElementById('preset-nav-name');
+        if (!nameEl) return;
+        if (this.bcPresetKeys.length === 0) {
+            nameEl.textContent = '—';
+            return;
+        }
+        nameEl.textContent = this.bcPresetKeys[this.bcPresetIndex] || '—';
+    },
+
+    // ===== FULLSCREEN (expande player a toda la ventana) =====
+    isFullscreen: false,
+
+    toggleFullscreen() {
+        if (!this.playerEl) return;
+        this.isFullscreen = !this.isFullscreen;
+        this.playerEl.classList.toggle('is-fullscreen', this.isFullscreen);
+
+        // Actualizar icono
+        const btn = document.getElementById('fullscreen-btn');
+        if (btn) btn.textContent = this.isFullscreen ? '\u2716' : '\u26F6';
+
+        // Resize Butterchurn al nuevo tamaño
+        if (this.bcReady) {
+            requestAnimationFrame(() => this.resizeButterchurn());
+        }
+    },
+
     // ===== AMBIENCE ANIMATION (reactivo al audio via AnalyserNode) =====
     animate() {
-        if (!this.canvas) return;
+        if (!this.canvas && !this.canvasGL) return;
 
         // No renderizar si el player esta oculto (ahorra CPU)
         if (this.playerEl && this.playerEl.classList.contains('hidden')) {
+            this.animationId = requestAnimationFrame(() => this.animate());
+            return;
+        }
+
+        // Si Butterchurn esta listo, usarlo en vez de las ondas procedurales
+        if (this.bcReady && this.visualizer) {
+            this.visualizer.render();
             this.animationId = requestAnimationFrame(() => this.animate());
             return;
         }
@@ -628,7 +875,17 @@ const DSM_Player = {
 
     // ===== MOSTRAR / OCULTAR =====
     show() {
-        if (this.playerEl) this.playerEl.classList.remove('hidden');
+        if (this.playerEl) {
+            this.playerEl.classList.remove('hidden');
+            // Reintentar setup de Butterchurn si aun no esta listo
+            if (this.butterchurn && !this.bcReady) {
+                this.setupButterchurn();
+            }
+            // Resize al tamaño real ahora que es visible
+            if (this.bcReady) {
+                requestAnimationFrame(() => this.resizeButterchurn());
+            }
+        }
     },
 
     // Devuelve true si hay una playlist cargada (BGM o proyecto)

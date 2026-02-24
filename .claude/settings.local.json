@@ -6,7 +6,17 @@
       "Bash(sips --help:*)",
       "Bash(python3:*)",
       "WebFetch(domain:www.soundspectrum.com)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:www.jsdelivr.com)",
+      "WebFetch(domain:deepwiki.com)",
+      "WebFetch(domain:cdn.jsdelivr.net)",
+      "WebFetch(domain:unpkg.com)",
+      "WebFetch(domain:www.npmjs.com)",
+      "WebFetch(domain:app.unpkg.com)",
+      "WebFetch(domain:forums.winamp.com)",
+      "WebFetch(domain:codesandbox.io)",
+      "WebFetch(domain:bundlephobia.com)",
+      "WebFetch(domain:raw.githubusercontent.com)"
     ]
   }
 }

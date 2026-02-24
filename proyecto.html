@@ -46,6 +46,14 @@
 
     </main>
 
+    <!-- Butterchurn visualizer (Milkdrop WebGL) -->
+    <script src="https://unpkg.com/butterchurn-presets@3.0.0-beta.4/dist/base.min.js"></script>
+    <script type="module">
+        import butterchurn from 'https://unpkg.com/butterchurn@3.0.0-beta.5/dist/butterchurn.js';
+        window.butterchurn = butterchurn;
+        window.dispatchEvent(new Event('butterchurn-ready'));
+    </script>
+
     <script src="./shared.js"></script>
     <script src="./player.js"></script>
     <script src="./proyecto.js"></script>
