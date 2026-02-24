@@ -2,46 +2,78 @@
   "projects": [
     {
       "slug": "mde",
-      "titulo": "MDE",
+      "titulo_es": "MDE",
+      "titulo_en": "MDE",
+      "titulo_fr": "MDE",
       "tipo": "audiovisual",
       "principal": [
         "mde_baja.webm"
       ],
-      "texto1": [
+      "texto1_es": [
+        "MDE (Carlos Carvento)"
+      ],
+      "texto1_en": [
+        "MDE (Carlos Carvento)"
+      ],
+      "texto1_fr": [
         "MDE (Carlos Carvento)"
       ],
       "audio": [],
-      "texto2": [],
+      "texto2_es": [],
+      "texto2_en": [],
+      "texto2_fr": [],
       "galeria": [],
-      "creditos": [
+      "creditos_es": [
         "Música Original y Mezcla para Pieza de Danza Contemporánea"
+      ],
+      "creditos_en": [
+        "Original Music and Mix for Contemporary Dance Piece"
+      ],
+      "creditos_fr": [
+        "Musique originale et mixage pour pièce de danse contemporaine"
       ]
     },
     {
       "slug": "purnima",
-      "titulo": "Purnima Midlife Moksha podcast jingle",
+      "titulo_es": "Purnima Midlife Moksha podcast jingle",
+      "titulo_en": "Purnima Midlife Moksha podcast jingle",
+      "titulo_fr": "Purnima Midlife Moksha podcast jingle",
       "tipo": "identidadSonora",
       "principal": [
         "PURNIMA.jpg"
       ],
-      "texto1": [],
+      "texto1_es": [],
+      "texto1_en": [],
+      "texto1_fr": [],
       "audio": [
         "FIRST PART_INTRO VARIATION_REV1.wav",
         "FIRST PART_LOGO_INTRO_OUTRO_REV1.wav",
         "SECOND PART_NIDRA BACKGROUND SOUNDSCAPE.wav"
       ],
-      "texto2": [],
+      "texto2_es": [],
+      "texto2_en": [],
+      "texto2_fr": [],
       "galeria": [],
-      "creditos": [
+      "creditos_es": [
         "Logo sonoro e introducción musical para podcast y loop para meditación Nidra"
+      ],
+      "creditos_en": [
+        "Sonic logo and musical introduction for podcast and loop for Nidra meditation"
+      ],
+      "creditos_fr": [
+        "Logo sonore et introduction musicale pour podcast et boucle pour méditation Nidra"
       ]
     },
     {
       "slug": "robie",
-      "titulo": "ROBIE DEBUT 3000",
+      "titulo_es": "ROBIE DEBUT 3000",
+      "titulo_en": "ROBIE DEBUT 3000",
+      "titulo_fr": "ROBIE DEBUT 3000",
       "tipo": "musicaMezcla",
       "principal": [],
-      "texto1": [],
+      "texto1_es": [],
+      "texto1_en": [],
+      "texto1_fr": [],
       "audio": [
         "01. BEBE_ROBERTANIKITA (master).wav",
         "02. ME KIERE_ROBERTANIKITA (master).wav",
@@ -56,43 +88,71 @@
         "11. DESNUDARÉ_ROBERTANIKITA (master).wav",
         "12. 1 ángel (voice note version)_ROBERTANIKITA.wav"
       ],
-      "texto2": [],
+      "texto2_es": [],
+      "texto2_en": [],
+      "texto2_fr": [],
       "galeria": [],
-      "creditos": [
+      "creditos_es": [
         "Co-producción del álbum Debut 3000 de Roberta Nikita"
+      ],
+      "creditos_en": [
+        "Co-production of the album Debut 3000 by Roberta Nikita"
+      ],
+      "creditos_fr": [
+        "Co-production de l'album Debut 3000 de Roberta Nikita"
       ]
     },
     {
       "slug": "reflejos",
-      "titulo": "Reflejos (Diego San Marcos)",
+      "titulo_es": "Reflejos (Diego San Marcos)",
+      "titulo_en": "Reflections (Diego San Marcos)",
+      "titulo_fr": "Reflets (Diego San Marcos)",
       "tipo": "miMusica",
       "principal": [
         ""
       ],
-      "texto1": [],
+      "texto1_es": [],
+      "texto1_en": [],
+      "texto1_fr": [],
       "audio": [
         "REFLEJOS_MASTER V4.wav"
       ],
-      "texto2": [],
+      "texto2_es": [],
+      "texto2_en": [],
+      "texto2_fr": [],
       "galeria": [
         "REFLEJOS_3000x3000",
         "REFLEJOS_3",
         "REFLEJOS_4"
       ],
-      "creditos": [
+      "creditos_es": [
         "Interpretación, producción y mezcla"
+      ],
+      "creditos_en": [
+        "Performance, production and mixing"
+      ],
+      "creditos_fr": [
+        "Interprétation, production et mixage"
       ]
     },
     {
       "slug": "textos",
-      "titulo": "Textos",
+      "titulo_es": "Textos",
+      "titulo_en": "Writings",
+      "titulo_fr": "Textes",
       "tipo": "textos",
       "principal": [],
-      "texto1": [],
+      "texto1_es": [],
+      "texto1_en": [],
+      "texto1_fr": [],
       "audio": [],
-      "texto2": [],
+      "texto2_es": [],
+      "texto2_en": [],
+      "texto2_fr": [],
       "galeria": [],
-      "creditos": [],
+      "creditos_es": [],
+      "creditos_en": [],
+      "creditos_fr": [],
       "archivosTexto": [
         "1. El Oro del Rin, segunda escena Tran.txt",
         "2. LAGOS DE CRISTAL BRILLANTE.txt",
@@ -101,20 +161,40 @@
     },
     {
       "slug": "about",
-      "titulo": "about",
+      "titulo_es": "about",
+      "titulo_en": "about",
+      "titulo_fr": "about",
       "tipo": "about",
       "principal": [],
-      "texto1": [
-        "Diego Saint-Mard, alias Diego San Marcos, nació en Madrid, con parte de su familia y su nacionalidad vinculadas a Bélgica. En 2020 se trasladó a Asturias para completar sus estudios en Historia y Ciencias de la Música en la Universidad de Oviedo. Formado en saxofón (Grado Elemental, Conservatorio Teresa Berganza) y piano (Escuela Municipal de Música), comenzó a desarrollar su práctica artística en el entorno digital, explorando la creación de música electrónica, el diseño sonoro y la edición de audio.",
-        "Actualmente trabaja como editor de audio y compositor para entornos multimedia, y cursa el Máster en Formación del Profesorado con especialidad en Música. Su investigación sonora nace de una necesidad de introspección y comprensión simbólica del mundo, entendiendo el sonido como medio de contacto, percepción alterada y experiencia compartida.",
-        "Su obra se sitúa entre la cultura de baile, la estética ritual y una línea de trabajo orientada hacia el arte sonoro y la instalación. Ha compuesto música para danza contemporánea (Maricón de España, 2022; Taller de danza sobre Picasso,2023), ha participado en la producción del álbum Debut3000 (Roberta Nikita, 2024) y publicado en el recopilatorio Igoera (sello Lotura, 2023). Su interés actual se centra en la creación de espacios de escucha inmersiva, donde arquitectura, cuerpo y sonido dialogan activamente."
+      "texto1_es": [
+        "Diego Saint-Mard, alias Diego San Marcos, desarrolla su práctica artística en el entorno digital, explorando la creación de música electrónica, el diseño sonoro y la edición de audio.",
+        "Su investigación sonora nace de una necesidad de introspección y comprensión simbólica del mundo, entendiendo el sonido como medio de contacto, percepción alterada y experiencia compartida.",
+        "Su obra se sitúa entre la cultura de baile, la estética ritual y una línea de trabajo orientada hacia el arte sonoro y la instalación. Ha compuesto música para danza contemporánea (Maricón de España, 2022), ha participado en la producción del álbum Debut3000 (Roberta Nikita, 2024) y publicado en el recopilatorio Igoera (sello Lotura, 2023)."
+      ],
+      "texto1_en": [
+        "Diego Saint-Mard, aka Diego San Marcos, develops his artistic practice in the digital environment, exploring electronic music creation, sound design, and audio editing.",
+        "His sonic research stems from a need for introspection and symbolic understanding of the world, understanding sound as a medium of contact, altered perception, and shared experience.",
+        "His work sits between dance culture, ritual aesthetics, and a line of practice oriented toward sound art and installation. He has composed music for contemporary dance (Maricón de España, 2022), participated in the production of the album Debut3000 (Roberta Nikita, 2024), and published in the compilation Igoera (Lotura label, 2023)."
+      ],
+      "texto1_fr": [
+        "Diego Saint-Mard, alias Diego San Marcos, développe sa pratique artistique dans l'environnement numérique, en explorant la création de musique électronique, le design sonore et le montage audio.",
+        "Sa recherche sonore naît d'un besoin d'introspection et de compréhension symbolique du monde, en concevant le son comme un moyen de contact, de perception altérée et d'expérience partagée.",
+        "Son œuvre se situe entre la culture de la danse, l'esthétique rituelle et une ligne de travail orientée vers l'art sonore et l'installation. Il a composé de la musique pour la danse contemporaine (Maricón de España, 2022), participé à la production de l'album Debut3000 (Roberta Nikita, 2024) et publié dans la compilation Igoera (label Lotura, 2023)."
       ],
       "audio": [],
-      "texto2": [
+      "texto2_es": [
+        "<a href=\"mailto:diegosanmarcos21@gmail.com\">diegosanmarcos21@gmail.com</a>"
+      ],
+      "texto2_en": [
+        "<a href=\"mailto:diegosanmarcos21@gmail.com\">diegosanmarcos21@gmail.com</a>"
+      ],
+      "texto2_fr": [
         "<a href=\"mailto:diegosanmarcos21@gmail.com\">diegosanmarcos21@gmail.com</a>"
       ],
       "galeria": [],
-      "creditos": []
+      "creditos_es": [],
+      "creditos_en": [],
+      "creditos_fr": []
     }
   ],
   "categories": {

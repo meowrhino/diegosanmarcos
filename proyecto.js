@@ -1,12 +1,54 @@
 // ===== ESTADO GLOBAL =====
 let appData = null;
 let currentProject = null;
+let currentMode = 'portfolio';
 const VALID_MODES = new Set(['portfolio', 'personal']);
+
+// ===== IDIOMA =====
+let currentLangCode = 'ES';
+let currentLang = 'es';
+
+function normalizeLanguage(value) {
+    return DSM_SHARED.normalizeLanguageCode(value);
+}
+
+function initializeLanguage() {
+    const params = new URLSearchParams(window.location.search);
+    currentLangCode =
+        normalizeLanguage(params.get('lang')) ||
+        normalizeLanguage(localStorage.getItem('dsm_lang')) ||
+        'ES';
+    currentLang = DSM_SHARED.languageCodeToHtml(currentLangCode);
+
+    localStorage.setItem('dsm_lang', currentLangCode);
+    params.set('lang', currentLangCode);
+    const query = params.toString();
+    const newUrl = query ? `${window.location.pathname}?${query}` : window.location.pathname;
+    history.replaceState(null, '', newUrl);
+    document.documentElement.lang = currentLang;
+}
+
+function loc(obj, field) {
+    return obj[field + '_' + currentLang] ?? obj[field + '_es'] ?? obj[field] ?? [];
+}
+
+function getProjectTitle(project) {
+    return project.titulo ?? project.titulo_es ?? project.slug;
+}
 
 function getModeFromURL() {
     const params = new URLSearchParams(window.location.search);
     const mode = params.get('modo') || params.get('mode');
     return VALID_MODES.has(mode) ? mode : null;
+}
+
+function updateModeInURL(mode) {
+    if (!VALID_MODES.has(mode)) return;
+    const params = new URLSearchParams(window.location.search);
+    params.set('modo', mode);
+    const query = params.toString();
+    const newUrl = query ? `${window.location.pathname}?${query}` : window.location.pathname;
+    history.replaceState(null, '', newUrl);
 }
 
 function getInferredMode() {
@@ -17,6 +59,7 @@ function getInferredMode() {
 
 // ===== INICIALIZACION =====
 document.addEventListener('DOMContentLoaded', async () => {
+    initializeLanguage();
     await loadData();
     if (!appData) return;
     await loadProjectFromURL();
@@ -52,15 +95,16 @@ async function loadProjectFromURL() {
         return;
     }
 
-    setupBackground();
+    currentMode = getModeFromURL() || getInferredMode();
+    updateModeInURL(currentMode);
+    setupBackground(currentMode);
     await renderProject();
     setupClickOutsideBack();
 }
 
 // ===== CONFIGURAR FONDO Y FRAME =====
-function setupBackground() {
+function setupBackground(mode) {
     const bgContainer = document.getElementById('background-container');
-    const mode = getInferredMode();
 
     // Fondo dinamico desde data.json
     const bgFile = appData.backgrounds && appData.backgrounds[mode];
@@ -75,13 +119,15 @@ function setupBackground() {
         main.style.borderImage = `url('./data/9slice/${frameFile}') 16 fill / 16px / 0 stretch`;
     }
 
+    DSM_SHARED.updateFavicon(mode);
+
     // Clase de tipo en body para estilos especificos (ej: tipo-textos)
     document.body.classList.add(`tipo-${currentProject.tipo}`);
 }
 
 // ===== RENDERIZAR PROYECTO =====
 async function renderProject() {
-    document.getElementById('page-title').textContent = `${currentProject.titulo} - diego san marcos`;
+    document.getElementById('page-title').textContent = `${getProjectTitle(currentProject)} - diego san marcos`;
 
     renderTitle();
 
@@ -90,9 +136,9 @@ async function renderProject() {
     }
 
     renderPrincipal();
-    renderTextSection('texto1-section', 'texto1-content', currentProject.texto1);
+    renderTextSection('texto1-section', 'texto1-content', loc(currentProject, 'texto1'));
     renderAudios();
-    renderTextSection('texto2-section', 'texto2-content', currentProject.texto2);
+    renderTextSection('texto2-section', 'texto2-content', loc(currentProject, 'texto2'));
     renderGaleria();
     renderCreditos();
 }
@@ -104,7 +150,7 @@ function renderTitle() {
     section.className = 'project-title-section project-section';
 
     const h1 = document.createElement('h1');
-    h1.textContent = currentProject.titulo;
+    h1.textContent = getProjectTitle(currentProject);
     section.appendChild(h1);
 
     main.insertBefore(section, main.firstChild);
@@ -182,7 +228,7 @@ function renderPrincipal() {
     } else if (file.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
         const img = document.createElement('img');
         img.src = path;
-        img.alt = currentProject.titulo;
+        img.alt = getProjectTitle(currentProject);
         container.appendChild(img);
     }
 }
@@ -218,7 +264,7 @@ function renderAudios() {
     const playlist = currentProject.audio.map(f => ({
         file: f,
         title: f.replace(/\.(wav|mp3)$/i, ''),
-        project: currentProject.titulo
+        project: getProjectTitle(currentProject)
     }));
 
     currentProject.audio.forEach((audioFile, index) => {
@@ -285,12 +331,13 @@ function renderCreditos() {
     const section = document.getElementById('creditos-section');
     const container = document.getElementById('creditos-content');
 
-    if (!currentProject.creditos || currentProject.creditos.length === 0) {
+    const creditos = loc(currentProject, 'creditos');
+    if (!creditos || creditos.length === 0) {
         section.style.display = 'none';
         return;
     }
 
-    currentProject.creditos.forEach(credito => {
+    creditos.forEach(credito => {
         const p = document.createElement('p');
         p.textContent = credito;
         container.appendChild(p);
@@ -303,8 +350,7 @@ function setupClickOutsideBack() {
         const main = document.querySelector('.project-main');
         const player = document.getElementById('audio-player');
         if (main && !main.contains(e.target) && (!player || !player.contains(e.target))) {
-            const returnMode = getModeFromURL() || getInferredMode();
-            window.location.href = `./index.html?modo=${returnMode}`;
+            window.location.href = `./index.html?modo=${currentMode}&lang=${currentLangCode}`;
         }
     });
 }

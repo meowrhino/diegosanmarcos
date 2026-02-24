@@ -4,6 +4,32 @@ let coloresData = null;
 let currentMode = 'portfolio';
 const VALID_MODES = new Set(['portfolio', 'personal']);
 
+// ===== IDIOMA =====
+const LANGUAGES = ['ES', 'EN', 'FR'];
+let currentLangIndex = LANGUAGES.indexOf(getInitialLanguageCode());
+if (currentLangIndex < 0) currentLangIndex = 0;
+
+function normalizeLanguage(value) {
+    return DSM_SHARED.normalizeLanguageCode(value);
+}
+
+function getInitialLanguageCode() {
+    const params = new URLSearchParams(window.location.search);
+    return normalizeLanguage(params.get('lang')) || normalizeLanguage(localStorage.getItem('dsm_lang')) || 'ES';
+}
+
+function currentLangCode() {
+    return LANGUAGES[currentLangIndex];
+}
+
+function currentLang() {
+    return DSM_SHARED.languageCodeToHtml(currentLangCode());
+}
+
+function getProjectTitle(project) {
+    return project.titulo ?? project.titulo_es ?? project.slug;
+}
+
 function normalizeMode(value) {
     return VALID_MODES.has(value) ? value : null;
 }
@@ -21,6 +47,23 @@ function updateModeInURL(mode) {
     const query = params.toString();
     const newUrl = query ? `${window.location.pathname}?${query}` : window.location.pathname;
     history.replaceState(null, '', newUrl);
+}
+
+function updateLangInURL(languageCode) {
+    const normalized = normalizeLanguage(languageCode);
+    if (!normalized) return;
+    const params = new URLSearchParams(window.location.search);
+    params.set('lang', normalized);
+    const query = params.toString();
+    const newUrl = query ? `${window.location.pathname}?${query}` : window.location.pathname;
+    history.replaceState(null, '', newUrl);
+}
+
+function syncLanguageState() {
+    const languageCode = currentLangCode();
+    localStorage.setItem('dsm_lang', languageCode);
+    document.documentElement.lang = currentLang();
+    updateLangInURL(languageCode);
 }
 
 // Convierte hex (#RRGGBB) a objeto {r, g, b}
@@ -77,7 +120,9 @@ async function loadData() {
 // ===== INICIALIZACION DE UI =====
 function initializeUI() {
     currentMode = getInitialModeFromURL();
+    syncLanguageState();
     setBackground(currentMode);
+    DSM_SHARED.updateFavicon(currentMode);
     renderProjects();
 }
 
@@ -259,14 +304,14 @@ function createProjectCard(project) {
 
     const title = document.createElement('span');
     title.className = 'project-title';
-    title.textContent = project.titulo;
+    title.textContent = getProjectTitle(project);
 
     inner.appendChild(icon);
     inner.appendChild(title);
     card.appendChild(inner);
     card.addEventListener('click', () => {
         const slug = encodeURIComponent(project.slug);
-        window.location.href = `./proyecto.html?proyecto=${slug}&modo=${currentMode}`;
+        window.location.href = `./proyecto.html?proyecto=${slug}&modo=${currentMode}&lang=${currentLangCode()}`;
     });
 
     return card;
@@ -301,9 +346,7 @@ function createSwitchTile() {
     inner.className = 'special-tile-inner';
 
     const icon = document.createElement('img');
-    icon.src = currentMode === 'portfolio'
-        ? './data/icons/OJO RA_PORTFOLIO.png'
-        : './data/icons/OJO HORUS_PESONAL.png';
+    icon.src = DSM_SHARED.getSwitchIconPath(currentMode);
     icon.alt = 'switch';
     icon.className = 'special-tile-icon';
 
@@ -324,8 +367,7 @@ function createSwitchTile() {
 }
 
 // --- IDIOMA ---
-const LANGUAGES = ['ES', 'EN', 'FR'];
-let currentLangIndex = 0;
+const LANG_LABELS = { ES: 'idioma', EN: 'language', FR: 'langue' };
 
 function createLanguageTile() {
     const colors = SPECIAL_TILE_COLORS[currentMode];
@@ -344,15 +386,15 @@ function createLanguageTile() {
     const label = document.createElement('span');
     label.className = 'project-title';
     label.style.color = colors.text;
-    label.textContent = 'idioma';
+    label.textContent = LANG_LABELS[LANGUAGES[currentLangIndex]];
 
     inner.appendChild(icon);
     inner.appendChild(label);
     tile.appendChild(inner);
     tile.addEventListener('click', () => {
         currentLangIndex = (currentLangIndex + 1) % LANGUAGES.length;
-        // Actualizar solo el texto del icono sin re-renderizar todo
-        icon.textContent = LANGUAGES[currentLangIndex];
+        syncLanguageState();
+        renderProjects();
     });
     return tile;
 }
@@ -363,5 +405,6 @@ function switchMode(mode) {
     currentMode = mode;
     updateModeInURL(mode);
     setBackground(mode);
+    DSM_SHARED.updateFavicon(mode);
     renderProjects();
 }
