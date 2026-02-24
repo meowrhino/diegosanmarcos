@@ -20,10 +20,18 @@ const DSM_Player = {
 
     // UI
     playlistOpen: false,
+    volumeOpen: false,
     controlsVisible: false,
     controlsTimeout: null,
     animationId: null,
     _restoring: false,
+
+    // Web Audio API (analyser para visualizacion reactiva)
+    audioCtx: null,
+    analyser: null,
+    sourceNode: null,
+    freqData: null,
+    waveData: null,
 
     // Ambience settings (del generador de fondos)
     ambience: {
@@ -46,7 +54,9 @@ const DSM_Player = {
         }
 
         this.createPlayerDOM();
+        this.element.volume = 0.7;
         this.setupEvents();
+        this.syncVolumeUI();
         this.stateRestored = this.restoreStateIfPlaying();
         this.animate();
     },
@@ -74,10 +84,18 @@ const DSM_Player = {
                         <input type="range" id="progress-bar" min="0" max="100" value="0">
                     </div>
                     <div class="player-controls">
-                        <button class="control-btn" id="prev-btn">&#x23EE;</button>
-                        <button class="control-btn" id="play-btn">&#x25B6;</button>
-                        <button class="control-btn" id="next-btn">&#x23ED;</button>
                         <button class="control-btn" id="playlist-btn">&#x2630;</button>
+                        <div class="player-controls-main">
+                            <button class="control-btn" id="prev-btn">&#x23EE;</button>
+                            <button class="control-btn" id="play-btn">&#x25B6;</button>
+                            <button class="control-btn" id="next-btn">&#x23ED;</button>
+                        </div>
+                        <div class="volume-control">
+                            <button class="control-btn" id="volume-btn" aria-label="volume">&#x1F50A;</button>
+                            <div id="volume-popover" class="volume-popover hidden">
+                                <input type="range" id="volume-slider" min="0" max="100" value="70">
+                            </div>
+                        </div>
                     </div>
                     <div class="player-time">
                         <span class="time-current">0:00</span>
@@ -123,6 +141,18 @@ const DSM_Player = {
         document.querySelector('.player-close').addEventListener('click', () => this.close());
         document.querySelector('.playlist-close').addEventListener('click', () => this.togglePlaylist());
         document.getElementById('progress-bar').addEventListener('input', (e) => this.seek(e));
+        document.getElementById('volume-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.toggleVolumePopover();
+        });
+        document.getElementById('volume-slider').addEventListener('input', (e) => {
+            this.setVolume(e.target.value / 100);
+        });
+        document.getElementById('volume-popover').addEventListener('click', (e) => e.stopPropagation());
+        document.addEventListener('click', (e) => {
+            if (!this.volumeOpen) return;
+            if (!e.target.closest('.volume-control')) this.toggleVolumePopover(false);
+        });
 
         // Audio events
         this.element.addEventListener('timeupdate', () => this.updateProgress());
@@ -142,6 +172,10 @@ const DSM_Player = {
         this.playerEl.addEventListener('mouseleave', () => {
             if (!this.playlistOpen) this.hideControls();
         });
+
+        // Intentar desbloquear/resumir AudioContext en el primer gesto real del usuario.
+        document.addEventListener('pointerdown', () => this.ensureAudioContext(), { once: true, passive: true });
+        document.addEventListener('keydown', () => this.ensureAudioContext(), { once: true });
     },
 
     // ===== POINTER HANDLING (drag + tap-to-toggle) =====
@@ -224,6 +258,7 @@ const DSM_Player = {
     hideControls() {
         this.controlsVisible = false;
         this.playerEl.classList.remove('controls-visible');
+        this.toggleVolumePopover(false);
         if (this.playlistOpen) {
             this.playlistOpen = false;
             const panel = document.getElementById('playlist-panel');
@@ -244,7 +279,92 @@ const DSM_Player = {
         }
     },
 
-    // ===== AMBIENCE ANIMATION (adaptado del generador de fondos) =====
+    toggleVolumePopover(forceOpen) {
+        const popover = document.getElementById('volume-popover');
+        if (!popover) return;
+        if (typeof forceOpen === 'boolean') this.volumeOpen = forceOpen;
+        else this.volumeOpen = !this.volumeOpen;
+        popover.classList.toggle('hidden', !this.volumeOpen);
+    },
+
+    setVolume(volume) {
+        const nextVolume = Math.max(0, Math.min(1, volume));
+        this.element.volume = nextVolume;
+        this.syncVolumeUI();
+        this.saveState();
+    },
+
+    syncVolumeUI() {
+        const volume = this.element ? this.element.volume : 0.7;
+        const slider = document.getElementById('volume-slider');
+        if (slider) slider.value = String(Math.round(volume * 100));
+        const btn = document.getElementById('volume-btn');
+        if (btn) {
+            if (volume <= 0.01) btn.textContent = '\uD83D\uDD07';
+            else if (volume < 0.5) btn.textContent = '\uD83D\uDD08';
+            else btn.textContent = '\uD83D\uDD0A';
+        }
+    },
+
+    // ===== WEB AUDIO API (analyser reactivo) =====
+    ensureAudioContext() {
+        // Solo crear una vez
+        if (this.audioCtx) {
+            // Resumir si estaba suspendido (politica autoplay)
+            if (this.audioCtx.state === 'suspended') {
+                this.audioCtx.resume().catch(() => { /* se reintentara en siguiente gesto */ });
+            }
+            return;
+        }
+
+        try {
+            this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+            // Analyser: 256 fftSize = 128 bins de frecuencia (suficiente para el player pequeño)
+            this.analyser = this.audioCtx.createAnalyser();
+            this.analyser.fftSize = 256;
+            this.analyser.smoothingTimeConstant = 0.8;
+
+            // Conectar: <audio> → sourceNode → analyser → destination (speakers)
+            // MediaElementSource solo se puede crear UNA VEZ por elemento
+            this.sourceNode = this.audioCtx.createMediaElementSource(this.element);
+            this.sourceNode.connect(this.analyser);
+            this.analyser.connect(this.audioCtx.destination);
+
+            // Buffers para leer datos
+            this.freqData = new Uint8Array(this.analyser.frequencyBinCount);
+            this.waveData = new Uint8Array(this.analyser.frequencyBinCount);
+        } catch (e) {
+            // Si falla (ej: MediaElementSource ya conectado), no romper nada
+            console.warn('DSM_Player: No se pudo crear AudioContext:', e.message);
+            this.audioCtx = null;
+            this.analyser = null;
+        }
+    },
+
+    // Obtener energia media del audio (0..1) — para modular amplitud de ondas
+    getAudioEnergy() {
+        if (!this.analyser || !this.freqData) return 0;
+        this.analyser.getByteFrequencyData(this.freqData);
+        let sum = 0;
+        let weightSum = 0;
+        for (let i = 0; i < this.freqData.length; i++) {
+            const normalized = this.freqData[i] / 255;
+            const lowMidWeight = i < this.freqData.length * 0.25 ? 1.7 : (i < this.freqData.length * 0.6 ? 1.2 : 0.7);
+            sum += normalized * lowMidWeight;
+            weightSum += lowMidWeight;
+        }
+        return weightSum > 0 ? (sum / weightSum) : 0; // normalizar a 0..1
+    },
+
+    // Obtener forma de onda (waveform) como array normalizado -1..1
+    getWaveform() {
+        if (!this.analyser || !this.waveData) return null;
+        this.analyser.getByteTimeDomainData(this.waveData);
+        return this.waveData;
+    },
+
+    // ===== AMBIENCE ANIMATION (reactivo al audio via AnalyserNode) =====
     animate() {
         if (!this.canvas) return;
 
@@ -265,34 +385,76 @@ const DSM_Player = {
         const playing = this.isPlaying;
         const s = this.ambience;
 
+        // Leer datos de audio si el analyser esta disponible
+        const energy = this.analyser ? this.getAudioEnergy() : 0;
+        const reactiveEnergy = Math.min(1, Math.pow(energy, 0.72) * 1.35);
+        const waveform = this.getWaveform(); // null si no hay analyser
+        const hasAudio = this.analyser && playing && reactiveEnergy > 0.01;
+
         // Trail fade (fondo semitransparente para efecto estela)
-        const fade = 0.08 + (1 - s.trail) * 0.15;
+        // Cuando hay audio reactivo, trail mas largo para efecto mas fluido
+        const trailBase = hasAudio ? 0.06 : 0.08;
+        const fade = trailBase + (1 - s.trail) * 0.15;
         this.ctx.fillStyle = `rgba(0, 0, 0, ${fade})`;
         this.ctx.fillRect(0, 0, w, h);
 
-        // Hue rotando con el tiempo
-        const hue = (s.hueShift + timeSec * s.colorSpeed * 20) % 360;
+        // Hue rotando con el tiempo — modulado por energia del audio
+        const hueSpeed = hasAudio ? (s.colorSpeed * 20 + reactiveEnergy * 70) : (s.colorSpeed * 20);
+        const hue = (s.hueShift + timeSec * hueSpeed) % 360;
         const lines = Math.max(4, Math.round(s.lineCount));
 
-        // Amplitud y velocidad reducidas cuando no reproduce
-        const mul = playing ? 1.0 : 0.3;
-        const amplitude = Math.min(w, h) * 0.12 * s.amplitude * (0.7 + 0.3 * mul);
+        // Amplitud: si hay analyser reactivo, modulada por energia del audio
+        // Si no hay analyser, fallback al comportamiento original (tiempo-basado)
+        const baseMul = playing ? 1.0 : 0.3;
+        let amplitude;
+        if (hasAudio) {
+            // Energia del audio controla la amplitud (0..1 mapeado a rango visual)
+            amplitude = Math.min(w, h) * 0.12 * s.amplitude * (0.45 + reactiveEnergy * 2.1);
+        } else {
+            amplitude = Math.min(w, h) * 0.12 * s.amplitude * (0.7 + 0.3 * baseMul);
+        }
+
         const freq = 0.004 * s.frequency;
         const animTime = timeSec * (playing ? 1.0 : 0.3);
 
         this.ctx.save();
         this.ctx.globalCompositeOperation = 'lighter';
-        this.ctx.lineWidth = 1.4;
+        // Linea mas gruesa cuando hay mucha energia
+        this.ctx.lineWidth = hasAudio ? (1.4 + reactiveEnergy * 1.8) : 1.4;
+
+        const waveLen = waveform ? waveform.length : 0;
 
         for (let i = 0; i < lines; i++) {
             const offset = (i / lines) * Math.PI * 2;
-            const alpha = (0.15 + s.glow * 0.25) * (playing ? 1 : 0.5);
+            // Alpha modulada por energia
+            const alphaBase = (0.15 + s.glow * 0.25);
+            const alpha = hasAudio
+                ? alphaBase * (0.5 + reactiveEnergy * 0.9)
+                : alphaBase * (playing ? 1 : 0.5);
             this.ctx.strokeStyle = `hsla(${(hue + i * 22) % 360}, 80%, 70%, ${alpha})`;
             this.ctx.beginPath();
-            for (let x = 0; x <= w; x += 8) {
+
+            const steps = Math.ceil(w / 8);
+            for (let step = 0; step <= steps; step++) {
+                const x = step * 8;
+                // Onda base procedural (siempre presente)
                 const wave = Math.sin(x * freq + animTime + offset);
                 const ripple = Math.cos(x * freq * 0.7 - animTime * 0.8 + offset) * 0.4;
-                const y = h * 0.5 + (wave + ripple) * amplitude + (i - lines / 2) * 12;
+
+                // Modulacion con waveform real del audio
+                let audioMod = 0;
+                if (hasAudio && waveform && waveLen > 0) {
+                    // Mapear posicion x del canvas a posicion en el buffer de waveform
+                    const waveIdx = Math.min(waveLen - 1, Math.floor((step / steps) * waveLen));
+                    // waveData es 0..255 donde 128 es silencio
+                    audioMod = ((waveform[waveIdx] - 128) / 128) * reactiveEnergy;
+                }
+
+                const y = h * 0.5
+                    + (wave + ripple) * amplitude
+                    + audioMod * amplitude * 1.15
+                    + (i - lines / 2) * 12;
+
                 if (x === 0) this.ctx.moveTo(x, y);
                 else this.ctx.lineTo(x, y);
             }
@@ -307,6 +469,7 @@ const DSM_Player = {
     isBgm: false,
 
     loadBgm(path, title, project) {
+        this.ensureAudioContext();
         this.isBgm = true;
         this.element.loop = true;
         this.currentPlaylist = [{ file: path, title: title || 'bgm', project: project || '' }];
@@ -337,6 +500,7 @@ const DSM_Player = {
 
     // ===== PLAYLIST =====
     loadPlaylist(playlist, projectSlug, startIndex = 0) {
+        this.ensureAudioContext();
         // Desactivar modo BGM
         this.isBgm = false;
         this.element.loop = false;
@@ -377,6 +541,7 @@ const DSM_Player = {
 
     // ===== CONTROLES DE REPRODUCCION =====
     togglePlay() {
+        this.ensureAudioContext();
         if (this.isPlaying) {
             this.element.pause();
             this.isPlaying = false;
@@ -472,6 +637,7 @@ const DSM_Player = {
         if (this.playerEl) this.playerEl.classList.add('hidden');
         this.updatePlayButton();
         this.hideControls();
+        this.toggleVolumePopover(false);
         sessionStorage.removeItem('dsm_player_state');
     },
 
@@ -503,11 +669,13 @@ const DSM_Player = {
             if (!state.playing) return false; // Solo restaurar si estaba reproduciendo
 
             this._restoring = true;
+            this.ensureAudioContext();
 
             this.currentPlaylist = state.playlist;
             this.currentProjectSlug = state.slug;
             this.currentIndex = state.index;
-            this.element.volume = state.volume || 0.7;
+            this.element.volume = state.volume ?? 0.7;
+            this.syncVolumeUI();
             this.isBgm = !!state.isBgm;
             this.element.loop = this.isBgm;
 
