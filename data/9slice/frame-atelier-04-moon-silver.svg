@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <!-- Moon Silver: lunar silver clean frame -->
+  <defs>
+    <linearGradient id="bg_04" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0d1220"/>
+      <stop offset="100%" stop-color="#1d2433"/>
+    </linearGradient>
+    <linearGradient id="bd_04" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f1f5ff"/>
+      <stop offset="100%" stop-color="#9aaed0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="48" height="48" rx="2" fill="url(#bg_04)"/>
+  <rect x="1.5" y="1.5" width="45" height="45" rx="2" fill="none" stroke="url(#bd_04)" stroke-width="2"/>
+  <rect x="4.5" y="4.5" width="39" height="39" rx="1" fill="none" stroke="#5f7196" stroke-width="1"/>
+  <rect x="6" y="6" width="36" height="36" rx="1" fill="#0a101d"/>
+
+
+  <circle cx="18" cy="2.5" r="0.9" fill="#ffffff"/>
+  <circle cx="24" cy="2.5" r="0.9" fill="#ffffff"/>
+  <circle cx="30" cy="2.5" r="0.9" fill="#ffffff"/>
+  <circle cx="18" cy="45.5" r="0.9" fill="#b9c9e5"/>
+  <circle cx="24" cy="45.5" r="0.9" fill="#b9c9e5"/>
+  <circle cx="30" cy="45.5" r="0.9" fill="#b9c9e5"/>
+
+  <circle cx="4" cy="4" r="3" fill="#ffffff" opacity="0.95"/>
+  <circle cx="44" cy="4" r="3" fill="#b9c9e5" opacity="0.95"/>
+  <circle cx="4" cy="44" r="3" fill="#b9c9e5" opacity="0.95"/>
+  <circle cx="44" cy="44" r="3" fill="#ffffff" opacity="0.95"/>
+</svg>

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <!-- Emerald Vine: botanical emerald with vine-like corners -->
+  <defs>
+    <linearGradient id="bg_19" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#09120d"/>
+      <stop offset="100%" stop-color="#153325"/>
+    </linearGradient>
+    <linearGradient id="bd_19" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#9fe0b5"/>
+      <stop offset="100%" stop-color="#4c9a68"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="48" height="48" rx="1" fill="url(#bg_19)"/>
+  <rect x="1.5" y="1.5" width="45" height="45" rx="1" fill="none" stroke="url(#bd_19)" stroke-width="2"/>
+  <rect x="4.5" y="4.5" width="39" height="39" rx="1" fill="none" stroke="#3b6d4c" stroke-width="1"/>
+  <rect x="6" y="6" width="36" height="36" rx="1" fill="#070f0a"/>
+
+  <g opacity="0.08" stroke="#ccf5db" stroke-width="0.8">
+    <line x1="16" y1="6" x2="16" y2="42"/>
+    <line x1="24" y1="6" x2="24" y2="42"/>
+    <line x1="32" y1="6" x2="32" y2="42"/>
+    <line x1="6" y1="16" x2="42" y2="16"/>
+    <line x1="6" y1="24" x2="42" y2="24"/>
+    <line x1="6" y1="32" x2="42" y2="32"/>
+  </g>
+
+  <path d="M18 2.5 L24 6.5 L30 2.5" fill="none" stroke="#ccf5db" stroke-width="1"/>
+  <path d="M18 45.5 L24 41.5 L30 45.5" fill="none" stroke="#73bf8f" stroke-width="1"/>
+  <path d="M2.5 18 L6.5 24 L2.5 30" fill="none" stroke="#ccf5db" stroke-width="1"/>
+  <path d="M45.5 18 L41.5 24 L45.5 30" fill="none" stroke="#73bf8f" stroke-width="1"/>
+
+  <circle cx="4" cy="4" r="3" fill="#ccf5db" opacity="0.95"/>
+  <circle cx="44" cy="4" r="3" fill="#73bf8f" opacity="0.95"/>
+  <circle cx="4" cy="44" r="3" fill="#73bf8f" opacity="0.95"/>
+  <circle cx="44" cy="44" r="3" fill="#ccf5db" opacity="0.95"/>
+</svg>

@@ -33,7 +33,7 @@ function loc(obj, field) {
 }
 
 function getProjectTitle(project) {
-    return project.titulo ?? project.slug;
+    return project.titulo_proyecto ?? project.titulo_home ?? project.slug;
 }
 
 function getModeFromURL() {
@@ -442,12 +442,19 @@ function renderMenuContent(container) {
     container.innerHTML = '';
     const labels = getMenuLabels();
 
-    // 1. Abrir reproductor
+    // 1. Abrir reproductor (si esta vacio, cargar BGM)
     const playerBtn = document.createElement('button');
     playerBtn.className = 'menu-item';
     playerBtn.textContent = labels.openPlayer;
     playerBtn.addEventListener('click', () => {
-        DSM_Player.show();
+        if (DSM_Player.hasContent()) {
+            DSM_Player.show();
+        } else {
+            const bgm = appData.bgm;
+            if (bgm && bgm.file) {
+                DSM_Player.loadBgm(bgm.file, bgm.title, bgm.project);
+            }
+        }
         closeMenu();
     });
     container.appendChild(playerBtn);

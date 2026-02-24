@@ -2,7 +2,8 @@
   "projects": [
     {
       "slug": "mde",
-      "titulo": "MDE (Carlos Carvento)",
+      "titulo_proyecto": "MDE (Carlos Carvento)",
+      "titulo_home": "MDE",
       "tipo": "audiovisual",
       "principal": [
         "mde_baja.webm"
@@ -31,7 +32,8 @@
     },
     {
       "slug": "purnima",
-      "titulo": "Purnima Midlife Moksha podcast jingle",
+      "titulo_proyecto": "Purnima Midlife Moksha podcast jingle",
+      "titulo_home": "Purnima",
       "tipo": "identidadSonora",
       "principal": [
         "THE WISE BODY.webp"
@@ -60,7 +62,8 @@
     },
     {
       "slug": "robie",
-      "titulo": "Debut 3000 (Roberta Nikita)",
+      "titulo_proyecto": "Debut 3000 (Roberta Nikita)",
+      "titulo_home": "Debut 3000",
       "tipo": "musicaMezcla",
       "principal": [],
       "texto1_es": [],
@@ -99,7 +102,8 @@
     },
     {
       "slug": "reflejos",
-      "titulo": "Reflejos (Diego San Marcos)",
+      "titulo_proyecto": "Reflejos (Diego San Marcos)",
+      "titulo_home": "Reflejos",
       "tipo": "miMusica",
       "principal": [
         ""
@@ -130,7 +134,8 @@
     },
     {
       "slug": "textos",
-      "titulo": "Textos",
+      "titulo_proyecto": "Textos",
+      "titulo_home": "Textos",
       "tipo": "textos",
       "principal": [],
       "texto1_es": [],
@@ -152,7 +157,8 @@
     },
     {
       "slug": "about",
-      "titulo": "about",
+      "titulo_proyecto": "about",
+      "titulo_home": "about",
       "tipo": "about",
       "principal": [],
       "texto1_es": [
@@ -187,7 +193,8 @@
     },
     {
       "slug": "alexander",
-      "titulo": "Alexander The Untold Story (Ervin Musabelliu)",
+      "titulo_proyecto": "Alexander The Untold Story (Ervin Musabelliu)",
+      "titulo_home": "Alexander",
       "tipo": "audiovisual",
       "principal": [
         "EXtracto alexander_1080.webm"
@@ -220,7 +227,8 @@
     },
     {
       "slug": "BIFSC",
-      "titulo": "Berlin International Sound Design Competition (2025 Submission)",
+      "titulo_proyecto": "Berlin International Sound Design Competition (2025 Submission)",
+      "titulo_home": "BIFSC",
       "tipo": "audiovisual",
       "principal": [
         "SDBC2192_1080.webm"
@@ -247,7 +255,8 @@
     },
     {
       "slug": "circuloCerrado",
-      "titulo": "Círculo Cerrado (Logo sonoro)",
+      "titulo_proyecto": "Círculo Cerrado (Logo sonoro)",
+      "titulo_home": "Círculo Cerrado",
       "tipo": "identidadSonora",
       "principal": [
         "CIRCULO CERRADO_LOGO_MASTER (V2)_1080.webm",
@@ -273,7 +282,8 @@
     },
     {
       "slug": "DDR",
-      "titulo": "Dark Roast Revelations Podcast (Vito Luis Ramos)",
+      "titulo_proyecto": "Dark Roast Revelations Podcast (Vito Luis Ramos)",
+      "titulo_home": "Dark Roast Revelations",
       "tipo": "identidadSonora",
       "principal": [],
       "texto1_es": [],
@@ -306,7 +316,8 @@
     },
     {
       "slug": "feel",
-      "titulo": "Feel (Immersive Soundscapes)",
+      "titulo_proyecto": "Feel (Immersive Soundscapes)",
+      "titulo_home": "Feel",
       "tipo": "identidadSonora",
       "principal": [],
       "texto1_es": [],
@@ -344,7 +355,8 @@
     },
     {
       "slug": "pleasex3",
-      "titulo": "Please Please Please (cover Lost Weekend)",
+      "titulo_proyecto": "Please Please Please (cover Lost Weekend)",
+      "titulo_home": "Please x3",
       "tipo": "musicaMezcla",
       "principal": [],
       "texto1_es": [],
@@ -369,7 +381,8 @@
     },
     {
       "slug": "lotura",
-      "titulo": "Igoera (Lotura)",
+      "titulo_proyecto": "Igoera (Lotura)",
+      "titulo_home": "Igoera",
       "tipo": "musicaMezcla",
       "principal": [],
       "texto1_es": [],
@@ -404,7 +417,8 @@
     },
     {
       "slug": "remix_madonna",
-      "titulo": "Beatport Remix Contest - Madonna Ray Of Light (Submission)",
+      "titulo_proyecto": "Beatport Remix Contest - Madonna Ray Of Light (Submission)",
+      "titulo_home": "Ray Of Light Remix",
       "tipo": "musicaMezcla",
       "principal": [],
       "texto1_es": [],
@@ -429,7 +443,8 @@
     },
     {
       "slug": "remix_ravel",
-      "titulo": "Fiverr Remix Contest - Bolero de Ravel (Submission)",
+      "titulo_proyecto": "Fiverr Remix Contest - Bolero de Ravel (Submission)",
+      "titulo_home": "Bolero de Ravel Remix",
       "tipo": "musicaMezcla",
       "principal": [],
       "texto1_es": [],
@@ -454,7 +469,8 @@
     },
     {
       "slug": "conexionesfera",
-      "titulo": "Conexionesfera Records For Mind Freeing And Liberation Of The Sense Of Self",
+      "titulo_proyecto": "Conexionesfera Records For Mind Freeing And Liberation Of The Sense Of Self",
+      "titulo_home": "Conexionesfera",
       "tipo": "miMusica",
       "principal": [],
       "texto1_es": [],
@@ -495,7 +511,8 @@
     },
     {
       "slug": "meProyecto",
-      "titulo": "Me Proyecto En El Vacío",
+      "titulo_proyecto": "Me Proyecto En El Vacío",
+      "titulo_home": "Me Proyecto",
       "tipo": "miMusica",
       "principal": [
         "ME PROYECTO.mp4"
@@ -520,7 +537,8 @@
     },
     {
       "slug": "TDK",
-      "titulo": "TDK (Recopilación de tracks)",
+      "titulo_proyecto": "TDK (Recopilación de tracks)",
+      "titulo_home": "TDK",
       "tipo": "miMusica",
       "principal": [],
       "texto1_es": [],

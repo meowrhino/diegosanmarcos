@@ -631,13 +631,33 @@ const DSM_Player = {
         if (this.playerEl) this.playerEl.classList.remove('hidden');
     },
 
+    // Devuelve true si hay una playlist cargada (BGM o proyecto)
+    hasContent() {
+        return this.currentPlaylist.length > 0;
+    },
+
     close() {
         this.element.pause();
+        this.element.removeAttribute('src');
+        this.element.load(); // Liberar recurso de audio
         this.isPlaying = false;
+        this.isBgm = false;
+        this.element.loop = false;
+        this.currentPlaylist = [];
+        this.currentProjectSlug = '';
+        this.currentIndex = 0;
+
+        // Resetear UI del track
+        const titleEl = document.querySelector('#audio-player .track-title');
+        const projEl = document.querySelector('#audio-player .track-project');
+        if (titleEl) titleEl.textContent = 'sin audio';
+        if (projEl) projEl.textContent = '-';
+
         if (this.playerEl) this.playerEl.classList.add('hidden');
         this.updatePlayButton();
         this.hideControls();
         this.toggleVolumePopover(false);
+        this.renderPlaylistPanel();
         sessionStorage.removeItem('dsm_player_state');
     },
 

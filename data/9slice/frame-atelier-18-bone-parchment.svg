@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" shape-rendering="crispEdges">
+  <!-- Bone Parchment: aged parchment and bone ink -->
+  <defs>
+    <linearGradient id="bg_18" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1f1b15"/>
+      <stop offset="100%" stop-color="#3c3429"/>
+    </linearGradient>
+    <linearGradient id="bd_18" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f2e4c2"/>
+      <stop offset="100%" stop-color="#9f8f6d"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="48" height="48" rx="0" fill="url(#bg_18)"/>
+  <rect x="1.5" y="1.5" width="45" height="45" rx="0" fill="none" stroke="url(#bd_18)" stroke-width="2"/>
+  <rect x="4.5" y="4.5" width="39" height="39" rx="0" fill="none" stroke="#7e7359" stroke-width="1"/>
+  <rect x="6" y="6" width="36" height="36" rx="0" fill="#1a160f"/>
+
+  <g opacity="0.08" stroke="#fff5dc" stroke-width="1">
+    <line x1="6" y1="40" x2="40" y2="6"/>
+    <line x1="10" y1="42" x2="42" y2="10"/>
+    <line x1="6" y1="34" x2="34" y2="6"/>
+  </g>
+
+  <line x1="17" y1="2.5" x2="17" y2="5.5" stroke="#fff5dc" stroke-width="1"/>
+  <line x1="24" y1="2.5" x2="24" y2="6.5" stroke="#fff5dc" stroke-width="1"/>
+  <line x1="31" y1="2.5" x2="31" y2="5.5" stroke="#fff5dc" stroke-width="1"/>
+  <line x1="17" y1="45.5" x2="17" y2="42.5" stroke="#c8b792" stroke-width="1"/>
+  <line x1="24" y1="45.5" x2="24" y2="41.5" stroke="#c8b792" stroke-width="1"/>
+  <line x1="31" y1="45.5" x2="31" y2="42.5" stroke="#c8b792" stroke-width="1"/>
+
+  <path d="M1 1 H11 V4 H4 V11 H1 Z" fill="#fff5dc"/>
+  <path d="M47 1 V11 H44 V4 H37 V1 Z" fill="#c8b792"/>
+  <path d="M1 47 H11 V44 H4 V37 H1 Z" fill="#c8b792"/>
+  <path d="M47 47 V37 H44 V44 H37 V47 Z" fill="#fff5dc"/>
+</svg>

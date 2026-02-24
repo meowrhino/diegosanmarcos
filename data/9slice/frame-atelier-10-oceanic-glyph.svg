@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <!-- Oceanic Glyph: deep sea runic frame -->
+  <defs>
+    <linearGradient id="bg_10" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#061426"/>
+      <stop offset="100%" stop-color="#0d3256"/>
+    </linearGradient>
+    <linearGradient id="bd_10" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#94d7ff"/>
+      <stop offset="100%" stop-color="#3f8ec8"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="48" height="48" rx="0" fill="url(#bg_10)"/>
+  <rect x="1.5" y="1.5" width="45" height="45" rx="0" fill="none" stroke="url(#bd_10)" stroke-width="2"/>
+  <rect x="4.5" y="4.5" width="39" height="39" rx="0" fill="none" stroke="#2f5d87" stroke-width="1"/>
+  <rect x="6" y="6" width="36" height="36" rx="0" fill="#060f1b"/>
+
+
+  <circle cx="24" cy="2.5" r="1.4" fill="#cbeaff"/>
+  <circle cx="24" cy="45.5" r="1.4" fill="#66b1ec"/>
+  <circle cx="2.5" cy="24" r="1.4" fill="#cbeaff"/>
+  <circle cx="45.5" cy="24" r="1.4" fill="#66b1ec"/>
+  <line x1="20" y1="2.5" x2="28" y2="2.5" stroke="#cbeaff" stroke-width="0.8"/>
+  <line x1="20" y1="45.5" x2="28" y2="45.5" stroke="#66b1ec" stroke-width="0.8"/>
+
+  <polygon points="1,1 10,1 1,10" fill="#cbeaff" opacity="0.9"/>
+  <polygon points="47,1 38,1 47,10" fill="#66b1ec" opacity="0.9"/>
+  <polygon points="1,47 1,38 10,47" fill="#66b1ec" opacity="0.9"/>
+  <polygon points="47,47 38,47 47,38" fill="#cbeaff" opacity="0.9"/>
+</svg>

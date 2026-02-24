@@ -27,7 +27,7 @@ function currentLang() {
 }
 
 function getProjectTitle(project) {
-    return project.titulo ?? project.slug;
+    return project.titulo_home ?? project.titulo_proyecto ?? project.slug;
 }
 
 function normalizeMode(value) {
@@ -135,14 +135,16 @@ function initializeUI() {
 }
 
 // ===== BGM (MUSICA DE FONDO) =====
+function loadBgm() {
+    const bgm = appData.bgm;
+    if (!bgm || !bgm.file) return;
+    DSM_Player.loadBgm(bgm.file, bgm.title, bgm.project);
+}
+
 function loadBgmIfNeeded() {
     // No cargar BGM si el player ya restauro estado previo (ej: playlist de proyecto)
     if (DSM_Player.stateRestored) return;
-
-    const bgm = appData.bgm;
-    if (!bgm || !bgm.file) return;
-
-    DSM_Player.loadBgm(bgm.file, bgm.title, bgm.project);
+    loadBgm();
 }
 
 // ===== FONDO DINAMICO (desde data.json) =====
@@ -202,9 +204,10 @@ function renderProjects() {
     // Grid de ocupacion (false = libre, true = ocupada)
     const grid = Array.from({ length: rows }, () => new Array(cols).fill(false));
 
-    // Reservar celdas: switch (ultima fila, ultima col) e idioma (penultima col)
+    // Reservar celdas: switch (ultima fila, ultima col), idioma (penultima col), menu (primera col)
     grid[rows - 1][cols - 1] = true;
     grid[rows - 1][cols - 2] = true;
+    grid[rows - 1][0] = true;
 
     // Comprobar si un tile de tamaño w×h cabe en la posicion (r, c)
     function canPlace(r, c, w, h) {
@@ -302,9 +305,36 @@ function renderProjects() {
     langEl.style.gridColumn = `${cols - 1}`;
     langEl.style.animationDelay = `${(placed.length + 1) * 0.04}s`;
     container.appendChild(langEl);
+
+    // Menu en ultima fila, primera columna
+    const menuEl = createMenuTile();
+    menuEl.style.gridRow = `${rows}`;
+    menuEl.style.gridColumn = `1`;
+    menuEl.style.animationDelay = `${(placed.length + 2) * 0.04}s`;
+    container.appendChild(menuEl);
 }
 
 // ===== CREACION DE TARJETA DE PROYECTO =====
+
+// Busca la primera imagen disponible del proyecto (principal o galeria)
+function getProjectThumbnail(project) {
+    const imageExts = /\.(jpg|jpeg|png|gif|webp)$/i;
+
+    // Primero buscar en principal (solo imagenes, no videos)
+    const principalImages = (project.principal || []).filter(f => f && imageExts.test(f));
+    if (principalImages.length > 0) {
+        return `./data/projects/${project.slug}/${principalImages[0]}`;
+    }
+
+    // Luego en galeria
+    const galeriaImages = (project.galeria || []).filter(f => f && imageExts.test(f));
+    if (galeriaImages.length > 0) {
+        return `./data/projects/${project.slug}/${galeriaImages[0]}`;
+    }
+
+    return null;
+}
+
 function createProjectCard(project) {
     const card = document.createElement('div');
     card.className = 'project-card';
@@ -314,6 +344,18 @@ function createProjectCard(project) {
     const { r, g, b } = hexToRgb(colorHex);
     card.style.setProperty('--tile-rgb', `${r}, ${g}, ${b}`);
     card.style.background = `rgba(${r}, ${g}, ${b}, 0.5)`;
+
+    // Imagen de fondo del tile (thumbnail del proyecto)
+    const thumbSrc = getProjectThumbnail(project);
+    if (thumbSrc) {
+        const thumb = document.createElement('img');
+        thumb.className = 'project-thumb';
+        thumb.src = thumbSrc;
+        thumb.alt = '';
+        thumb.loading = 'lazy';
+        thumb.onerror = () => { thumb.style.display = 'none'; };
+        card.appendChild(thumb);
+    }
 
     const inner = document.createElement('div');
     inner.className = 'project-card-inner';
@@ -421,6 +463,118 @@ function createLanguageTile() {
         renderProjects();
     });
     return tile;
+}
+
+// ===== MENU (HOME) =====
+const HOME_MENU_LABELS = {
+    ES: { trigger: 'menu', openPlayer: 'abrir reproductor', changeLang: 'cambiar idioma', close: 'cerrar menu' },
+    EN: { trigger: 'menu', openPlayer: 'open player', changeLang: 'change language', close: 'close menu' },
+    FR: { trigger: 'menu', openPlayer: 'ouvrir lecteur', changeLang: 'changer de langue', close: 'fermer menu' }
+};
+
+function getHomeMenuLabels() {
+    return HOME_MENU_LABELS[currentLangCode()] || HOME_MENU_LABELS.ES;
+}
+
+function createMenuTile() {
+    const colors = SPECIAL_TILE_COLORS[currentMode];
+
+    const tile = document.createElement('button');
+    setupSpecialTile(tile, 'menu');
+
+    const inner = document.createElement('div');
+    inner.className = 'special-tile-inner menu-tile-inner';
+
+    const label = document.createElement('span');
+    label.className = 'project-title';
+    label.style.color = colors.text;
+    label.textContent = getHomeMenuLabels().trigger;
+
+    inner.appendChild(label);
+    tile.appendChild(inner);
+    tile.addEventListener('click', () => openHomeMenu());
+    return tile;
+}
+
+function openHomeMenu() {
+    // Evitar duplicados
+    if (document.querySelector('.menu-overlay')) return;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'menu-overlay';
+
+    const modal = document.createElement('div');
+    modal.className = 'menu-modal';
+
+    // Aplicar misma border-image que el modo actual
+    const frameFile = appData.frames && appData.frames[currentMode];
+    if (frameFile) {
+        modal.style.borderImage = `url('./data/9slice/${frameFile}') 16 fill / 16px / 0 stretch`;
+    }
+
+    const itemsContainer = document.createElement('div');
+    itemsContainer.className = 'menu-items';
+    modal.appendChild(itemsContainer);
+
+    renderHomeMenuContent(itemsContainer);
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+
+    // Click fuera del modal = cerrar
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+            e.stopPropagation();
+            closeHomeMenu();
+        }
+    });
+
+    modal.addEventListener('click', (e) => e.stopPropagation());
+}
+
+function renderHomeMenuContent(container) {
+    container.innerHTML = '';
+    const labels = getHomeMenuLabels();
+
+    // 1. Abrir reproductor (si esta vacio, cargar BGM)
+    const playerBtn = document.createElement('button');
+    playerBtn.className = 'menu-item';
+    playerBtn.textContent = labels.openPlayer;
+    playerBtn.addEventListener('click', () => {
+        if (DSM_Player.hasContent()) {
+            DSM_Player.show();
+        } else {
+            loadBgm();
+        }
+        closeHomeMenu();
+    });
+    container.appendChild(playerBtn);
+
+    // 2. Cambiar idioma
+    const langBtn = document.createElement('button');
+    langBtn.className = 'menu-item';
+    langBtn.textContent = labels.changeLang;
+    langBtn.addEventListener('click', () => {
+        currentLangIndex = (currentLangIndex + 1) % LANGUAGES.length;
+        syncLanguageState();
+        // Re-renderizar el grid de la home (tiles con titulos en el nuevo idioma)
+        renderProjects();
+        // Re-renderizar el contenido del menu con el nuevo idioma
+        renderHomeMenuContent(container);
+    });
+    container.appendChild(langBtn);
+
+    // 3. Cerrar menu (sin "volver" porque ya estamos en la home)
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'menu-item';
+    closeBtn.textContent = labels.close;
+    closeBtn.addEventListener('click', () => closeHomeMenu());
+    container.appendChild(closeBtn);
+}
+
+function closeHomeMenu() {
+    const overlay = document.querySelector('.menu-overlay');
+    if (overlay) overlay.remove();
 }
 
 // ===== CAMBIO DE MODO =====
