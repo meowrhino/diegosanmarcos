@@ -27,7 +27,7 @@ function currentLang() {
 }
 
 function getProjectTitle(project) {
-    return project.titulo ?? project.titulo_es ?? project.slug;
+    return project.titulo ?? project.slug;
 }
 
 function normalizeMode(value) {

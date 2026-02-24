@@ -2,27 +2,23 @@
   "projects": [
     {
       "slug": "mde",
-      "titulo_es": "MDE",
-      "titulo_en": "MDE",
-      "titulo_fr": "MDE",
+      "titulo": "MDE (Carlos Carvento)",
       "tipo": "audiovisual",
       "principal": [
         "mde_baja.webm"
       ],
-      "texto1_es": [
-        "MDE (Carlos Carvento)"
-      ],
-      "texto1_en": [
-        "MDE (Carlos Carvento)"
-      ],
-      "texto1_fr": [
-        "MDE (Carlos Carvento)"
-      ],
+      "texto1_es": [],
+      "texto1_en": [],
+      "texto1_fr": [],
       "audio": [],
       "texto2_es": [],
       "texto2_en": [],
       "texto2_fr": [],
-      "galeria": [],
+      "galeria": [
+        "PORTADA VINILO.webp",
+        "FOTO.webp",
+        "VINILO.webp"
+      ],
       "creditos_es": [
         "Música Original y Mezcla para Pieza de Danza Contemporánea"
       ],
@@ -35,20 +31,18 @@
     },
     {
       "slug": "purnima",
-      "titulo_es": "Purnima Midlife Moksha podcast jingle",
-      "titulo_en": "Purnima Midlife Moksha podcast jingle",
-      "titulo_fr": "Purnima Midlife Moksha podcast jingle",
+      "titulo": "Purnima Midlife Moksha podcast jingle",
       "tipo": "identidadSonora",
       "principal": [
-        "PURNIMA.jpg"
+        "THE WISE BODY.webp"
       ],
       "texto1_es": [],
       "texto1_en": [],
       "texto1_fr": [],
       "audio": [
-        "FIRST PART_INTRO VARIATION_REV1.wav",
-        "FIRST PART_LOGO_INTRO_OUTRO_REV1.wav",
-        "SECOND PART_NIDRA BACKGROUND SOUNDSCAPE.wav"
+        "INTRO VARIATION.mp3",
+        "LOGO (INTRO_OUTRO).mp3",
+        "NIDRA BACKGROUND SOUNDSCAPE.mp3"
       ],
       "texto2_es": [],
       "texto2_en": [],
@@ -66,32 +60,33 @@
     },
     {
       "slug": "robie",
-      "titulo_es": "ROBIE DEBUT 3000",
-      "titulo_en": "ROBIE DEBUT 3000",
-      "titulo_fr": "ROBIE DEBUT 3000",
+      "titulo": "Debut 3000 (Roberta Nikita)",
       "tipo": "musicaMezcla",
       "principal": [],
       "texto1_es": [],
       "texto1_en": [],
       "texto1_fr": [],
       "audio": [
-        "01. BEBE_ROBERTANIKITA (master).wav",
-        "02. ME KIERE_ROBERTANIKITA (master).wav",
-        "03. NUNCA MÁS_ROBERTANIKITA (master).wav",
-        "04. SOLO PIENSO EN TI_ROBERTANIKITA (master).wav",
-        "05. INFIERNO_ROBERTANIKITA (master).wav",
-        "06. FERRARI_ROBERTANIKITA (master).wav",
-        "07. CARTA_ROBERTANIKITA (master).wav",
-        "08. SORRY PERO ADIOS_ROBERTANIKITA (master).wav",
-        "09. ENAMORÁ_ROBERTANIKITA (master).wav",
-        "10. TU Y YO -V2.wav",
-        "11. DESNUDARÉ_ROBERTANIKITA (master).wav",
-        "12. 1 ángel (voice note version)_ROBERTANIKITA.wav"
+        "BEBE.mp3",
+        "ME KIERE.mp3",
+        "NUNCA MÁS.mp3",
+        "SOLO PIENSO EN TI.mp3",
+        "INFIERNO.mp3",
+        "FERRARI.mp3",
+        "CARTA.mp3",
+        "SORRY PERO ADIOS.mp3",
+        "ENAMORÁ.mp3",
+        "TU Y YO.mp3",
+        "DESNUDARÉ.mp3",
+        "1 ángel (voice note version).mp3"
       ],
       "texto2_es": [],
       "texto2_en": [],
       "texto2_fr": [],
-      "galeria": [],
+      "galeria": [
+        "PORTADA.webp",
+        "TRACKLIST.webp"
+      ],
       "creditos_es": [
         "Co-producción del álbum Debut 3000 de Roberta Nikita"
       ],
@@ -104,9 +99,7 @@
     },
     {
       "slug": "reflejos",
-      "titulo_es": "Reflejos (Diego San Marcos)",
-      "titulo_en": "Reflections (Diego San Marcos)",
-      "titulo_fr": "Reflets (Diego San Marcos)",
+      "titulo": "Reflejos (Diego San Marcos)",
       "tipo": "miMusica",
       "principal": [
         ""
@@ -115,15 +108,15 @@
       "texto1_en": [],
       "texto1_fr": [],
       "audio": [
-        "REFLEJOS_MASTER V4.wav"
+        "Reflejos.mp3"
       ],
       "texto2_es": [],
       "texto2_en": [],
       "texto2_fr": [],
       "galeria": [
-        "REFLEJOS_3000x3000",
-        "REFLEJOS_3",
-        "REFLEJOS_4"
+        "REFLEJOS_3000x3000.webp",
+        "REFLEJOS_3.webp",
+        "REFLEJOS_4.webp"
       ],
       "creditos_es": [
         "Interpretación, producción y mezcla"
@@ -137,9 +130,7 @@
     },
     {
       "slug": "textos",
-      "titulo_es": "Textos",
-      "titulo_en": "Writings",
-      "titulo_fr": "Textes",
+      "titulo": "Textos",
       "tipo": "textos",
       "principal": [],
       "texto1_es": [],
@@ -161,9 +152,7 @@
     },
     {
       "slug": "about",
-      "titulo_es": "about",
-      "titulo_en": "about",
-      "titulo_fr": "about",
+      "titulo": "about",
       "tipo": "about",
       "principal": [],
       "texto1_es": [
@@ -195,6 +184,371 @@
       "creditos_es": [],
       "creditos_en": [],
       "creditos_fr": []
+    },
+    {
+      "slug": "alexander",
+      "titulo": "Alexander The Untold Story (Ervin Musabelliu)",
+      "tipo": "audiovisual",
+      "principal": [
+        "EXtracto alexander_1080.webm"
+      ],
+      "texto1_es": [],
+      "texto1_en": [],
+      "texto1_fr": [],
+      "audio": [],
+      "texto2_es": [
+        "Extracto del cortometraje sobre Alejandro Magno, música original compuesta para la danza de las Ménades"
+      ],
+      "texto2_en": [
+        "Excerpt from the short film about Alexander the Great, with original music composed for the dance of the Maenads"
+      ],
+      "texto2_fr": [
+        "Extrait du court métrage sur Alexandre le Grand, avec une musique originale composée pour la danse des Ménades"
+      ],
+      "galeria": [
+        "PORTADA.webp"
+      ],
+      "creditos_es": [
+        "Edición de sonido y composición de música adicional"
+      ],
+      "creditos_en": [
+        "Sound editing and additional music composition"
+      ],
+      "creditos_fr": [
+        "Montage sonore et composition de musique additionnelle"
+      ]
+    },
+    {
+      "slug": "BIFSC",
+      "titulo": "Berlin International Sound Design Competition (2025 Submission)",
+      "tipo": "audiovisual",
+      "principal": [
+        "SDBC2192_1080.webm"
+      ],
+      "texto1_es": [],
+      "texto1_en": [],
+      "texto1_fr": [],
+      "audio": [],
+      "texto2_es": [],
+      "texto2_en": [],
+      "texto2_fr": [],
+      "galeria": [
+        "LOGO.webp"
+      ],
+      "creditos_es": [
+        "Re-diseño de sonido para el concurso BIFSC de 2025"
+      ],
+      "creditos_en": [
+        "Sound redesign for the 2025 BIFSC competition"
+      ],
+      "creditos_fr": [
+        "Refonte sonore pour le concours BIFSC 2025"
+      ]
+    },
+    {
+      "slug": "circuloCerrado",
+      "titulo": "Círculo Cerrado (Logo sonoro)",
+      "tipo": "identidadSonora",
+      "principal": [
+        "CIRCULO CERRADO_LOGO_MASTER (V2)_1080.webm",
+        "CIRCULO CERRADO_OUTRO_MASTER (V2)_1080.webm"
+      ],
+      "texto1_es": [],
+      "texto1_en": [],
+      "texto1_fr": [],
+      "audio": [],
+      "texto2_es": [],
+      "texto2_en": [],
+      "texto2_fr": [],
+      "galeria": [],
+      "creditos_es": [
+        "Logo sonoro y outro para Círculo Cerrado"
+      ],
+      "creditos_en": [
+        "Sonic logo and outro for Círculo Cerrado"
+      ],
+      "creditos_fr": [
+        "Logo sonore et outro pour Círculo Cerrado"
+      ]
+    },
+    {
+      "slug": "DDR",
+      "titulo": "Dark Roast Revelations Podcast (Vito Luis Ramos)",
+      "tipo": "identidadSonora",
+      "principal": [],
+      "texto1_es": [],
+      "texto1_en": [],
+      "texto1_fr": [],
+      "audio": [
+        "IS IT POSSIBLE.mp3"
+      ],
+      "texto2_es": [
+        "<a href=\"https://open.spotify.com/episode/3u3hMkQ1pH6BF0e8ZaDDcn?si=XMG2_t5zS0eomAF86LbA-A\" target=\"_blank\" rel=\"noopener noreferrer\">Escuchar episodio completo en Spotify</a>"
+      ],
+      "texto2_en": [
+        "<a href=\"https://open.spotify.com/episode/3u3hMkQ1pH6BF0e8ZaDDcn?si=XMG2_t5zS0eomAF86LbA-A\" target=\"_blank\" rel=\"noopener noreferrer\">Listen to the full episode on Spotify</a>"
+      ],
+      "texto2_fr": [
+        "<a href=\"https://open.spotify.com/episode/3u3hMkQ1pH6BF0e8ZaDDcn?si=XMG2_t5zS0eomAF86LbA-A\" target=\"_blank\" rel=\"noopener noreferrer\">Écouter l'épisode complet sur Spotify</a>"
+      ],
+      "galeria": [
+        "THE WISE BODY.webp"
+      ],
+      "creditos_es": [
+        "Intro musical para podcast de terror"
+      ],
+      "creditos_en": [
+        "Musical intro for a horror podcast"
+      ],
+      "creditos_fr": [
+        "Introduction musicale pour un podcast d'horreur"
+      ]
+    },
+    {
+      "slug": "feel",
+      "titulo": "Feel (Immersive Soundscapes)",
+      "tipo": "identidadSonora",
+      "principal": [],
+      "texto1_es": [],
+      "texto1_en": [],
+      "texto1_fr": [],
+      "audio": [
+        "TRANQUILITY.mp3",
+        "DREAMY.mp3",
+        "PEACE.mp3",
+        "FOCUS.mp3",
+        "SADNESS.mp3",
+        "TRANSCENDENCE.mp3"
+      ],
+      "texto2_es": [
+        "<a href=\"https://www.feelapp.io/\" target=\"_blank\" rel=\"noopener noreferrer\">Visitar web de Feel</a>"
+      ],
+      "texto2_en": [
+        "<a href=\"https://www.feelapp.io/\" target=\"_blank\" rel=\"noopener noreferrer\">Visit Feel website</a>"
+      ],
+      "texto2_fr": [
+        "<a href=\"https://www.feelapp.io/\" target=\"_blank\" rel=\"noopener noreferrer\">Visiter le site de Feel</a>"
+      ],
+      "galeria": [
+        "FEEL LOGO.webp"
+      ],
+      "creditos_es": [
+        "Composición, producción y mezcla inmersiva para Feel, una app de introspección en desarrollo"
+      ],
+      "creditos_en": [
+        "Composition, production, and immersive mixing for Feel, an introspection app in development"
+      ],
+      "creditos_fr": [
+        "Composition, production et mixage immersif pour Feel, une application d'introspection en développement"
+      ]
+    },
+    {
+      "slug": "pleasex3",
+      "titulo": "Please Please Please (cover Lost Weekend)",
+      "tipo": "musicaMezcla",
+      "principal": [],
+      "texto1_es": [],
+      "texto1_en": [],
+      "texto1_fr": [],
+      "audio": [
+        "Please Please Please.mp3"
+      ],
+      "texto2_es": [],
+      "texto2_en": [],
+      "texto2_fr": [],
+      "galeria": [],
+      "creditos_es": [
+        "Mezcla y edición de audio para la cover \"Please Please Please - Sabrina Carpenter\" del grupo Lost Weekend del guitarrista y cantante Michael Berman"
+      ],
+      "creditos_en": [
+        "Audio mixing and editing for Lost Weekend's cover of \"Please Please Please - Sabrina Carpenter\" by guitarist and singer Michael Berman"
+      ],
+      "creditos_fr": [
+        "Mixage et montage audio pour la reprise de \"Please Please Please - Sabrina Carpenter\" par le groupe Lost Weekend, du guitariste et chanteur Michael Berman"
+      ]
+    },
+    {
+      "slug": "lotura",
+      "titulo": "Igoera (Lotura)",
+      "tipo": "musicaMezcla",
+      "principal": [],
+      "texto1_es": [],
+      "texto1_en": [],
+      "texto1_fr": [],
+      "audio": [
+        "REVELATION.mp3",
+        "FAITH.mp3"
+      ],
+      "texto2_es": [
+        "<a href=\"https://lotura.bandcamp.com/album/igoera\" target=\"_blank\" rel=\"noopener noreferrer\">Álbum completo en Bandcamp</a>"
+      ],
+      "texto2_en": [
+        "<a href=\"https://lotura.bandcamp.com/album/igoera\" target=\"_blank\" rel=\"noopener noreferrer\">Full album on Bandcamp</a>"
+      ],
+      "texto2_fr": [
+        "<a href=\"https://lotura.bandcamp.com/album/igoera\" target=\"_blank\" rel=\"noopener noreferrer\">Album complet sur Bandcamp</a>"
+      ],
+      "galeria": [
+        "Portada.webp",
+        "Tracklist.webp"
+      ],
+      "creditos_es": [
+        "Producción de dos tracks para el álbum recopilatorio de Trance \"Igoera\""
+      ],
+      "creditos_en": [
+        "Production of two tracks for the Trance compilation album \"Igoera\""
+      ],
+      "creditos_fr": [
+        "Production de deux morceaux pour l'album compilation Trance \"Igoera\""
+      ]
+    },
+    {
+      "slug": "remix_madonna",
+      "titulo": "Beatport Remix Contest - Madonna Ray Of Light (Submission)",
+      "tipo": "musicaMezcla",
+      "principal": [],
+      "texto1_es": [],
+      "texto1_en": [],
+      "texto1_fr": [],
+      "audio": [
+        "MADONNA - RAY OF LIGHT (SUN AND MOON REMIX).mp3"
+      ],
+      "texto2_es": [],
+      "texto2_en": [],
+      "texto2_fr": [],
+      "galeria": [],
+      "creditos_es": [
+        "Remix de la canción del álbum de Madonna para concurso de la plataforma Beatport"
+      ],
+      "creditos_en": [
+        "Remix of a track from Madonna's album for the Beatport platform contest"
+      ],
+      "creditos_fr": [
+        "Remix d'un morceau de l'album de Madonna pour le concours de la plateforme Beatport"
+      ]
+    },
+    {
+      "slug": "remix_ravel",
+      "titulo": "Fiverr Remix Contest - Bolero de Ravel (Submission)",
+      "tipo": "musicaMezcla",
+      "principal": [],
+      "texto1_es": [],
+      "texto1_en": [],
+      "texto1_fr": [],
+      "audio": [
+        "Ravel In Ecstasy - Diego San Marcos.mp3"
+      ],
+      "texto2_es": [],
+      "texto2_en": [],
+      "texto2_fr": [],
+      "galeria": [],
+      "creditos_es": [
+        "Remix electrónico del Bolero de Ravel para concurso de la plataforma Fiverr"
+      ],
+      "creditos_en": [
+        "Electronic remix of Ravel's Bolero for the Fiverr platform contest"
+      ],
+      "creditos_fr": [
+        "Remix électronique du Boléro de Ravel pour le concours de la plateforme Fiverr"
+      ]
+    },
+    {
+      "slug": "conexionesfera",
+      "titulo": "Conexionesfera Records For Mind Freeing And Liberation Of The Sense Of Self",
+      "tipo": "miMusica",
+      "principal": [],
+      "texto1_es": [],
+      "texto1_en": [],
+      "texto1_fr": [],
+      "audio": [
+        "Sueño Lúcido.mp3",
+        "Cascade Electronique.mp3",
+        "Finder.mp3",
+        "Hiperespacio.mp3",
+        "Amor Superestéreo.mp3",
+        "Espacio De Armonía y Alta Vibración.mp3",
+        "Flying Through The Timeless Mind.mp3",
+        "Psicodelia.mp3",
+        "Luces Verdes Violetas.mp3",
+        "Libera Tu Mente.mp3",
+        "Tech Trance.mp3",
+        "Living In My Head.mp3",
+        "Trance Futura.mp3",
+        "Xfera.mp3"
+      ],
+      "texto2_es": [],
+      "texto2_en": [],
+      "texto2_fr": [],
+      "galeria": [
+        "PORTADA blanco contraste blanco.webp",
+        "PORTADA TRACKLIST blanco contraste negro.webp"
+      ],
+      "creditos_es": [
+        "Interpretación, producción y mezcla"
+      ],
+      "creditos_en": [
+        "Performance, production and mixing"
+      ],
+      "creditos_fr": [
+        "Interprétation, production et mixage"
+      ]
+    },
+    {
+      "slug": "meProyecto",
+      "titulo": "Me Proyecto En El Vacío",
+      "tipo": "miMusica",
+      "principal": [
+        "ME PROYECTO.mp4"
+      ],
+      "texto1_es": [],
+      "texto1_en": [],
+      "texto1_fr": [],
+      "audio": [],
+      "texto2_es": [],
+      "texto2_en": [],
+      "texto2_fr": [],
+      "galeria": [],
+      "creditos_es": [
+        "Interpretación, producción y mezcla (año 2020)"
+      ],
+      "creditos_en": [
+        "Performance, production and mixing (year 2020)"
+      ],
+      "creditos_fr": [
+        "Interprétation, production et mixage (année 2020)"
+      ]
+    },
+    {
+      "slug": "TDK",
+      "titulo": "TDK (Recopilación de tracks)",
+      "tipo": "miMusica",
+      "principal": [],
+      "texto1_es": [],
+      "texto1_en": [],
+      "texto1_fr": [],
+      "audio": [
+        "ALMA_V5.mp3",
+        "tranquilidad.mp3",
+        "LLAMA DE TI_V8.mp3",
+        "océano profundo_4.mp3",
+        "ONDA MAESTRA_3.mp3",
+        "perc ralf MASTER.mp3"
+      ],
+      "texto2_es": [],
+      "texto2_en": [],
+      "texto2_fr": [],
+      "galeria": [
+        "TDK.webp"
+      ],
+      "creditos_es": [
+        "Interpretación, producción y mezcla"
+      ],
+      "creditos_en": [
+        "Performance, production and mixing"
+      ],
+      "creditos_fr": [
+        "Interprétation, production et mixage"
+      ]
     }
   ],
   "categories": {

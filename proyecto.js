@@ -33,7 +33,7 @@ function loc(obj, field) {
 }
 
 function getProjectTitle(project) {
-    return project.titulo ?? project.titulo_es ?? project.slug;
+    return project.titulo ?? project.slug;
 }
 
 function getModeFromURL() {
@@ -210,26 +210,39 @@ async function renderArchivosTexto() {
 function renderPrincipal() {
     const section = document.getElementById('principal-section');
     const container = document.getElementById('principal-content');
+    const principalFiles = (currentProject.principal || []).filter(Boolean);
 
-    if (!currentProject.principal || !currentProject.principal.length || !currentProject.principal[0]) {
+    if (principalFiles.length === 0) {
         section.style.display = 'none';
         return;
     }
 
-    const file = currentProject.principal[0];
-    const path = `./data/projects/${currentProject.slug}/${file}`;
+    container.innerHTML = '';
+    let renderedCount = 0;
 
-    if (file.match(/\.(mp4|webm|ogg)$/i)) {
-        const video = document.createElement('video');
-        video.src = path;
-        video.controls = true;
-        video.autoplay = false;
-        container.appendChild(video);
-    } else if (file.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
-        const img = document.createElement('img');
-        img.src = path;
-        img.alt = getProjectTitle(currentProject);
-        container.appendChild(img);
+    principalFiles.forEach(file => {
+        const path = `./data/projects/${currentProject.slug}/${file}`;
+
+        if (file.match(/\.(mp4|webm|ogg)$/i)) {
+            const video = document.createElement('video');
+            video.src = path;
+            video.controls = true;
+            video.autoplay = false;
+            container.appendChild(video);
+            renderedCount++;
+        } else if (file.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+            const img = document.createElement('img');
+            img.src = path;
+            img.alt = getProjectTitle(currentProject);
+            container.appendChild(img);
+            renderedCount++;
+        }
+    });
+
+    if (renderedCount === 0) {
+        section.style.display = 'none';
+    } else {
+        section.style.display = '';
     }
 }
 
