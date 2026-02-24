@@ -99,6 +99,7 @@ async function loadProjectFromURL() {
     updateModeInURL(currentMode);
     setupBackground(currentMode);
     await renderProject();
+    createMenuButton();
     setupClickOutsideBack();
 }
 
@@ -357,11 +358,143 @@ function renderCreditos() {
     });
 }
 
+// ===== MENU =====
+const LANGUAGES = ['ES', 'EN', 'FR'];
+const MENU_LABELS = {
+    es: { trigger: 'menu', openPlayer: 'abrir reproductor', changeLang: 'cambiar idioma', back: 'volver', close: 'cerrar menu' },
+    en: { trigger: 'menu', openPlayer: 'open player', changeLang: 'change language', back: 'back', close: 'close menu' },
+    fr: { trigger: 'menu', openPlayer: 'ouvrir lecteur', changeLang: 'changer de langue', back: 'retour', close: 'fermer menu' }
+};
+
+function getMenuLabels() {
+    return MENU_LABELS[currentLang] || MENU_LABELS.es;
+}
+
+function getNextLangCode() {
+    const idx = LANGUAGES.indexOf(currentLangCode);
+    return LANGUAGES[(idx + 1) % LANGUAGES.length];
+}
+
+function cycleLanguage() {
+    const nextCode = getNextLangCode();
+    currentLangCode = nextCode;
+    currentLang = DSM_SHARED.languageCodeToHtml(nextCode);
+
+    // Persistir (misma logica que app.js syncLanguageState / initializeLanguage)
+    localStorage.setItem('dsm_lang', nextCode);
+    document.documentElement.lang = currentLang;
+    const params = new URLSearchParams(window.location.search);
+    params.set('lang', nextCode);
+    const query = params.toString();
+    history.replaceState(null, '', `${window.location.pathname}?${query}`);
+}
+
+function createMenuButton() {
+    const main = document.querySelector('.project-main');
+    const btn = document.createElement('button');
+    btn.className = 'menu-trigger';
+    btn.textContent = getMenuLabels().trigger;
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openMenu();
+    });
+    main.appendChild(btn);
+}
+
+function openMenu() {
+    // Evitar duplicados
+    if (document.querySelector('.menu-overlay')) return;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'menu-overlay';
+
+    const modal = document.createElement('div');
+    modal.className = 'menu-modal';
+
+    // Aplicar misma border-image que project-main
+    const frameFile = appData.frames && appData.frames[currentMode];
+    if (frameFile) {
+        modal.style.borderImage = `url('./data/9slice/${frameFile}') 16 fill / 16px / 0 stretch`;
+    }
+
+    const itemsContainer = document.createElement('div');
+    itemsContainer.className = 'menu-items';
+    modal.appendChild(itemsContainer);
+
+    renderMenuContent(itemsContainer);
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+
+    // Click fuera del modal = cerrar
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+            e.stopPropagation();
+            closeMenu();
+        }
+    });
+
+    // Bloquear propagacion del modal para que no active el click-outside-back
+    modal.addEventListener('click', (e) => e.stopPropagation());
+}
+
+function renderMenuContent(container) {
+    container.innerHTML = '';
+    const labels = getMenuLabels();
+
+    // 1. Abrir reproductor
+    const playerBtn = document.createElement('button');
+    playerBtn.className = 'menu-item';
+    playerBtn.textContent = labels.openPlayer;
+    playerBtn.addEventListener('click', () => {
+        DSM_Player.show();
+        closeMenu();
+    });
+    container.appendChild(playerBtn);
+
+    // 2. Cambiar idioma
+    const langBtn = document.createElement('button');
+    langBtn.className = 'menu-item';
+    langBtn.textContent = labels.changeLang;
+    langBtn.addEventListener('click', () => {
+        cycleLanguage();
+        // Re-renderizar el contenido del menu con el nuevo idioma
+        renderMenuContent(container);
+        // Actualizar tambien el boton trigger debajo del contenido
+        const trigger = document.querySelector('.menu-trigger');
+        if (trigger) trigger.textContent = getMenuLabels().trigger;
+    });
+    container.appendChild(langBtn);
+
+    // 3. Volver
+    const backBtn = document.createElement('button');
+    backBtn.className = 'menu-item';
+    backBtn.textContent = labels.back;
+    backBtn.addEventListener('click', () => {
+        window.location.href = `./index.html?modo=${currentMode}&lang=${currentLangCode}`;
+    });
+    container.appendChild(backBtn);
+
+    // 4. Cerrar menu
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'menu-item';
+    closeBtn.textContent = labels.close;
+    closeBtn.addEventListener('click', () => closeMenu());
+    container.appendChild(closeBtn);
+}
+
+function closeMenu() {
+    const overlay = document.querySelector('.menu-overlay');
+    if (overlay) overlay.remove();
+}
+
 // ===== CLICK FUERA DEL MAIN PARA VOLVER =====
 function setupClickOutsideBack() {
     document.addEventListener('click', (e) => {
         const main = document.querySelector('.project-main');
         const player = document.getElementById('audio-player');
+        const menuOverlay = document.querySelector('.menu-overlay');
+        if (menuOverlay) return; // Menu abierto — no navegar
         if (main && !main.contains(e.target) && (!player || !player.contains(e.target))) {
             window.location.href = `./index.html?modo=${currentMode}&lang=${currentLangCode}`;
         }

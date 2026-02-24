@@ -36,6 +36,7 @@
     padding: 10dvh 2rem;
     /* border necesario para que border-image funcione (se aplica desde JS) */
     border: 16px solid transparent;
+    position: relative;
     /* Animacion de entrada */
     animation: mainAppear 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
@@ -210,16 +211,15 @@
 
 /* ===== GALERIA ===== */
 .gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 3px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
 }
 
 .gallery-item {
-    aspect-ratio: 1 / 1;
-    overflow: hidden;
-    background: #0a0a0a;
-    cursor: pointer;
+    width: 100%;
+    max-width: 100%;
     transition: opacity 0.2s ease;
 }
 
@@ -229,9 +229,9 @@
 
 .gallery-item img {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: auto;
     display: block;
+    object-fit: contain;
 }
 
 /* ===== CREDITOS ===== */
@@ -246,6 +246,103 @@
 
 .credits-content p:last-child {
     margin-bottom: 0;
+}
+
+/* ===== BOTON MENU (TRIGGER) ===== */
+.menu-trigger {
+    position: absolute;
+    left: 50%;
+    bottom: 0.9rem;
+    transform: translateX(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    min-width: 240px;
+    padding: 1.2rem 2.8rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'Fidelma', serif;
+    font-size: 1.85rem;
+    line-height: 1;
+    font-weight: normal;
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 0.02em;
+    transition: color 0.2s ease;
+}
+
+.menu-trigger:hover {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* ===== MENU OVERLAY ===== */
+.menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: menuOverlayIn 0.3s ease both;
+}
+
+@keyframes menuOverlayIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ===== MENU MODAL ===== */
+.menu-modal {
+    max-width: 540px;
+    width: calc(100% - 16dvw);
+    box-sizing: border-box;
+    padding: 8dvh 2rem;
+    border: 16px solid transparent;
+    /* border-image se aplica desde JS (misma que project-main) */
+    animation: menuModalIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: 0.05s;
+}
+
+@keyframes menuModalIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ===== MENU ITEMS ===== */
+.menu-items {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2.5rem;
+}
+
+.menu-item {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'Fidelma', serif;
+    font-size: 1.8rem;
+    font-weight: normal;
+    color: rgba(255, 255, 255, 0.6);
+    letter-spacing: 0.02em;
+    transition: color 0.2s ease;
+    text-align: center;
+    line-height: 1.3;
+}
+
+.menu-item:hover {
+    color: #fff;
 }
 
 /* ===== BOTON VOLVER (BARRA COMPLETA AL FINAL) ===== */
@@ -298,16 +395,37 @@
         font-size: 0.9rem;
     }
 
-    .gallery-grid {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    }
-
     .back-button {
         height: 48px;
+    }
+
+    .menu-trigger {
+        min-width: 200px;
+        padding: 1rem 2.1rem;
+        font-size: 1.45rem;
+        bottom: 0.6rem;
+    }
+
+    .menu-modal {
+        width: calc(100% - 3rem);
+        padding: 6dvh 1.5rem;
+    }
+
+    .menu-item {
+        font-size: 1.4rem;
+    }
+
+    .menu-items {
+        gap: 2rem;
     }
 }
 
 @media (max-width: 480px) {
+    .menu-modal {
+        width: calc(100% - 5rem);
+        padding: 5dvh 1.2rem;
+    }
+
     .back-button {
         height: 44px;
         font-size: 0.65rem;
