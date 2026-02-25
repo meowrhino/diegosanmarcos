@@ -3,7 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">proyecto - diego san marcos</title>
+    <title id="page-title">diego san marcos</title>
+    <meta name="description" content="Proyecto de Diego San Marcos: musica, mezcla y trabajo sonoro/audiovisual.">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#000000">
+    <link rel="canonical" id="canonical-url" href="">
+
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Diego San Marcos">
+    <meta property="og:title" content="diego san marcos" id="og-title">
+    <meta property="og:description" content="Proyecto de Diego San Marcos: musica, mezcla y trabajo sonoro/audiovisual." id="og-description">
+    <meta property="og:url" content="" id="og-url">
+    <meta property="og:image" content="" id="og-image">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="diego san marcos" id="twitter-title">
+    <meta name="twitter:description" content="Proyecto de Diego San Marcos: musica, mezcla y trabajo sonoro/audiovisual." id="twitter-description">
+    <meta name="twitter:image" content="" id="twitter-image">
+
+    <script type="application/ld+json" id="project-json-ld">{}</script>
     <link rel="icon" type="image/png" href="./data/icons/OJO RA_PORTFOLIO.png">
     <link rel="stylesheet" href="./styles.css">
     <link rel="stylesheet" href="./proyecto.css">
@@ -47,9 +65,9 @@
     </main>
 
     <!-- Butterchurn visualizer (Milkdrop WebGL) -->
-    <script src="https://unpkg.com/butterchurn-presets@3.0.0-beta.4/dist/base.min.js"></script>
+    <script src="./vendor/butterchurn-presets/base.min.js"></script>
     <script type="module">
-        import butterchurn from 'https://unpkg.com/butterchurn@3.0.0-beta.5/dist/butterchurn.js';
+        import butterchurn from './vendor/butterchurn/butterchurn.js';
         window.butterchurn = butterchurn;
         window.dispatchEvent(new Event('butterchurn-ready'));
     </script>

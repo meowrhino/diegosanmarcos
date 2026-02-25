@@ -30,6 +30,93 @@ function getProjectTitle(project) {
     return project.titulo_home ?? project.titulo_proyecto ?? project.slug;
 }
 
+const SITE_TITLE = 'diego san marcos';
+
+const HOME_SEO_COPY = {
+    ES: {
+        portfolio: {
+            description: 'Portfolio de Diego San Marcos: musica, mezcla, audio inmersivo y proyectos audiovisuales.'
+        },
+        personal: {
+            description: 'Proyecto personal de Diego San Marcos con musica original, exploracion sonora y piezas audiovisuales.'
+        }
+    },
+    EN: {
+        portfolio: {
+            description: 'Portfolio by Diego San Marcos: music, mixing, immersive audio and audiovisual projects.'
+        },
+        personal: {
+            description: 'Personal project by Diego San Marcos with original music, sound exploration and audiovisual pieces.'
+        }
+    },
+    FR: {
+        portfolio: {
+            description: 'Portfolio de Diego San Marcos: musique, mixage, audio immersif et projets audiovisuels.'
+        },
+        personal: {
+            description: 'Projet personnel de Diego San Marcos avec musique originale, exploration sonore et pieces audiovisuelles.'
+        }
+    }
+};
+
+function setMetaContent(selector, value) {
+    if (!value) return;
+    const el = document.querySelector(selector);
+    if (el) el.setAttribute('content', value);
+}
+
+function setCanonicalHref(url) {
+    if (!url) return;
+    const el = document.getElementById('canonical-url');
+    if (el) el.setAttribute('href', url);
+}
+
+function updateHomeSEO() {
+    const lang = currentLangCode();
+    const langCopy = HOME_SEO_COPY[lang] || HOME_SEO_COPY.ES;
+    const copy = langCopy[currentMode] || langCopy.portfolio;
+
+    const canonical = new URL(window.location.pathname, window.location.origin).toString();
+    const bgFile = appData?.backgrounds?.[currentMode];
+    const image = bgFile
+        ? new URL(`./data/backgrounds/${bgFile}`, window.location.href).toString()
+        : new URL('./data/icons/OJO RA_PORTFOLIO.png', window.location.href).toString();
+
+    document.title = SITE_TITLE;
+    setCanonicalHref(canonical);
+    setMetaContent('meta[name="description"]', copy.description);
+
+    setMetaContent('meta[property="og:title"]', SITE_TITLE);
+    setMetaContent('meta[property="og:description"]', copy.description);
+    setMetaContent('meta[property="og:url"]', canonical);
+    setMetaContent('meta[property="og:image"]', image);
+
+    setMetaContent('meta[name="twitter:title"]', SITE_TITLE);
+    setMetaContent('meta[name="twitter:description"]', copy.description);
+    setMetaContent('meta[name="twitter:image"]', image);
+
+    const jsonLdEl = document.getElementById('home-json-ld');
+    if (jsonLdEl) {
+        jsonLdEl.textContent = JSON.stringify({
+            '@context': 'https://schema.org',
+            '@graph': [
+                {
+                    '@type': 'Person',
+                    name: 'Diego San Marcos',
+                    url: canonical
+                },
+                {
+                    '@type': 'WebSite',
+                    name: 'Diego San Marcos',
+                    url: canonical,
+                    inLanguage: currentLang(),
+                    description: copy.description
+                }
+            ]
+        });
+    }
+}
+
 function normalizeMode(value) {
     return VALID_MODES.has(value) ? value : null;
 }
@@ -130,6 +217,7 @@ function initializeUI() {
     syncLanguageState();
     setBackground(currentMode);
     DSM_SHARED.updateFavicon(currentMode);
+    updateHomeSEO();
     renderProjects();
     loadBgmIfNeeded();
 }
@@ -194,6 +282,7 @@ function calculateGrid() {
 function renderProjects() {
     const container = document.getElementById('projects-container');
     container.innerHTML = '';
+    updateHomeSEO();
 
     const categories = appData.categories[currentMode] || [];
     const filteredProjects = appData.projects.filter(p => categories.includes(p.tipo));

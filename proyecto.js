@@ -36,6 +36,94 @@ function getProjectTitle(project) {
     return project.titulo_proyecto ?? project.titulo_home ?? project.slug;
 }
 
+const SITE_TITLE = 'diego san marcos';
+
+function setMetaContent(selector, value) {
+    if (!value) return;
+    const el = document.querySelector(selector);
+    if (el) el.setAttribute('content', value);
+}
+
+function setCanonicalHref(url) {
+    if (!url) return;
+    const el = document.getElementById('canonical-url');
+    if (el) el.setAttribute('href', url);
+}
+
+function stripHtml(text) {
+    return String(text || '')
+        .replace(/<[^>]*>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function truncateText(text, maxLength = 170) {
+    if (text.length <= maxLength) return text;
+    return text.slice(0, maxLength - 3).trimEnd() + '...';
+}
+
+function getProjectSeoDescription(project) {
+    const credit = (loc(project, 'creditos') || []).find(Boolean);
+    const text1 = (loc(project, 'texto1') || []).find(Boolean);
+    const text2 = (loc(project, 'texto2') || []).find(Boolean);
+    const fallback = `Proyecto de ${getProjectTitle(project)} por Diego San Marcos.`;
+    return truncateText(stripHtml(credit || text1 || text2 || fallback));
+}
+
+function getProjectSeoImagePath(project) {
+    const imagePattern = /\.(jpg|jpeg|png|gif|webp|svg)$/i;
+    const principalImage = (project.principal || []).find(file => imagePattern.test(file));
+    if (principalImage) return `./data/projects/${project.slug}/${principalImage}`;
+
+    const galleryImage = (project.galeria || []).find(file => imagePattern.test(file));
+    if (galleryImage) return `./data/projects/${project.slug}/${galleryImage}`;
+
+    return './data/icons/OJO RA_PORTFOLIO.png';
+}
+
+function updateProjectSEO() {
+    if (!currentProject) return;
+
+    const projectTitle = getProjectTitle(currentProject);
+    const description = getProjectSeoDescription(currentProject);
+    const canonicalURL = new URL(window.location.pathname, window.location.origin);
+    canonicalURL.searchParams.set('proyecto', currentProject.slug);
+    const canonical = canonicalURL.toString();
+    const image = new URL(getProjectSeoImagePath(currentProject), window.location.href).toString();
+
+    document.title = SITE_TITLE;
+    const titleEl = document.getElementById('page-title');
+    if (titleEl) titleEl.textContent = SITE_TITLE;
+
+    setCanonicalHref(canonical);
+    setMetaContent('meta[name="description"]', description);
+    setMetaContent('meta[property="og:title"]', SITE_TITLE);
+    setMetaContent('meta[property="og:description"]', description);
+    setMetaContent('meta[property="og:url"]', canonical);
+    setMetaContent('meta[property="og:image"]', image);
+    setMetaContent('meta[name="twitter:title"]', SITE_TITLE);
+    setMetaContent('meta[name="twitter:description"]', description);
+    setMetaContent('meta[name="twitter:image"]', image);
+
+    const jsonLdEl = document.getElementById('project-json-ld');
+    if (jsonLdEl) {
+        jsonLdEl.textContent = JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'CreativeWork',
+            name: projectTitle,
+            url: canonical,
+            inLanguage: currentLang,
+            description,
+            image,
+            genre: currentProject.tipo,
+            author: {
+                '@type': 'Person',
+                name: 'Diego San Marcos'
+            }
+        });
+    }
+}
+
 function getModeFromURL() {
     const params = new URLSearchParams(window.location.search);
     const mode = params.get('modo') || params.get('mode');
@@ -128,7 +216,7 @@ function setupBackground(mode) {
 
 // ===== RENDERIZAR PROYECTO =====
 async function renderProject() {
-    document.getElementById('page-title').textContent = `${getProjectTitle(currentProject)} - diego san marcos`;
+    updateProjectSEO();
 
     renderTitle();
 
@@ -387,6 +475,7 @@ function cycleLanguage() {
     params.set('lang', nextCode);
     const query = params.toString();
     history.replaceState(null, '', `${window.location.pathname}?${query}`);
+    updateProjectSEO();
 }
 
 function createMenuButton() {

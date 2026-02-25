@@ -505,7 +505,8 @@ span.special-tile-icon.lang-icon {
 .preset-nav {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
+    gap: 2px;
     padding: 6px 12px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     font-size: 0.6rem;
@@ -525,6 +526,11 @@ span.special-tile-icon.lang-icon {
     cursor: pointer;
     padding: 0 4px;
     line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
     transition: color 0.15s ease;
 }
 
@@ -536,10 +542,15 @@ span.special-tile-icon.lang-icon {
     background: none;
     border: none;
     color: rgba(255, 255, 255, 0.4);
-    font-size: 0.6rem;
+    font-size: 0.68rem;
     cursor: pointer;
     padding: 0 4px;
     line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
     transition: color 0.15s ease;
 }
 
@@ -549,11 +560,12 @@ span.special-tile-icon.lang-icon {
 
 .preset-nav-name {
     flex: 1;
-    text-align: center;
+    min-width: 0;
+    text-align: left;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    padding: 0 6px;
+    padding: 0 8px 0 4px;
 }
 
 /* ===== PLAYLIST PANEL ===== */
@@ -568,6 +580,12 @@ span.special-tile-icon.lang-icon {
     border-bottom: none;
     overflow-y: auto;
     z-index: 2;
+}
+
+#audio-player.is-fullscreen .playlist-panel {
+    bottom: 0;
+    max-height: min(64vh, 520px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .playlist-panel.hidden {

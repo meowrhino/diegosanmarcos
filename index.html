@@ -4,6 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>diego san marcos</title>
+    <meta name="description" content="Portfolio de Diego San Marcos: musica, mezcla, audio inmersivo y proyectos audiovisuales.">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#000000">
+    <link rel="canonical" id="canonical-url" href="">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Diego San Marcos">
+    <meta property="og:title" content="diego san marcos">
+    <meta property="og:description" content="Portfolio de Diego San Marcos: musica, mezcla, audio inmersivo y proyectos audiovisuales.">
+    <meta property="og:url" content="" id="og-url">
+    <meta property="og:image" content="" id="og-image">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="diego san marcos">
+    <meta name="twitter:description" content="Portfolio de Diego San Marcos: musica, mezcla, audio inmersivo y proyectos audiovisuales.">
+    <meta name="twitter:image" content="" id="twitter-image">
+
+    <script type="application/ld+json" id="home-json-ld">{}</script>
     <link rel="icon" type="image/png" href="./data/icons/OJO RA_PORTFOLIO.png">
     <link rel="stylesheet" href="./styles.css">
 </head>
@@ -15,9 +33,9 @@
     <main id="projects-container"></main>
 
     <!-- Butterchurn visualizer (Milkdrop WebGL) -->
-    <script src="https://unpkg.com/butterchurn-presets@3.0.0-beta.4/dist/base.min.js"></script>
+    <script src="./vendor/butterchurn-presets/base.min.js"></script>
     <script type="module">
-        import butterchurn from 'https://unpkg.com/butterchurn@3.0.0-beta.5/dist/butterchurn.js';
+        import butterchurn from './vendor/butterchurn/butterchurn.js';
         window.butterchurn = butterchurn;
         window.dispatchEvent(new Event('butterchurn-ready'));
     </script>
