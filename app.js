@@ -675,36 +675,33 @@ function playIrisTransition(nextMode) {
         document.body.appendChild(overlay);
     }
 
-    // Fase 1: cerrar — degradado radial crece desde el centro cubriendo la pantalla
-    // El gradiente va de transparente en el centro a color en el borde,
-    // y el radio de la parte transparente se encoge progresivamente
+    // Fase 1: cubrir — disco de color se expande desde el centro hacia fuera
+    overlay.style.background = 'none';
     let step = 0;
-    const close = setInterval(() => {
-        const t = step / steps; // 0 → 1
-        // Ease-in-out
+    const expand = setInterval(() => {
+        const t = step / steps;
         const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-        // El hueco transparente se encoge de 120% a 0%
-        const hole = 120 * (1 - e);
-        const fade = hole + 30; // zona de degradado suave
-        overlay.style.background = `radial-gradient(circle at 50% 50%, transparent ${hole}%, ${color} ${fade}%)`;
+        // El disco de color crece de 0% a 120%
+        const disc = 120 * e;
+        const fade = disc + 30;
+        overlay.style.background = `radial-gradient(circle at 50% 50%, ${color} ${disc}%, transparent ${fade}%)`;
         step++;
         if (step > steps) {
-            clearInterval(close);
-            // Pantalla cubierta — cambiar fondo
+            clearInterval(expand);
             overlay.style.background = color;
             switchMode(nextMode);
 
-            // Fase 2: abrir — el hueco transparente crece desde el centro revelando el nuevo fondo
+            // Fase 2: revelar — hueco transparente se abre desde el centro hacia fuera
             let step2 = 0;
-            const open = setInterval(() => {
+            const reveal = setInterval(() => {
                 const t2 = step2 / steps;
                 const e2 = t2 < 0.5 ? 2 * t2 * t2 : 1 - Math.pow(-2 * t2 + 2, 2) / 2;
-                const hole2 = 120 * e2;
-                const fade2 = Math.max(0, hole2 - 30);
-                overlay.style.background = `radial-gradient(circle at 50% 50%, transparent ${fade2}%, ${color} ${hole2}%)`;
+                const hole = 120 * e2;
+                const fade2 = Math.max(0, hole - 30);
+                overlay.style.background = `radial-gradient(circle at 50% 50%, transparent ${fade2}%, ${color} ${hole}%)`;
                 step2++;
                 if (step2 > steps) {
-                    clearInterval(open);
+                    clearInterval(reveal);
                     overlay.style.background = 'none';
                 }
             }, interval);
