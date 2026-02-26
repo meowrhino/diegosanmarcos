@@ -445,7 +445,7 @@ function createProjectCard(project) {
     card.appendChild(inner);
     card.addEventListener('click', () => {
         const slug = encodeURIComponent(project.slug);
-        window.location.href = `./proyecto.html?proyecto=${slug}&modo=${currentMode}&lang=${currentLangCode()}`;
+        DSM_SHARED.navigateTo(`./proyecto.html?proyecto=${slug}&modo=${currentMode}&lang=${currentLangCode()}`);
     });
 
     return card;
@@ -635,7 +635,9 @@ function renderHomeMenuContent(container) {
 
 function closeHomeMenu() {
     const overlay = document.querySelector('.menu-overlay');
-    if (overlay) overlay.remove();
+    if (!overlay || overlay.classList.contains('closing')) return;
+    overlay.classList.add('closing');
+    overlay.addEventListener('animationend', () => overlay.remove(), { once: true });
 }
 
 // ===== TRANSICION IRIS RADIAL =====

@@ -550,7 +550,7 @@ function renderMenuContent(container) {
     backBtn.className = 'menu-item';
     backBtn.textContent = labels.back;
     backBtn.addEventListener('click', () => {
-        window.location.href = `./index.html?modo=${currentMode}&lang=${currentLangCode}`;
+        DSM_SHARED.navigateTo(`./index.html?modo=${currentMode}&lang=${currentLangCode}`);
     });
     container.appendChild(backBtn);
 
@@ -564,7 +564,9 @@ function renderMenuContent(container) {
 
 function closeMenu() {
     const overlay = document.querySelector('.menu-overlay');
-    if (overlay) overlay.remove();
+    if (!overlay || overlay.classList.contains('closing')) return;
+    overlay.classList.add('closing');
+    overlay.addEventListener('animationend', () => overlay.remove(), { once: true });
 }
 
 // ===== CLICK FUERA DEL MAIN PARA VOLVER =====
@@ -575,7 +577,7 @@ function setupClickOutsideBack() {
         const menuOverlay = document.querySelector('.menu-overlay');
         if (menuOverlay) return; // Menu abierto — no navegar
         if (main && !main.contains(e.target) && (!player || !player.contains(e.target))) {
-            window.location.href = `./index.html?modo=${currentMode}&lang=${currentLangCode}`;
+            DSM_SHARED.navigateTo(`./index.html?modo=${currentMode}&lang=${currentLangCode}`);
         }
     });
 }

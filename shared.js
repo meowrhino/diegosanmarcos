@@ -37,6 +37,15 @@
         history.replaceState(null, '', newUrl);
     }
 
+    let _navigating = false;
+    function navigateTo(url, duration) {
+        if (_navigating) return;
+        _navigating = true;
+        const ms = duration ?? 300;
+        document.body.classList.add('page-exit');
+        setTimeout(() => { window.location.href = url; }, ms);
+    }
+
     function updateFavicon() {
         let link = document.querySelector("link[rel='icon']");
         if (!link) {
@@ -58,6 +67,7 @@
         setMetaContent,
         setCanonicalHref,
         updateModeInURL,
+        navigateTo,
         updateFavicon
     };
 })();

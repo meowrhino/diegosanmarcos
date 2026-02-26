@@ -30,6 +30,39 @@ body {
     min-height: 100vh;
 }
 
+/* ===== PAGE TRANSITIONS ===== */
+body.page-exit {
+    animation: pageExit 0.3s ease both;
+    pointer-events: none;
+}
+
+@keyframes pageExit {
+    to {
+        opacity: 0;
+        transform: scale(0.98);
+    }
+}
+
+/* Menu close */
+.menu-overlay.closing {
+    animation: menuOverlayOut 0.2s ease both;
+}
+
+.menu-overlay.closing .menu-modal {
+    animation: menuModalOut 0.2s ease both;
+}
+
+@keyframes menuOverlayOut {
+    to { opacity: 0; }
+}
+
+@keyframes menuModalOut {
+    to {
+        opacity: 0;
+        transform: translateY(10px) scale(0.97);
+    }
+}
+
 /* ===== FONDO DINAMICO ===== */
 #background-container {
     position: fixed;
