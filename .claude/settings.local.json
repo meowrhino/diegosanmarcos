@@ -46,7 +46,8 @@
       "Bash(grep -c 'viewBox=\"\"0 0 48 48\"\"' /Users/manu/Documents/GitHub/diegosanmarcos/data/9slice/frame-simple-*.svg)",
       "Bash(while read f)",
       "Bash(do du -sh \"$f\")",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(git rm --cached .DS_Store data/.DS_Store)"
     ]
   }
 }

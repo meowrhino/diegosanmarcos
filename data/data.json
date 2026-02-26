@@ -143,9 +143,7 @@
       "tipo": "miMusica",
       "visible": true,
       "mostrarImagen": true,
-      "principal": [
-        ""
-      ],
+      "principal": [],
       "texto1_es": [],
       "texto1_en": [],
       "texto1_fr": [],

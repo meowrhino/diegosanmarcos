@@ -2,7 +2,7 @@
 let appData = null;
 let coloresData = null;
 let currentMode = 'portfolio';
-const VALID_MODES = new Set(['portfolio', 'personal']);
+const VALID_MODES = DSM_SHARED.VALID_MODES;
 
 // ===== IDIOMA =====
 const LANGUAGES = ['ES', 'EN', 'FR'];
@@ -30,7 +30,8 @@ function getProjectTitle(project) {
     return project.titulo_home ?? project.titulo_proyecto ?? project.slug;
 }
 
-const SITE_TITLE = 'diego san marcos';
+const SITE_TITLE = DSM_SHARED.SITE_TITLE;
+const { setMetaContent, setCanonicalHref } = DSM_SHARED;
 
 const HOME_SEO_COPY = {
     ES: {
@@ -58,18 +59,6 @@ const HOME_SEO_COPY = {
         }
     }
 };
-
-function setMetaContent(selector, value) {
-    if (!value) return;
-    const el = document.querySelector(selector);
-    if (el) el.setAttribute('content', value);
-}
-
-function setCanonicalHref(url) {
-    if (!url) return;
-    const el = document.getElementById('canonical-url');
-    if (el) el.setAttribute('href', url);
-}
 
 function updateHomeSEO() {
     const lang = currentLangCode();
@@ -117,23 +106,12 @@ function updateHomeSEO() {
     }
 }
 
-function normalizeMode(value) {
-    return VALID_MODES.has(value) ? value : null;
-}
+const normalizeMode = DSM_SHARED.normalizeMode;
+const updateModeInURL = DSM_SHARED.updateModeInURL;
 
 function getInitialModeFromURL() {
     const params = new URLSearchParams(window.location.search);
     return normalizeMode(params.get('modo')) || normalizeMode(params.get('mode')) || 'portfolio';
-}
-
-function updateModeInURL(mode) {
-    const normalized = normalizeMode(mode);
-    if (!normalized) return;
-    const params = new URLSearchParams(window.location.search);
-    params.set('modo', normalized);
-    const query = params.toString();
-    const newUrl = query ? `${window.location.pathname}?${query}` : window.location.pathname;
-    history.replaceState(null, '', newUrl);
 }
 
 function updateLangInURL(languageCode) {

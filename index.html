@@ -7,21 +7,21 @@
     <meta name="description" content="Portfolio de Diego San Marcos: musica, mezcla, audio inmersivo y proyectos audiovisuales.">
     <meta name="robots" content="index,follow,max-image-preview:large">
     <meta name="theme-color" content="#000000">
-    <link rel="canonical" id="canonical-url" href="">
+    <link rel="canonical" id="canonical-url" href="/">
 
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Diego San Marcos">
     <meta property="og:title" content="diego san marcos">
     <meta property="og:description" content="Portfolio de Diego San Marcos: musica, mezcla, audio inmersivo y proyectos audiovisuales.">
-    <meta property="og:url" content="" id="og-url">
-    <meta property="og:image" content="" id="og-image">
+    <meta property="og:url" content="/" id="og-url">
+    <meta property="og:image" content="./data/icons/LOGO URL.png" id="og-image">
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="diego san marcos">
     <meta name="twitter:description" content="Portfolio de Diego San Marcos: musica, mezcla, audio inmersivo y proyectos audiovisuales.">
-    <meta name="twitter:image" content="" id="twitter-image">
+    <meta name="twitter:image" content="./data/icons/LOGO URL.png" id="twitter-image">
 
-    <script type="application/ld+json" id="home-json-ld">{}</script>
+    <script type="application/ld+json" id="home-json-ld">{"@context":"https://schema.org","@type":"WebSite","name":"Diego San Marcos","description":"Portfolio de Diego San Marcos: musica, mezcla, audio inmersivo y proyectos audiovisuales."}</script>
     <link rel="icon" type="image/png" href="./data/icons/LOGO URL.png">
     <link rel="stylesheet" href="./styles.css">
 </head>
@@ -33,7 +33,7 @@
     <main id="projects-container"></main>
 
     <!-- Butterchurn visualizer (Milkdrop WebGL) -->
-    <script src="./vendor/butterchurn-presets/base.min.js"></script>
+    <script src="./vendor/butterchurn-presets/base.min.js" defer></script>
     <script type="module">
         import butterchurn from './vendor/butterchurn/butterchurn.js';
         window.butterchurn = butterchurn;

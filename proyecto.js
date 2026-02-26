@@ -2,7 +2,7 @@
 let appData = null;
 let currentProject = null;
 let currentMode = 'portfolio';
-const VALID_MODES = new Set(['portfolio', 'personal']);
+const VALID_MODES = DSM_SHARED.VALID_MODES;
 
 // ===== IDIOMA =====
 let currentLangCode = 'ES';
@@ -36,19 +36,8 @@ function getProjectTitle(project) {
     return project.titulo_proyecto ?? project.titulo_home ?? project.slug;
 }
 
-const SITE_TITLE = 'diego san marcos';
-
-function setMetaContent(selector, value) {
-    if (!value) return;
-    const el = document.querySelector(selector);
-    if (el) el.setAttribute('content', value);
-}
-
-function setCanonicalHref(url) {
-    if (!url) return;
-    const el = document.getElementById('canonical-url');
-    if (el) el.setAttribute('href', url);
-}
+const SITE_TITLE = DSM_SHARED.SITE_TITLE;
+const { setMetaContent, setCanonicalHref } = DSM_SHARED;
 
 function stripHtml(text) {
     return String(text || '')
@@ -130,14 +119,7 @@ function getModeFromURL() {
     return VALID_MODES.has(mode) ? mode : null;
 }
 
-function updateModeInURL(mode) {
-    if (!VALID_MODES.has(mode)) return;
-    const params = new URLSearchParams(window.location.search);
-    params.set('modo', mode);
-    const query = params.toString();
-    const newUrl = query ? `${window.location.pathname}?${query}` : window.location.pathname;
-    history.replaceState(null, '', newUrl);
-}
+const updateModeInURL = DSM_SHARED.updateModeInURL;
 
 function getInferredMode() {
     if (!appData || !currentProject) return 'portfolio';
