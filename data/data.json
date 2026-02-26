@@ -4,15 +4,15 @@
       "categories": ["audiovisual", "identidadSonora", "audioInmersivo", "musicaMezcla", "about"],
       "background": "portfolio.webp",
       "frame": "frame-ff-crystal.svg",
-      "switchIcon": "OJO RA_PORTFOLIO.png",
-      "tileColor": { "bg": "#0a0a6e", "text": "#fff" }
+      "switchIcon": "espiral-personal.png",
+      "tileColor": { "bg": "#2830D2", "text": "#fff" }
     },
     "personal": {
       "categories": ["miMusica", "textos"],
       "background": "personal.webp",
       "frame": "frame-pkmn-modern.svg",
-      "switchIcon": "OJO HORUS_PESONAL.png",
-      "tileColor": { "bg": "#7B68EE", "text": "#fff" }
+      "switchIcon": "espiral-portfolio.png",
+      "tileColor": { "bg": "#781919", "text": "#fff" }
     }
   },
   "typeColors": {

@@ -510,9 +510,7 @@ function createSwitchTile() {
     inner.appendChild(label);
     tile.appendChild(inner);
     tile.addEventListener('click', () => {
-        // Animacion de transicion al clicar
-        tile.classList.add('switch-activating');
-        setTimeout(() => switchMode(nextMode), 350);
+        playIrisTransition(nextMode);
     });
     return tile;
 }
@@ -660,6 +658,58 @@ function renderHomeMenuContent(container) {
 function closeHomeMenu() {
     const overlay = document.querySelector('.menu-overlay');
     if (overlay) overlay.remove();
+}
+
+// ===== TRANSICION IRIS RADIAL =====
+function playIrisTransition(nextMode) {
+    const color = appData.modes[currentMode].tileColor.bg;
+    const duration = 500;  // ms por fase
+    const steps = 30;
+    const interval = duration / steps;
+
+    // Crear overlay
+    let overlay = document.getElementById('mode-iris-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'mode-iris-overlay';
+        document.body.appendChild(overlay);
+    }
+
+    // Fase 1: cerrar — degradado radial crece desde el centro cubriendo la pantalla
+    // El gradiente va de transparente en el centro a color en el borde,
+    // y el radio de la parte transparente se encoge progresivamente
+    let step = 0;
+    const close = setInterval(() => {
+        const t = step / steps; // 0 → 1
+        // Ease-in-out
+        const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        // El hueco transparente se encoge de 120% a 0%
+        const hole = 120 * (1 - e);
+        const fade = hole + 30; // zona de degradado suave
+        overlay.style.background = `radial-gradient(circle at 50% 50%, transparent ${hole}%, ${color} ${fade}%)`;
+        step++;
+        if (step > steps) {
+            clearInterval(close);
+            // Pantalla cubierta — cambiar fondo
+            overlay.style.background = color;
+            switchMode(nextMode);
+
+            // Fase 2: abrir — el hueco transparente crece desde el centro revelando el nuevo fondo
+            let step2 = 0;
+            const open = setInterval(() => {
+                const t2 = step2 / steps;
+                const e2 = t2 < 0.5 ? 2 * t2 * t2 : 1 - Math.pow(-2 * t2 + 2, 2) / 2;
+                const hole2 = 120 * e2;
+                const fade2 = Math.max(0, hole2 - 30);
+                overlay.style.background = `radial-gradient(circle at 50% 50%, transparent ${fade2}%, ${color} ${hole2}%)`;
+                step2++;
+                if (step2 > steps) {
+                    clearInterval(open);
+                    overlay.style.background = 'none';
+                }
+            }, interval);
+        }
+    }, interval);
 }
 
 // ===== CAMBIO DE MODO =====

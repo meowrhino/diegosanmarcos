@@ -10,12 +10,6 @@
         return LANG_SUFFIX[code] || 'es';
     }
 
-    function getSwitchIconPath(mode) {
-        return mode === 'portfolio'
-            ? './data/icons/OJO RA_PORTFOLIO.png'
-            : './data/icons/OJO HORUS_PESONAL.png';
-    }
-
     function updateFavicon() {
         let link = document.querySelector("link[rel='icon']");
         if (!link) {
@@ -31,7 +25,6 @@
         LANG_SUFFIX,
         normalizeLanguageCode,
         languageCodeToHtml,
-        getSwitchIconPath,
         updateFavicon
     };
 })();

@@ -16,7 +16,8 @@
       "WebFetch(domain:forums.winamp.com)",
       "WebFetch(domain:codesandbox.io)",
       "WebFetch(domain:bundlephobia.com)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(grep -r \"url\\(\" /Users/manu/Documents/GitHub/diegosanmarcos/*.css)"
     ]
   }
 }

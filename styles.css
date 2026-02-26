@@ -67,6 +67,14 @@ body {
     z-index: 1;
 }
 
+/* ===== TRANSICION IRIS RADIAL (SWITCH DE MODO) ===== */
+#mode-iris-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+}
+
 /* ===== CONTENEDOR PRINCIPAL - GRID WINDOWS 10 ===== */
 #projects-container {
     width: 100dvw;
@@ -229,19 +237,6 @@ span.special-tile-icon.lang-icon {
     transform: scale(0.97);
 }
 
-/* Animacion al activar el switch */
-@keyframes switchFlash {
-    0% { transform: scale(1); filter: brightness(1); }
-    20% { transform: scale(0.92); filter: brightness(0.7); }
-    50% { transform: scale(1.06); filter: brightness(1.4); }
-    70% { filter: brightness(1.8); }
-    100% { transform: scale(1); filter: brightness(1); opacity: 0; }
-}
-
-.switch-tile.switch-activating {
-    animation: switchFlash 0.35s ease-out forwards;
-    pointer-events: none;
-}
 
 /* ===== REPRODUCTOR DE AUDIO (CUADRADO AMBIENCE) ===== */
 #audio-player {
