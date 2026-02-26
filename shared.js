@@ -16,7 +16,7 @@
             : './data/icons/OJO HORUS_PESONAL.png';
     }
 
-    function updateFavicon(mode) {
+    function updateFavicon() {
         let link = document.querySelector("link[rel='icon']");
         if (!link) {
             link = document.createElement('link');
@@ -24,7 +24,7 @@
             document.head.appendChild(link);
         }
         link.type = 'image/png';
-        link.href = getSwitchIconPath(mode);
+        link.href = './data/icons/LOGO URL.png';
     }
 
     window.DSM_SHARED = {

@@ -1,10 +1,42 @@
 {
+  "modes": {
+    "portfolio": {
+      "categories": ["audiovisual", "identidadSonora", "audioInmersivo", "musicaMezcla", "about"],
+      "background": "portfolio.webp",
+      "frame": "frame-ff-crystal.svg",
+      "switchIcon": "OJO RA_PORTFOLIO.png",
+      "tileColor": { "bg": "#0a0a6e", "text": "#fff" }
+    },
+    "personal": {
+      "categories": ["miMusica", "textos"],
+      "background": "personal.webp",
+      "frame": "frame-pkmn-modern.svg",
+      "switchIcon": "OJO HORUS_PESONAL.png",
+      "tileColor": { "bg": "#7B68EE", "text": "#fff" }
+    }
+  },
+  "typeColors": {
+    "audiovisual": "#808080",
+    "identidadSonora": "#808080",
+    "audioInmersivo": "#808080",
+    "musicaMezcla": "#808080",
+    "miMusica": "#4A4A4A",
+    "textos": "#4A4A4A",
+    "about": "#808080"
+  },
+  "bgm": {
+    "file": "./data/bgm/A Través Del Sonido.mp3",
+    "title": "A Través Del Sonido",
+    "project": "diego san marcos"
+  },
   "projects": [
     {
       "slug": "mde",
       "titulo_proyecto": "MDE (Carlos Carvento)",
       "titulo_home": "MDE",
       "tipo": "audiovisual",
+      "visible": true,
+      "mostrarImagen": true,
       "principal": [
         "mde_baja.webm"
       ],
@@ -35,6 +67,8 @@
       "titulo_proyecto": "Purnima Midlife Moksha podcast jingle",
       "titulo_home": "Purnima",
       "tipo": "identidadSonora",
+      "visible": true,
+      "mostrarImagen": false,
       "principal": [
         "THE WISE BODY.webp"
       ],
@@ -65,6 +99,8 @@
       "titulo_proyecto": "Debut 3000 (Roberta Nikita)",
       "titulo_home": "Debut 3000",
       "tipo": "musicaMezcla",
+      "visible": true,
+      "mostrarImagen": true,
       "principal": [],
       "texto1_es": [],
       "texto1_en": [],
@@ -72,16 +108,16 @@
       "audio": [
         "BEBE.mp3",
         "ME KIERE.mp3",
-        "NUNCA MÁS.mp3",
+        "NUNCA MÁS.mp3",
         "SOLO PIENSO EN TI.mp3",
         "INFIERNO.mp3",
         "FERRARI.mp3",
         "CARTA.mp3",
         "SORRY PERO ADIOS.mp3",
-        "ENAMORÁ.mp3",
+        "ENAMORÁ.mp3",
         "TU Y YO.mp3",
-        "DESNUDARÉ.mp3",
-        "1 ángel (voice note version).mp3"
+        "DESNUDARÉ.mp3",
+        "1 ángel (voice note version).mp3"
       ],
       "texto2_es": [],
       "texto2_en": [],
@@ -105,6 +141,8 @@
       "titulo_proyecto": "Reflejos (Diego San Marcos)",
       "titulo_home": "Reflejos",
       "tipo": "miMusica",
+      "visible": true,
+      "mostrarImagen": true,
       "principal": [
         ""
       ],
@@ -137,6 +175,8 @@
       "titulo_proyecto": "Textos",
       "titulo_home": "Textos",
       "tipo": "textos",
+      "visible": true,
+      "mostrarImagen": true,
       "principal": [],
       "texto1_es": [],
       "texto1_en": [],
@@ -160,6 +200,8 @@
       "titulo_proyecto": "about",
       "titulo_home": "about",
       "tipo": "about",
+      "visible": true,
+      "mostrarImagen": true,
       "principal": [],
       "texto1_es": [
         "Diego Saint-Mard, alias Diego San Marcos, desarrolla su práctica artística en el entorno digital, explorando la creación de música electrónica, el diseño sonoro y la edición de audio.",
@@ -196,6 +238,8 @@
       "titulo_proyecto": "Alexander The Untold Story (Ervin Musabelliu)",
       "titulo_home": "Alexander",
       "tipo": "audiovisual",
+      "visible": true,
+      "mostrarImagen": true,
       "principal": [
         "EXtracto alexander_1080.webm"
       ],
@@ -230,6 +274,8 @@
       "titulo_proyecto": "Berlin International Sound Design Competition (2025 Submission)",
       "titulo_home": "BIFSC",
       "tipo": "audiovisual",
+      "visible": true,
+      "mostrarImagen": true,
       "principal": [
         "SDBC2192_1080.webm"
       ],
@@ -258,6 +304,8 @@
       "titulo_proyecto": "Círculo Cerrado (Logo sonoro)",
       "titulo_home": "Círculo Cerrado",
       "tipo": "identidadSonora",
+      "visible": true,
+      "mostrarImagen": true,
       "principal": [
         "CIRCULO CERRADO_LOGO_MASTER (V2)_1080.webm",
         "CIRCULO CERRADO_OUTRO_MASTER (V2)_1080.webm"
@@ -285,6 +333,8 @@
       "titulo_proyecto": "Dark Roast Revelations Podcast (Vito Luis Ramos)",
       "titulo_home": "Dark Roast Revelations",
       "tipo": "identidadSonora",
+      "visible": true,
+      "mostrarImagen": false,
       "principal": [],
       "texto1_es": [],
       "texto1_en": [],
@@ -319,6 +369,8 @@
       "titulo_proyecto": "Feel (Immersive Soundscapes)",
       "titulo_home": "Feel",
       "tipo": "identidadSonora",
+      "visible": true,
+      "mostrarImagen": true,
       "principal": [],
       "texto1_es": [],
       "texto1_en": [],
@@ -358,6 +410,8 @@
       "titulo_proyecto": "Please Please Please (cover Lost Weekend)",
       "titulo_home": "Please x3",
       "tipo": "musicaMezcla",
+      "visible": true,
+      "mostrarImagen": true,
       "principal": [],
       "texto1_es": [],
       "texto1_en": [],
@@ -384,6 +438,8 @@
       "titulo_proyecto": "Igoera (Lotura)",
       "titulo_home": "Igoera",
       "tipo": "musicaMezcla",
+      "visible": true,
+      "mostrarImagen": true,
       "principal": [],
       "texto1_es": [],
       "texto1_en": [],
@@ -420,6 +476,8 @@
       "titulo_proyecto": "Beatport Remix Contest - Madonna Ray Of Light (Submission)",
       "titulo_home": "Ray Of Light Remix",
       "tipo": "musicaMezcla",
+      "visible": true,
+      "mostrarImagen": true,
       "principal": [],
       "texto1_es": [],
       "texto1_en": [],
@@ -446,6 +504,8 @@
       "titulo_proyecto": "Fiverr Remix Contest - Bolero de Ravel (Submission)",
       "titulo_home": "Bolero de Ravel Remix",
       "tipo": "musicaMezcla",
+      "visible": true,
+      "mostrarImagen": true,
       "principal": [],
       "texto1_es": [],
       "texto1_en": [],
@@ -472,17 +532,19 @@
       "titulo_proyecto": "Conexionesfera Records For Mind Freeing And Liberation Of The Sense Of Self",
       "titulo_home": "Conexionesfera",
       "tipo": "miMusica",
+      "visible": true,
+      "mostrarImagen": true,
       "principal": [],
       "texto1_es": [],
       "texto1_en": [],
       "texto1_fr": [],
       "audio": [
-        "Sueño Lúcido.mp3",
+        "Sueño Lúcido.mp3",
         "Cascade Electronique.mp3",
         "Finder.mp3",
         "Hiperespacio.mp3",
-        "Amor Superestéreo.mp3",
-        "Espacio De Armonía y Alta Vibración.mp3",
+        "Amor Superestéreo.mp3",
+        "Espacio De Armonía y Alta Vibración.mp3",
         "Flying Through The Timeless Mind.mp3",
         "Psicodelia.mp3",
         "Luces Verdes Violetas.mp3",
@@ -514,6 +576,8 @@
       "titulo_proyecto": "Me Proyecto En El Vacío",
       "titulo_home": "Me Proyecto",
       "tipo": "miMusica",
+      "visible": true,
+      "mostrarImagen": true,
       "principal": [
         "ME PROYECTO.mp4"
       ],
@@ -540,6 +604,8 @@
       "titulo_proyecto": "TDK (Recopilación de tracks)",
       "titulo_home": "TDK",
       "tipo": "miMusica",
+      "visible": true,
+      "mostrarImagen": true,
       "principal": [],
       "texto1_es": [],
       "texto1_en": [],
@@ -548,7 +614,7 @@
         "ALMA_V5.mp3",
         "tranquilidad.mp3",
         "LLAMA DE TI_V8.mp3",
-        "océano profundo_4.mp3",
+        "océano profundo_4.mp3",
         "ONDA MAESTRA_3.mp3",
         "perc ralf MASTER.mp3"
       ],
@@ -568,40 +634,5 @@
         "Interprétation, production et mixage"
       ]
     }
-  ],
-  "categories": {
-    "portfolio": [
-      "audiovisual",
-      "identidadSonora",
-      "audioInmersivo",
-      "musicaMezcla",
-      "about"
-    ],
-    "personal": [
-      "miMusica",
-      "textos"
-    ]
-  },
-  "typeColors": {
-    "audiovisual": "#808080",
-    "identidadSonora": "#808080",
-    "audioInmersivo": "#808080",
-    "musicaMezcla": "#808080",
-    "miMusica": "#4A4A4A",
-    "textos": "#4A4A4A",
-    "about": "#808080"
-  },
-  "bgm": {
-    "file": "./data/bgm/A Través Del Sonido.mp3",
-    "title": "A Través Del Sonido",
-    "project": "diego san marcos"
-  },
-  "backgrounds": {
-    "portfolio": "portfolio.jpg",
-    "personal": "personal.jpg"
-  },
-  "frames": {
-    "portfolio": "frame-ff-crystal.svg",
-    "personal": "frame-pkmn-modern.svg"
-  }
+  ]
 }

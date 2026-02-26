@@ -44,7 +44,16 @@ body {
     transition: opacity 0.8s ease-in-out;
 }
 
-/* Fondo se aplica dinamicamente desde JS segun data.json > backgrounds */
+#background-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 100% 25dvh at 50% -10dvh, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 50%, transparent 80%),
+        radial-gradient(ellipse 100% 25dvh at 50% calc(100% + 10dvh), rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 50%, transparent 80%);
+    pointer-events: none;
+    z-index: 1;
+}
 
 /* ===== CONTENEDOR PRINCIPAL - GRID WINDOWS 10 ===== */
 #projects-container {
@@ -457,10 +466,10 @@ span.special-tile-icon.lang-icon {
 
 .volume-popover {
     position: absolute;
-    right: 0;
+    right: -6px;
     bottom: calc(100% + 6px);
-    width: 28px;
-    padding: 8px 8px 10px;
+    width: 40px;
+    padding: 10px 6px 12px;
     background: rgba(12, 12, 18, 0.94);
     border: 1px solid rgba(255, 255, 255, 0.1);
     z-index: 3;
@@ -469,12 +478,12 @@ span.special-tile-icon.lang-icon {
 #volume-slider {
     writing-mode: vertical-lr;
     direction: rtl;
-    -webkit-appearance: slider-vertical;
-    appearance: slider-vertical;
-    width: 12px;
+    width: 28px;
     height: 92px;
     margin: 0;
     cursor: pointer;
+    touch-action: none;
+    accent-color: rgba(255, 255, 255, 0.7);
 }
 
 .player-time {
@@ -763,6 +772,7 @@ span.special-tile-icon.lang-icon {
 
     #volume-slider {
         height: 74px;
+        width: 32px;
     }
 
     #play-btn {

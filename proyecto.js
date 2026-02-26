@@ -78,7 +78,7 @@ function getProjectSeoImagePath(project) {
     const galleryImage = (project.galeria || []).find(file => imagePattern.test(file));
     if (galleryImage) return `./data/projects/${project.slug}/${galleryImage}`;
 
-    return './data/icons/OJO RA_PORTFOLIO.png';
+    return './data/icons/LOGO URL.png';
 }
 
 function updateProjectSEO() {
@@ -141,8 +141,8 @@ function updateModeInURL(mode) {
 
 function getInferredMode() {
     if (!appData || !currentProject) return 'portfolio';
-    const isPortfolio = appData.categories.portfolio.includes(currentProject.tipo);
-    return isPortfolio ? 'portfolio' : 'personal';
+    const portfolioCategories = appData.modes && appData.modes.portfolio && appData.modes.portfolio.categories || [];
+    return portfolioCategories.includes(currentProject.tipo) ? 'portfolio' : 'personal';
 }
 
 // ===== INICIALIZACION =====
@@ -196,13 +196,13 @@ function setupBackground(mode) {
     const bgContainer = document.getElementById('background-container');
 
     // Fondo dinamico desde data.json
-    const bgFile = appData.backgrounds && appData.backgrounds[mode];
-    if (bgFile) {
-        bgContainer.style.backgroundImage = `url('./data/backgrounds/${bgFile}')`;
+    const modeData = appData.modes && appData.modes[mode];
+    if (modeData && modeData.background) {
+        bgContainer.style.backgroundImage = `url('./data/backgrounds/${modeData.background}')`;
     }
 
     // Frame 9-slice desde data.json
-    const frameFile = appData.frames && appData.frames[mode];
+    const frameFile = modeData && modeData.frame;
     if (frameFile) {
         const main = document.querySelector('.project-main');
         main.style.borderImage = `url('./data/9slice/${frameFile}') 16 fill / 16px / 0 stretch`;
@@ -501,7 +501,8 @@ function openMenu() {
     modal.className = 'menu-modal';
 
     // Aplicar misma border-image que project-main
-    const frameFile = appData.frames && appData.frames[currentMode];
+    const modeData = appData.modes && appData.modes[currentMode];
+    const frameFile = modeData && modeData.frame;
     if (frameFile) {
         modal.style.borderImage = `url('./data/9slice/${frameFile}') 16 fill / 16px / 0 stretch`;
     }

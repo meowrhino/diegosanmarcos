@@ -77,10 +77,10 @@ function updateHomeSEO() {
     const copy = langCopy[currentMode] || langCopy.portfolio;
 
     const canonical = new URL(window.location.pathname, window.location.origin).toString();
-    const bgFile = appData?.backgrounds?.[currentMode];
+    const bgFile = appData?.modes?.[currentMode]?.background;
     const image = bgFile
         ? new URL(`./data/backgrounds/${bgFile}`, window.location.href).toString()
-        : new URL('./data/icons/OJO RA_PORTFOLIO.png', window.location.href).toString();
+        : new URL('./data/icons/LOGO URL.png', window.location.href).toString();
 
     document.title = SITE_TITLE;
     setCanonicalHref(canonical);
@@ -238,9 +238,9 @@ function loadBgmIfNeeded() {
 // ===== FONDO DINAMICO (desde data.json) =====
 function setBackground(mode) {
     const bgContainer = document.getElementById('background-container');
-    const bgFile = appData.backgrounds && appData.backgrounds[mode];
-    if (bgFile) {
-        bgContainer.style.backgroundImage = `url('./data/backgrounds/${bgFile}')`;
+    const modeData = appData.modes && appData.modes[mode];
+    if (modeData && modeData.background) {
+        bgContainer.style.backgroundImage = `url('./data/backgrounds/${modeData.background}')`;
     }
 }
 
@@ -284,8 +284,9 @@ function renderProjects() {
     container.innerHTML = '';
     updateHomeSEO();
 
-    const categories = appData.categories[currentMode] || [];
-    const filteredProjects = appData.projects.filter(p => categories.includes(p.tipo));
+    const modeConfig = appData.modes[currentMode] || {};
+    const categories = modeConfig.categories || [];
+    const filteredProjects = appData.projects.filter(p => categories.includes(p.tipo) && p.visible !== false);
     const { cols, rows } = calculateGrid();
     const isMobileGrid = window.matchMedia('(max-width: 768px)').matches;
     const tileSizes = isMobileGrid ? TILE_SIZES_MOBILE : TILE_SIZES_DESKTOP;
@@ -435,7 +436,7 @@ function createProjectCard(project) {
     card.style.background = `rgba(${r}, ${g}, ${b}, 0.5)`;
 
     // Imagen de fondo del tile (thumbnail del proyecto)
-    const thumbSrc = getProjectThumbnail(project);
+    const thumbSrc = project.mostrarImagen !== false ? getProjectThumbnail(project) : null;
     if (thumbSrc) {
         const thumb = document.createElement('img');
         thumb.className = 'project-thumb';
@@ -473,15 +474,10 @@ function createProjectCard(project) {
 }
 
 // ===== TILES ESPECIALES (SWITCH + IDIOMA) =====
-// Colores invertidos segun modo: portfolio = oscuro, personal = claro
-const SPECIAL_TILE_COLORS = {
-    portfolio: { bg: '#0a0a6e', text: '#fff' },
-    personal: { bg: '#7B68EE', text: '#fff' }
-};
 
 // Helper: configura un tile especial con glassmorphism y misma estructura que project-card
 function setupSpecialTile(el, tag) {
-    const colors = SPECIAL_TILE_COLORS[currentMode];
+    const colors = appData.modes[currentMode].tileColor;
     el.className = tag + '-tile special-tile';
     const { r, g, b } = hexToRgb(colors.bg);
     el.style.setProperty('--tile-rgb', `${r}, ${g}, ${b}`);
@@ -492,7 +488,7 @@ function setupSpecialTile(el, tag) {
 // --- SWITCH ---
 function createSwitchTile() {
     const nextMode = currentMode === 'portfolio' ? 'personal' : 'portfolio';
-    const colors = SPECIAL_TILE_COLORS[currentMode];
+    const colors = appData.modes[currentMode].tileColor;
 
     const tile = document.createElement('button');
     setupSpecialTile(tile, 'switch');
@@ -501,7 +497,7 @@ function createSwitchTile() {
     inner.className = 'special-tile-inner';
 
     const icon = document.createElement('img');
-    icon.src = DSM_SHARED.getSwitchIconPath(currentMode);
+    icon.src = `./data/icons/${appData.modes[currentMode].switchIcon}`;
     icon.alt = 'switch';
     icon.className = 'special-tile-icon';
 
@@ -525,7 +521,7 @@ function createSwitchTile() {
 const LANG_LABELS = { ES: 'idioma', EN: 'language', FR: 'langue' };
 
 function createLanguageTile() {
-    const colors = SPECIAL_TILE_COLORS[currentMode];
+    const colors = appData.modes[currentMode].tileColor;
 
     const tile = document.createElement('button');
     setupSpecialTile(tile, 'lang');
@@ -566,7 +562,7 @@ function getHomeMenuLabels() {
 }
 
 function createMenuTile() {
-    const colors = SPECIAL_TILE_COLORS[currentMode];
+    const colors = appData.modes[currentMode].tileColor;
 
     const tile = document.createElement('button');
     setupSpecialTile(tile, 'menu');
@@ -596,7 +592,7 @@ function openHomeMenu() {
     modal.className = 'menu-modal';
 
     // Aplicar misma border-image que el modo actual
-    const frameFile = appData.frames && appData.frames[currentMode];
+    const frameFile = appData.modes && appData.modes[currentMode] && appData.modes[currentMode].frame;
     if (frameFile) {
         modal.style.borderImage = `url('./data/9slice/${frameFile}') 16 fill / 16px / 0 stretch`;
     }
