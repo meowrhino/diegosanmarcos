@@ -662,10 +662,15 @@ function closeHomeMenu() {
 
 // ===== TRANSICION IRIS RADIAL =====
 function playIrisTransition(nextMode) {
-    const color = appData.modes[currentMode].tileColor.bg;
+    const color = appData.modes[nextMode].tileColor.bg;
     const duration = 500;  // ms por fase
     const steps = 30;
     const interval = duration / steps;
+    // closest-side hace que la elipse sea proporcional al viewport automaticamente
+    // 150% cubre hasta las esquinas (diagonal = ~141% del lado corto)
+    const maxPct = 150;
+    const fadeWidth = 25;
+    const shape = 'ellipse closest-side at 50% 50%';
 
     // Crear overlay
     let overlay = document.getElementById('mode-iris-overlay');
@@ -675,16 +680,15 @@ function playIrisTransition(nextMode) {
         document.body.appendChild(overlay);
     }
 
-    // Fase 1: cubrir — disco de color se expande desde el centro hacia fuera
+    // Fase 1: cubrir — elipse de color se expande desde el centro hacia fuera
     overlay.style.background = 'none';
     let step = 0;
     const expand = setInterval(() => {
         const t = step / steps;
         const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-        // El disco de color crece de 0% a 120%
-        const disc = 120 * e;
-        const fade = disc + 30;
-        overlay.style.background = `radial-gradient(circle at 50% 50%, ${color} ${disc}%, transparent ${fade}%)`;
+        const disc = maxPct * e;
+        const fade = disc + fadeWidth;
+        overlay.style.background = `radial-gradient(${shape}, ${color} ${disc}%, transparent ${fade}%)`;
         step++;
         if (step > steps) {
             clearInterval(expand);
@@ -696,9 +700,9 @@ function playIrisTransition(nextMode) {
             const reveal = setInterval(() => {
                 const t2 = step2 / steps;
                 const e2 = t2 < 0.5 ? 2 * t2 * t2 : 1 - Math.pow(-2 * t2 + 2, 2) / 2;
-                const hole = 120 * e2;
-                const fade2 = Math.max(0, hole - 30);
-                overlay.style.background = `radial-gradient(circle at 50% 50%, transparent ${fade2}%, ${color} ${hole}%)`;
+                const hole = maxPct * e2;
+                const fade2 = Math.max(0, hole - fadeWidth);
+                overlay.style.background = `radial-gradient(${shape}, transparent ${fade2}%, ${color} ${hole}%)`;
                 step2++;
                 if (step2 > steps) {
                     clearInterval(reveal);
