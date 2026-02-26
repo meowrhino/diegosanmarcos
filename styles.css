@@ -49,8 +49,20 @@ body {
     position: absolute;
     inset: 0;
     background:
-        radial-gradient(ellipse 100% 25dvh at 50% -10dvh, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 50%, transparent 80%),
-        radial-gradient(ellipse 100% 25dvh at 50% calc(100% + 10dvh), rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 50%, transparent 80%);
+        radial-gradient(ellipse 100% 25dvh at 50% -10dvh,
+            rgba(0, 0, 0, 1) 0%,
+            rgba(0, 0, 0, 1) 40%,
+            rgba(0, 0, 0, 0.75) 55%,
+            rgba(0, 0, 0, 0.45) 65%,
+            rgba(0, 0, 0, 0.18) 76%,
+            transparent 88%),
+        radial-gradient(ellipse 100% 25dvh at 50% calc(100% + 10dvh),
+            rgba(0, 0, 0, 1) 0%,
+            rgba(0, 0, 0, 1) 40%,
+            rgba(0, 0, 0, 0.75) 55%,
+            rgba(0, 0, 0, 0.45) 65%,
+            rgba(0, 0, 0, 0.18) 76%,
+            transparent 88%);
     pointer-events: none;
     z-index: 1;
 }
