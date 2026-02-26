@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <rect width="48" height="48" fill="#0a0a14"/>
+  <rect x="1" y="1" width="46" height="46" fill="none" stroke="#2d5a27" stroke-width="2"/>
+  <rect x="3.5" y="3.5" width="41" height="41" fill="none" stroke="#4a8a40" stroke-width="0.5"/>
+  <!-- L-bracket corners -->
+  <path d="M1,9 L1,1 L9,1" fill="none" stroke="#3a7a30" stroke-width="1.5"/>
+  <path d="M39,1 L47,1 L47,9" fill="none" stroke="#3a7a30" stroke-width="1.5"/>
+  <path d="M1,39 L1,47 L9,47" fill="none" stroke="#3a7a30" stroke-width="1.5"/>
+  <path d="M39,47 L47,47 L47,39" fill="none" stroke="#3a7a30" stroke-width="1.5"/>
+  <rect x="6" y="6" width="36" height="36" fill="#0a0a14"/>
+</svg>

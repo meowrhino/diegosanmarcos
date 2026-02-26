@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <defs>
+    <filter id="gd8"><feGaussianBlur stdDeviation="1.2"/></filter>
+    <linearGradient id="gd8g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff4488"/>
+      <stop offset="100%" stop-color="#4488ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="48" height="48" fill="#0a060c"/>
+  <rect x="3" y="3" width="42" height="42" fill="none" stroke="url(#gd8g)" stroke-width="2" filter="url(#gd8)" opacity="0.5"/>
+  <rect x="3" y="3" width="42" height="42" fill="none" stroke="url(#gd8g)" stroke-width="0.8"/>
+  <rect x="6" y="6" width="36" height="36" fill="#0a060c"/>
+</svg>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <defs>
+    <filter id="ga3"><feGaussianBlur stdDeviation="1.2"/></filter>
+  </defs>
+  <rect width="48" height="48" fill="#0c0a06"/>
+  <rect x="3" y="3" width="42" height="42" fill="none" stroke="#ffaa22" stroke-width="2" filter="url(#ga3)" opacity="0.5"/>
+  <rect x="3" y="3" width="42" height="42" fill="none" stroke="#ffaa22" stroke-width="0.8"/>
+  <rect x="6" y="6" width="36" height="36" fill="#0c0a06"/>
+</svg>

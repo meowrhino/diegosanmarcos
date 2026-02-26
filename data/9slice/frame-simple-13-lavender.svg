@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <defs>
+    <linearGradient id="lavender-border" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#b8a0d0"/>
+      <stop offset="50%" stop-color="#d8c8e8"/>
+      <stop offset="100%" stop-color="#9980b8"/>
+    </linearGradient>
+  </defs>
+  <rect width="48" height="48" fill="#0a0a14"/>
+  <rect x="2" y="2" width="44" height="44" rx="7" fill="none" stroke="url(#lavender-border)" stroke-width="2"/>
+  <rect x="5" y="5" width="38" height="38" rx="5" fill="none" stroke="#8870a0" stroke-width="0.5"/>
+  <rect x="6" y="6" width="36" height="36" rx="4" fill="#0a0a14"/>
+</svg>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <defs>
+    <linearGradient id="sunset-border" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff6633"/>
+      <stop offset="50%" stop-color="#ff9944"/>
+      <stop offset="100%" stop-color="#cc4422"/>
+    </linearGradient>
+  </defs>
+  <rect width="48" height="48" fill="#0a0a14"/>
+  <rect x="1.5" y="1.5" width="45" height="45" fill="none" stroke="url(#sunset-border)" stroke-width="2"/>
+  <rect x="4" y="4" width="40" height="40" fill="none" stroke="#aa3311" stroke-width="0.5"/>
+  <rect x="1" y="1" width="5" height="5" fill="#ffaa44" opacity="0.5"/>
+  <rect x="42" y="1" width="5" height="5" fill="#ffaa44" opacity="0.5"/>
+  <rect x="1" y="42" width="5" height="5" fill="#ff7744" opacity="0.5"/>
+  <rect x="42" y="42" width="5" height="5" fill="#ff7744" opacity="0.5"/>
+  <rect x="6" y="6" width="36" height="36" fill="#0a0a14"/>
+</svg>

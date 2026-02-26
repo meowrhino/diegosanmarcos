@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <defs>
+    <filter id="dn7"><feGaussianBlur stdDeviation="1"/></filter>
+  </defs>
+  <rect width="48" height="48" fill="#060608"/>
+  <circle cx="4" cy="4" r="2" fill="#00ffaa" opacity="0.3" filter="url(#dn7)"/>
+  <circle cx="44" cy="4" r="2" fill="#00ffaa" opacity="0.3" filter="url(#dn7)"/>
+  <circle cx="4" cy="44" r="2" fill="#00ffaa" opacity="0.3" filter="url(#dn7)"/>
+  <circle cx="44" cy="44" r="2" fill="#00ffaa" opacity="0.3" filter="url(#dn7)"/>
+  <circle cx="4" cy="4" r="0.8" fill="#00ffaa" opacity="0.8"/>
+  <circle cx="44" cy="4" r="0.8" fill="#00ffaa" opacity="0.8"/>
+  <circle cx="4" cy="44" r="0.8" fill="#00ffaa" opacity="0.8"/>
+  <circle cx="44" cy="44" r="0.8" fill="#00ffaa" opacity="0.8"/>
+  <rect x="6" y="6" width="36" height="36" fill="#060608"/>
+</svg>

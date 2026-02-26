@@ -15,16 +15,6 @@
   <rect x="1.5" y="1.5" width="45" height="45" rx="2" fill="none" stroke="url(#bd_15)" stroke-width="2"/>
   <rect x="4.5" y="4.5" width="39" height="39" rx="1" fill="none" stroke="#2b7180" stroke-width="1"/>
   <rect x="6" y="6" width="36" height="36" rx="1" fill="#071112"/>
-
-  <g opacity="0.08" stroke="#cbfffb" stroke-width="0.8">
-    <line x1="16" y1="6" x2="16" y2="42"/>
-    <line x1="24" y1="6" x2="24" y2="42"/>
-    <line x1="32" y1="6" x2="32" y2="42"/>
-    <line x1="6" y1="16" x2="42" y2="16"/>
-    <line x1="6" y1="24" x2="42" y2="24"/>
-    <line x1="6" y1="32" x2="42" y2="32"/>
-  </g>
-
   <circle cx="18" cy="2.5" r="0.9" fill="#cbfffb"/>
   <circle cx="24" cy="2.5" r="0.9" fill="#cbfffb"/>
   <circle cx="30" cy="2.5" r="0.9" fill="#cbfffb"/>

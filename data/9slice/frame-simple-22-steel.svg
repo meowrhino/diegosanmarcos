@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <defs>
+    <linearGradient id="steel-border" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#707880"/>
+      <stop offset="30%" stop-color="#a0a8b0"/>
+      <stop offset="70%" stop-color="#808890"/>
+      <stop offset="100%" stop-color="#606870"/>
+    </linearGradient>
+  </defs>
+  <rect width="48" height="48" fill="#0a0a14"/>
+  <rect x="1" y="1" width="46" height="46" fill="none" stroke="url(#steel-border)" stroke-width="2"/>
+  <rect x="3.5" y="3.5" width="41" height="41" fill="none" stroke="#50585f" stroke-width="0.75"/>
+  <!-- L-bracket corners -->
+  <path d="M1,8 L1,1 L8,1" fill="none" stroke="#a0a8b0" stroke-width="1"/>
+  <path d="M40,1 L47,1 L47,8" fill="none" stroke="#a0a8b0" stroke-width="1"/>
+  <path d="M1,40 L1,47 L8,47" fill="none" stroke="#a0a8b0" stroke-width="1"/>
+  <path d="M40,47 L47,47 L47,40" fill="none" stroke="#a0a8b0" stroke-width="1"/>
+  <rect x="6" y="6" width="36" height="36" fill="#0a0a14"/>
+</svg>

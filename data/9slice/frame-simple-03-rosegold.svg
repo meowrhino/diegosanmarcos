@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <defs>
+    <linearGradient id="rosegold-border" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e8a0a0"/>
+      <stop offset="50%" stop-color="#f0c8b8"/>
+      <stop offset="100%" stop-color="#c88070"/>
+    </linearGradient>
+  </defs>
+  <rect width="48" height="48" fill="#0a0a14"/>
+  <rect x="2" y="2" width="44" height="44" rx="4" fill="none" stroke="url(#rosegold-border)" stroke-width="2"/>
+  <rect x="4.5" y="4.5" width="39" height="39" rx="2.5" fill="none" stroke="#b07060" stroke-width="0.5"/>
+  <rect x="6" y="6" width="36" height="36" rx="2" fill="#0a0a14"/>
+</svg>

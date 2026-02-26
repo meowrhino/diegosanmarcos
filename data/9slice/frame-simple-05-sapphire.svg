@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <defs>
+    <linearGradient id="sapphire-border" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#1a3a6a"/>
+      <stop offset="50%" stop-color="#3366bb"/>
+      <stop offset="100%" stop-color="#1a3a6a"/>
+    </linearGradient>
+  </defs>
+  <rect width="48" height="48" fill="#0a0a14"/>
+  <rect x="1.5" y="1.5" width="45" height="45" fill="none" stroke="url(#sapphire-border)" stroke-width="2"/>
+  <rect x="4" y="4" width="40" height="40" fill="none" stroke="#6699dd" stroke-width="0.5"/>
+  <circle cx="4" cy="4" r="2" fill="#4488cc" opacity="0.5"/>
+  <circle cx="44" cy="4" r="2" fill="#4488cc" opacity="0.5"/>
+  <circle cx="4" cy="44" r="2" fill="#4488cc" opacity="0.5"/>
+  <circle cx="44" cy="44" r="2" fill="#4488cc" opacity="0.5"/>
+  <rect x="6" y="6" width="36" height="36" fill="#0a0a14"/>
+</svg>

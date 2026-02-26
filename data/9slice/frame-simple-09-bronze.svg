@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <defs>
+    <linearGradient id="bronze-border" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8c5a2e"/>
+      <stop offset="50%" stop-color="#cd7f32"/>
+      <stop offset="100%" stop-color="#6e4422"/>
+    </linearGradient>
+  </defs>
+  <rect width="48" height="48" fill="#0a0a14"/>
+  <rect x="1" y="1" width="46" height="46" fill="none" stroke="url(#bronze-border)" stroke-width="2"/>
+  <rect x="3.5" y="3.5" width="41" height="41" fill="none" stroke="#5a3a1a" stroke-width="0.5"/>
+  <!-- L-bracket corners -->
+  <path d="M1,8 L1,1 L8,1" fill="none" stroke="#cd7f32" stroke-width="1.5"/>
+  <path d="M40,1 L47,1 L47,8" fill="none" stroke="#cd7f32" stroke-width="1.5"/>
+  <path d="M1,40 L1,47 L8,47" fill="none" stroke="#cd7f32" stroke-width="1.5"/>
+  <path d="M40,47 L47,47 L47,40" fill="none" stroke="#cd7f32" stroke-width="1.5"/>
+  <rect x="6" y="6" width="36" height="36" fill="#0a0a14"/>
+</svg>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>frames</title>
+    <style>
+        @font-face { font-family: 'Fidelma'; src: url('./data/fonts/Fidelma.ttf') format('truetype'); }
+        @font-face { font-family: 'Gill Sans MT Light'; src: url('./data/fonts/gill-sans-mt-light.ttf') format('truetype'); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #080808; color: #ccc; font-family: 'Gill Sans MT Light', sans-serif; }
+
+        /* grid */
+        .grid {
+            max-width: 960px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 2px;
+            padding: 40px 16px 60px;
+        }
+        .cell {
+            aspect-ratio: 1;
+            cursor: pointer;
+            border: 16px solid transparent;
+            opacity: 0.65;
+            transition: opacity 0.15s;
+        }
+        .cell:hover { opacity: 1; }
+        .cell.on { opacity: 1; outline: 1px solid rgba(255,255,255,0.2); outline-offset: -1px; }
+
+        /* preview */
+        .pv {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            overflow-y: auto;
+        }
+        .pv.on { display: block; }
+
+        .pv-bg {
+            position: fixed;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            z-index: 0;
+        }
+        .pv-bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+        }
+
+        .pv-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15vh 20px 30vh;
+            gap: 60px;
+        }
+
+        /* mode switch */
+        .mode-sw {
+            position: fixed;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 60;
+            display: flex;
+            gap: 0;
+            font-size: 0.65rem;
+            letter-spacing: 0.05em;
+        }
+        .mode-sw span {
+            padding: 5px 14px;
+            cursor: pointer;
+            color: rgba(255,255,255,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.15s;
+        }
+        .mode-sw span:first-child { border-radius: 3px 0 0 3px; }
+        .mode-sw span:last-child { border-radius: 0 3px 3px 0; border-left: 0; }
+        .mode-sw span.on { color: #fff; border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.08); }
+
+        /* mock project */
+        .mock-project {
+            max-width: 700px;
+            width: 100%;
+            padding: 10vh 2rem;
+            border: 16px solid transparent;
+        }
+        .ms { margin-bottom: 6rem; text-align: center; }
+        .ms:last-child { margin-bottom: 0; }
+        .mock-text { color: #ddd; line-height: 1.85; font-size: 1.05rem; }
+        .mock-video {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: rgba(0,0,0,0.5);
+        }
+        .mock-gal { display: flex; flex-direction: column; align-items: center; gap: 2rem; }
+        .mock-gal-img { width: 80%; aspect-ratio: 4/3; background: rgba(0,0,0,0.5); }
+        .mock-credits { color: rgba(255,255,255,0.35); font-size: 0.95rem; line-height: 1.85; }
+
+        /* mock menu */
+        .mock-menu {
+            max-width: 400px;
+            width: 100%;
+            padding: 8vh 2rem;
+            border: 16px solid transparent;
+        }
+        .mock-menu-items { display: flex; flex-direction: column; align-items: center; gap: 2.5rem; }
+        .mock-menu-item {
+            font-family: 'Fidelma', serif;
+            font-size: 1.8rem;
+            font-weight: normal;
+            color: rgba(255,255,255,0.6);
+            letter-spacing: 0.02em;
+        }
+
+        /* bar */
+        .bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 32px;
+            background: #0a0a0a;
+            border-top: 1px solid #181818;
+            display: flex;
+            align-items: center;
+            padding: 0 14px;
+            gap: 14px;
+            z-index: 100;
+            font-size: 0.65rem;
+        }
+        .bar span { color: rgba(255,255,255,0.25); cursor: pointer; }
+        .bar span:hover { color: rgba(255,255,255,0.6); }
+        .bar .r { margin-left: auto; }
+    </style>
+</head>
+<body>
+
+<div class="grid" id="grid"></div>
+
+<div class="pv" id="pv">
+    <div class="pv-bg" id="pv-bg"></div>
+    <div class="mode-sw" id="mode-sw">
+        <span class="on" data-mode="portfolio">portfolio</span>
+        <span data-mode="personal">personal</span>
+    </div>
+    <div class="pv-content">
+        <div class="mock-project" id="pv-project">
+            <div class="ms"><div class="mock-video"></div></div>
+            <div class="ms"><div class="mock-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.</div></div>
+            <div class="ms"><div class="mock-gal"><div class="mock-gal-img"></div><div class="mock-gal-img"></div></div></div>
+            <div class="ms"><div class="mock-text">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</div></div>
+            <div class="ms"><div class="mock-credits">produccion — diego san marcos<br>mezcla — diego san marcos<br>master — diego san marcos</div></div>
+        </div>
+        <div class="mock-menu" id="pv-menu">
+            <div class="mock-menu-items">
+                <div class="mock-menu-item">reproductor</div>
+                <div class="mock-menu-item">idioma</div>
+                <div class="mock-menu-item">volver</div>
+                <div class="mock-menu-item">cerrar</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bar">
+    <span id="name">—</span>
+    <span id="count" style="color:rgba(255,255,255,0.15)"></span>
+    <span class="r" id="toggle">preview</span>
+</div>
+
+<script>
+const DIR = './data/9slice/';
+const BG = { portfolio: './data/backgrounds/portfolio.webp', personal: './data/backgrounds/personal.webp' };
+
+const grid = document.getElementById('grid');
+const pv = document.getElementById('pv');
+const pvBg = document.getElementById('pv-bg');
+const pvProject = document.getElementById('pv-project');
+const pvMenu = document.getElementById('pv-menu');
+const nameEl = document.getElementById('name');
+const countEl = document.getElementById('count');
+const toggleEl = document.getElementById('toggle');
+const modeSw = document.getElementById('mode-sw');
+let activeCell = null;
+let currentFile = null;
+let currentMode = 'portfolio';
+
+function applyFrame(f) {
+    currentFile = f;
+    const bi = `url('${DIR}${f}') 16 fill / 16px / 0 stretch`;
+    pvProject.style.borderImage = bi;
+    pvMenu.style.borderImage = bi;
+    nameEl.textContent = f;
+}
+
+function setMode(mode) {
+    currentMode = mode;
+    pvBg.style.backgroundImage = `url('${BG[mode]}')`;
+    modeSw.querySelectorAll('span').forEach(s => s.classList.toggle('on', s.dataset.mode === mode));
+}
+
+function addCell(f) {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.style.borderImage = `url('${DIR}${f}') 16 fill / 16px / 0 stretch`;
+    cell.addEventListener('click', () => {
+        if (activeCell) activeCell.classList.remove('on');
+        cell.classList.add('on');
+        activeCell = cell;
+        applyFrame(f);
+    });
+    grid.appendChild(cell);
+    return cell;
+}
+
+// auto-discover frames: tries directory listing first, then frames.json manifest
+async function discoverFrames() {
+    // 1. try directory listing (Live Server, python -m http.server, etc.)
+    try {
+        const res = await fetch(DIR);
+        const html = await res.text();
+        const matches = html.matchAll(/href="(frame-[^"]+\.svg)"/g);
+        const found = [...matches].map(m => m[1]).sort();
+        if (found.length) return found;
+    } catch {}
+    // 2. fallback: frames.json in the 9slice folder
+    try {
+        const res = await fetch(DIR + 'frames.json');
+        if (res.ok) { const list = await res.json(); if (list.length) return list; }
+    } catch {}
+    return [];
+}
+
+async function init() {
+    const frames = await discoverFrames();
+    if (!frames.length) {
+        grid.innerHTML = '<p style="padding:40px;color:#555;grid-column:1/-1">no frames found — serve this folder with a local server to auto-discover</p>';
+        return;
+    }
+    frames.forEach(f => addCell(f));
+    countEl.textContent = frames.length;
+    grid.children[0]?.click();
+}
+
+modeSw.addEventListener('click', e => {
+    if (e.target.dataset.mode) setMode(e.target.dataset.mode);
+});
+
+toggleEl.addEventListener('click', () => {
+    pv.classList.toggle('on');
+    toggleEl.textContent = pv.classList.contains('on') ? 'grid' : 'preview';
+});
+
+nameEl.addEventListener('click', () => {
+    if (currentFile) {
+        navigator.clipboard.writeText(currentFile);
+        const orig = currentFile;
+        nameEl.textContent = 'copied';
+        setTimeout(() => { nameEl.textContent = orig; }, 800);
+    }
+});
+
+setMode('portfolio');
+init();
+</script>
+</body>
+</html>
