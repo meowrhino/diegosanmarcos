@@ -168,7 +168,7 @@ function setupBackground(mode) {
         main.style.borderImage = `url('./data/9slice/${frameFile}') 16 fill / 16px / 0 stretch`;
     }
 
-    DSM_SHARED.updateFavicon(mode);
+    DSM_SHARED.updateFavicon();
 
     // Clase de tipo en body para estilos especificos (ej: tipo-textos)
     document.body.classList.add(`tipo-${currentProject.tipo}`);

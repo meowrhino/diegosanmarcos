@@ -159,7 +159,7 @@ function initializeUI() {
     currentMode = getInitialModeFromURL();
     DSM_SHARED.syncLang();
     setBackground(currentMode);
-    DSM_SHARED.updateFavicon(currentMode);
+    DSM_SHARED.updateFavicon();
     updateHomeSEO();
     renderProjects();
     loadBgmIfNeeded();
@@ -662,6 +662,6 @@ function switchMode(mode) {
     currentMode = mode;
     updateModeInURL(mode);
     setBackground(mode);
-    DSM_SHARED.updateFavicon(mode);
+    DSM_SHARED.updateFavicon();
     renderProjects();
 }
