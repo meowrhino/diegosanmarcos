@@ -376,10 +376,11 @@ function renderGaleria() {
         img.src = imagePath;
         img.alt = imageName;
         img.loading = 'lazy';
-        img.onerror = () => {
-            // Fallback: probar .png si .jpg fallo
-            if (imagePath.endsWith('.jpg')) {
-                img.src = imagePath.replace('.jpg', '.png');
+        img.onerror = function () {
+            if (this.src.endsWith('.jpg')) {
+                this.src = this.src.slice(0, -4) + '.png';
+            } else {
+                this.style.display = 'none';
             }
         };
 

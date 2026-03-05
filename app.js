@@ -97,10 +97,11 @@ function getInitialModeFromURL() {
 
 // Convierte hex (#RRGGBB) a objeto {r, g, b}
 function hexToRgb(hex) {
+    if (!hex || hex[0] !== '#' || hex.length < 7) return { r: 128, g: 128, b: 128 };
     return {
-        r: parseInt(hex.slice(1, 3), 16),
-        g: parseInt(hex.slice(3, 5), 16),
-        b: parseInt(hex.slice(5, 7), 16)
+        r: parseInt(hex.slice(1, 3), 16) || 0,
+        g: parseInt(hex.slice(3, 5), 16) || 0,
+        b: parseInt(hex.slice(5, 7), 16) || 0
     };
 }
 

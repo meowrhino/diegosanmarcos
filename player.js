@@ -212,15 +212,19 @@ const DSM_Player = {
         this.updatePresetNavUI();
         this.updateAutoCycleBtn();
 
-        // Restaurar posicion guardada
+        // Restaurar posicion guardada (con bounds check)
         const savedPos = sessionStorage.getItem('dsm_player_pos');
         if (savedPos) {
             try {
                 const pos = JSON.parse(savedPos);
-                player.style.left = pos.x + 'px';
-                player.style.top = pos.y + 'px';
-                player.style.bottom = 'auto';
-                player.style.right = 'auto';
+                const maxX = window.innerWidth - 60;
+                const maxY = window.innerHeight - 60;
+                if (pos.x >= 0 && pos.x <= maxX && pos.y >= 0 && pos.y <= maxY) {
+                    player.style.left = pos.x + 'px';
+                    player.style.top = pos.y + 'px';
+                    player.style.bottom = 'auto';
+                    player.style.right = 'auto';
+                }
             } catch (e) { /* posicion corrupta, usar default */ }
         }
     },
@@ -1013,10 +1017,15 @@ const DSM_Player = {
         this.renderPlaylistPanel();
 
         setTimeout(() => {
-            this.element.play();
-            this.isPlaying = true;
-            this.updatePlayButton();
-            this.saveState();
+            this.element.play().then(() => {
+                this.isPlaying = true;
+                this.updatePlayButton();
+                this.saveState();
+            }).catch(() => {
+                this.isPlaying = false;
+                this.updatePlayButton();
+                this.saveState();
+            });
         }, 100);
     },
 
@@ -1060,13 +1069,13 @@ const DSM_Player = {
     playPrevious() {
         const idx = this.currentIndex <= 0 ? this.currentPlaylist.length - 1 : this.currentIndex - 1;
         this.loadTrack(idx);
-        if (this.isPlaying) this.element.play();
+        if (this.isPlaying) this.element.play().catch(() => {});
     },
 
     playNext() {
         const idx = this.currentIndex >= this.currentPlaylist.length - 1 ? 0 : this.currentIndex + 1;
         this.loadTrack(idx);
-        if (this.isPlaying) this.element.play();
+        if (this.isPlaying) this.element.play().catch(() => {});
     },
 
     seek(e) {
