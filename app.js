@@ -4,27 +4,8 @@ let coloresData = null;
 let currentMode = 'portfolio';
 const VALID_MODES = DSM_SHARED.VALID_MODES;
 
-// ===== IDIOMA =====
-const LANGUAGES = ['ES', 'EN', 'FR'];
-let currentLangIndex = LANGUAGES.indexOf(getInitialLanguageCode());
-if (currentLangIndex < 0) currentLangIndex = 0;
-
-function normalizeLanguage(value) {
-    return DSM_SHARED.normalizeLanguageCode(value);
-}
-
-function getInitialLanguageCode() {
-    const params = new URLSearchParams(window.location.search);
-    return normalizeLanguage(params.get('lang')) || normalizeLanguage(localStorage.getItem('dsm_lang')) || 'ES';
-}
-
-function currentLangCode() {
-    return LANGUAGES[currentLangIndex];
-}
-
-function currentLang() {
-    return DSM_SHARED.languageCodeToHtml(currentLangCode());
-}
+// ===== IDIOMA (centralizado en shared.js) =====
+DSM_SHARED.initLang();
 
 function getProjectTitle(project) {
     return project.titulo_home ?? project.titulo_proyecto ?? project.slug;
@@ -61,7 +42,7 @@ const HOME_SEO_COPY = {
 };
 
 function updateHomeSEO() {
-    const lang = currentLangCode();
+    const lang = DSM_SHARED.langCode();
     const langCopy = HOME_SEO_COPY[lang] || HOME_SEO_COPY.ES;
     const copy = langCopy[currentMode] || langCopy.portfolio;
 
@@ -98,7 +79,7 @@ function updateHomeSEO() {
                     '@type': 'WebSite',
                     name: 'Diego San Marcos',
                     url: canonical,
-                    inLanguage: currentLang(),
+                    inLanguage: DSM_SHARED.lang(),
                     description: copy.description
                 }
             ]
@@ -112,23 +93,6 @@ const updateModeInURL = DSM_SHARED.updateModeInURL;
 function getInitialModeFromURL() {
     const params = new URLSearchParams(window.location.search);
     return normalizeMode(params.get('modo')) || normalizeMode(params.get('mode')) || 'portfolio';
-}
-
-function updateLangInURL(languageCode) {
-    const normalized = normalizeLanguage(languageCode);
-    if (!normalized) return;
-    const params = new URLSearchParams(window.location.search);
-    params.set('lang', normalized);
-    const query = params.toString();
-    const newUrl = query ? `${window.location.pathname}?${query}` : window.location.pathname;
-    history.replaceState(null, '', newUrl);
-}
-
-function syncLanguageState() {
-    const languageCode = currentLangCode();
-    localStorage.setItem('dsm_lang', languageCode);
-    document.documentElement.lang = currentLang();
-    updateLangInURL(languageCode);
 }
 
 // Convierte hex (#RRGGBB) a objeto {r, g, b}
@@ -192,7 +156,7 @@ async function loadData() {
 // ===== INICIALIZACION DE UI =====
 function initializeUI() {
     currentMode = getInitialModeFromURL();
-    syncLanguageState();
+    DSM_SHARED.syncLang();
     setBackground(currentMode);
     DSM_SHARED.updateFavicon(currentMode);
     updateHomeSEO();
@@ -445,7 +409,7 @@ function createProjectCard(project) {
     card.appendChild(inner);
     card.addEventListener('click', () => {
         const slug = encodeURIComponent(project.slug);
-        DSM_SHARED.navigateTo(`./proyecto.html?proyecto=${slug}&modo=${currentMode}&lang=${currentLangCode()}`);
+        DSM_SHARED.navigateTo(`./proyecto.html?proyecto=${slug}&modo=${currentMode}&lang=${DSM_SHARED.langCode()}`);
     });
 
     return card;
@@ -507,20 +471,19 @@ function createLanguageTile() {
 
     const icon = document.createElement('span');
     icon.className = 'special-tile-icon lang-icon';
-    icon.textContent = LANGUAGES[currentLangIndex];
+    icon.textContent = DSM_SHARED.langCode();
     icon.style.color = colors.text;
 
     const label = document.createElement('span');
     label.className = 'project-title';
     label.style.color = colors.text;
-    label.textContent = LANG_LABELS[LANGUAGES[currentLangIndex]];
+    label.textContent = LANG_LABELS[DSM_SHARED.langCode()];
 
     inner.appendChild(icon);
     inner.appendChild(label);
     tile.appendChild(inner);
     tile.addEventListener('click', () => {
-        currentLangIndex = (currentLangIndex + 1) % LANGUAGES.length;
-        syncLanguageState();
+        DSM_SHARED.cycleLang();
         renderProjects();
     });
     return tile;
@@ -534,7 +497,7 @@ const HOME_MENU_LABELS = {
 };
 
 function getHomeMenuLabels() {
-    return HOME_MENU_LABELS[currentLangCode()] || HOME_MENU_LABELS.ES;
+    return HOME_MENU_LABELS[DSM_SHARED.langCode()] || HOME_MENU_LABELS.ES;
 }
 
 function createMenuTile() {
@@ -616,8 +579,7 @@ function renderHomeMenuContent(container) {
     langBtn.className = 'menu-item';
     langBtn.textContent = labels.changeLang;
     langBtn.addEventListener('click', () => {
-        currentLangIndex = (currentLangIndex + 1) % LANGUAGES.length;
-        syncLanguageState();
+        DSM_SHARED.cycleLang();
         // Re-renderizar el grid de la home (tiles con titulos en el nuevo idioma)
         renderProjects();
         // Re-renderizar el contenido del menu con el nuevo idioma

@@ -57,10 +57,48 @@
         link.href = './data/icons/LOGO URL.png';
     }
 
+    // ===== GESTION CENTRALIZADA DE IDIOMA =====
+    const LANGUAGES = ['ES', 'EN', 'FR'];
+    let _langIndex = 0;
+
+    function initLang() {
+        const params = new URLSearchParams(window.location.search);
+        const code = normalizeLanguageCode(params.get('lang'))
+            || normalizeLanguageCode(localStorage.getItem('dsm_lang'))
+            || 'ES';
+        _langIndex = LANGUAGES.indexOf(code);
+        if (_langIndex < 0) _langIndex = 0;
+        syncLang();
+    }
+
+    function langCode() {
+        return LANGUAGES[_langIndex];
+    }
+
+    function lang() {
+        return LANG_SUFFIX[langCode()] || 'es';
+    }
+
+    function cycleLang() {
+        _langIndex = (_langIndex + 1) % LANGUAGES.length;
+        syncLang();
+    }
+
+    function syncLang() {
+        const code = langCode();
+        localStorage.setItem('dsm_lang', code);
+        document.documentElement.lang = lang();
+        const params = new URLSearchParams(window.location.search);
+        params.set('lang', code);
+        const query = params.toString();
+        history.replaceState(null, '', `${window.location.pathname}?${query}`);
+    }
+
     window.DSM_SHARED = {
         LANG_SUFFIX,
         VALID_MODES,
         SITE_TITLE,
+        LANGUAGES,
         normalizeLanguageCode,
         languageCodeToHtml,
         normalizeMode,
@@ -68,6 +106,11 @@
         setCanonicalHref,
         updateModeInURL,
         navigateTo,
-        updateFavicon
+        updateFavicon,
+        initLang,
+        langCode,
+        lang,
+        cycleLang,
+        syncLang
     };
 })();

@@ -4,32 +4,11 @@ let currentProject = null;
 let currentMode = 'portfolio';
 const VALID_MODES = DSM_SHARED.VALID_MODES;
 
-// ===== IDIOMA =====
-let currentLangCode = 'ES';
-let currentLang = 'es';
-
-function normalizeLanguage(value) {
-    return DSM_SHARED.normalizeLanguageCode(value);
-}
-
-function initializeLanguage() {
-    const params = new URLSearchParams(window.location.search);
-    currentLangCode =
-        normalizeLanguage(params.get('lang')) ||
-        normalizeLanguage(localStorage.getItem('dsm_lang')) ||
-        'ES';
-    currentLang = DSM_SHARED.languageCodeToHtml(currentLangCode);
-
-    localStorage.setItem('dsm_lang', currentLangCode);
-    params.set('lang', currentLangCode);
-    const query = params.toString();
-    const newUrl = query ? `${window.location.pathname}?${query}` : window.location.pathname;
-    history.replaceState(null, '', newUrl);
-    document.documentElement.lang = currentLang;
-}
+// ===== IDIOMA (centralizado en shared.js) =====
+DSM_SHARED.initLang();
 
 function loc(obj, field) {
-    return obj[field + '_' + currentLang] ?? obj[field + '_es'] ?? obj[field] ?? [];
+    return obj[field + '_' + DSM_SHARED.lang()] ?? obj[field + '_es'] ?? obj[field] ?? [];
 }
 
 function getProjectTitle(project) {
@@ -101,7 +80,7 @@ function updateProjectSEO() {
             '@type': 'CreativeWork',
             name: projectTitle,
             url: canonical,
-            inLanguage: currentLang,
+            inLanguage: DSM_SHARED.lang(),
             description,
             image,
             genre: currentProject.tipo,
@@ -129,7 +108,6 @@ function getInferredMode() {
 
 // ===== INICIALIZACION =====
 document.addEventListener('DOMContentLoaded', async () => {
-    initializeLanguage();
     await loadData();
     if (!appData) return;
     await loadProjectFromURL();
@@ -429,7 +407,6 @@ function renderCreditos() {
 }
 
 // ===== MENU =====
-const LANGUAGES = ['ES', 'EN', 'FR'];
 const MENU_LABELS = {
     es: { trigger: 'menu', openPlayer: 'abrir reproductor', changeLang: 'cambiar idioma', back: 'volver', close: 'cerrar menu' },
     en: { trigger: 'menu', openPlayer: 'open player', changeLang: 'change language', back: 'back', close: 'close menu' },
@@ -437,27 +414,7 @@ const MENU_LABELS = {
 };
 
 function getMenuLabels() {
-    return MENU_LABELS[currentLang] || MENU_LABELS.es;
-}
-
-function getNextLangCode() {
-    const idx = LANGUAGES.indexOf(currentLangCode);
-    return LANGUAGES[(idx + 1) % LANGUAGES.length];
-}
-
-function cycleLanguage() {
-    const nextCode = getNextLangCode();
-    currentLangCode = nextCode;
-    currentLang = DSM_SHARED.languageCodeToHtml(nextCode);
-
-    // Persistir (misma logica que app.js syncLanguageState / initializeLanguage)
-    localStorage.setItem('dsm_lang', nextCode);
-    document.documentElement.lang = currentLang;
-    const params = new URLSearchParams(window.location.search);
-    params.set('lang', nextCode);
-    const query = params.toString();
-    history.replaceState(null, '', `${window.location.pathname}?${query}`);
-    updateProjectSEO();
+    return MENU_LABELS[DSM_SHARED.lang()] || MENU_LABELS.es;
 }
 
 function createMenuButton() {
@@ -536,7 +493,8 @@ function renderMenuContent(container) {
     langBtn.className = 'menu-item';
     langBtn.textContent = labels.changeLang;
     langBtn.addEventListener('click', () => {
-        cycleLanguage();
+        DSM_SHARED.cycleLang();
+        updateProjectSEO();
         // Re-renderizar el contenido del menu con el nuevo idioma
         renderMenuContent(container);
         // Actualizar tambien el boton trigger debajo del contenido
@@ -550,7 +508,7 @@ function renderMenuContent(container) {
     backBtn.className = 'menu-item';
     backBtn.textContent = labels.back;
     backBtn.addEventListener('click', () => {
-        DSM_SHARED.navigateTo(`./index.html?modo=${currentMode}&lang=${currentLangCode}`);
+        DSM_SHARED.navigateTo(`./index.html?modo=${currentMode}&lang=${DSM_SHARED.langCode()}`);
     });
     container.appendChild(backBtn);
 
@@ -577,7 +535,7 @@ function setupClickOutsideBack() {
         const menuOverlay = document.querySelector('.menu-overlay');
         if (menuOverlay) return; // Menu abierto — no navegar
         if (main && !main.contains(e.target) && (!player || !player.contains(e.target))) {
-            DSM_SHARED.navigateTo(`./index.html?modo=${currentMode}&lang=${currentLangCode}`);
+            DSM_SHARED.navigateTo(`./index.html?modo=${currentMode}&lang=${DSM_SHARED.langCode()}`);
         }
     });
 }
