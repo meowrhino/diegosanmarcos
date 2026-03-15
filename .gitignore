@@ -3,5 +3,6 @@
 converChatGPT/
 manus/
 .claude/
+.vscode/
 node_modules/
 .env

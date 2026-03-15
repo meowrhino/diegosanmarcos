@@ -44,7 +44,10 @@
         const ms = duration ?? 300;
         document.body.classList.add('page-exit');
         setTimeout(() => { window.location.href = url; }, ms);
+        // Safety reset: si la navegación falla, desbloquear tras 2s
+        setTimeout(() => { _navigating = false; }, 2000);
     }
+    window.addEventListener('popstate', () => { _navigating = false; });
 
     function updateFavicon() {
         let link = document.querySelector("link[rel='icon']");
@@ -94,6 +97,33 @@
         history.replaceState(null, '', `${window.location.pathname}?${query}`);
     }
 
+    // ===== TIPOGRAFÍA DINÁMICA =====
+    function applyFonts(fontsConfig) {
+        if (!fontsConfig) return;
+        const style = document.createElement('style');
+        let css = '';
+        const fontPath = './data/fonts/';
+
+        if (fontsConfig.title && fontsConfig.title.file) {
+            const ext = fontsConfig.title.file.split('.').pop().toLowerCase();
+            const fmt = ext === 'woff2' ? 'woff2' : ext === 'woff' ? 'woff' : ext === 'otf' ? 'opentype' : 'truetype';
+            css += `@font-face { font-family: '${fontsConfig.title.family}'; src: url('${fontPath}${fontsConfig.title.file}') format('${fmt}'); font-weight: normal; font-style: normal; font-display: swap; }\n`;
+            document.documentElement.style.setProperty('--font-title', `'${fontsConfig.title.family}', serif`);
+        }
+
+        if (fontsConfig.body && fontsConfig.body.file) {
+            const ext = fontsConfig.body.file.split('.').pop().toLowerCase();
+            const fmt = ext === 'woff2' ? 'woff2' : ext === 'woff' ? 'woff' : ext === 'otf' ? 'opentype' : 'truetype';
+            css += `@font-face { font-family: '${fontsConfig.body.family}'; src: url('${fontPath}${fontsConfig.body.file}') format('${fmt}'); font-weight: normal; font-style: normal; font-display: swap; }\n`;
+            document.documentElement.style.setProperty('--font-body', `'${fontsConfig.body.family}', sans-serif`);
+        }
+
+        if (css) {
+            style.textContent = css;
+            document.head.appendChild(style);
+        }
+    }
+
     window.DSM_SHARED = {
         LANG_SUFFIX,
         VALID_MODES,
@@ -111,6 +141,7 @@
         langCode,
         lang,
         cycleLang,
-        syncLang
+        syncLang,
+        applyFonts
     };
 })();

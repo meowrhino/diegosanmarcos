@@ -149,6 +149,7 @@ async function loadData() {
 
         appData = await dataResponse.json();
         coloresData = await coloresResponse.json();
+        DSM_SHARED.applyFonts(appData.fonts);
     } catch (error) {
         console.error('Error cargando datos:', error);
     }

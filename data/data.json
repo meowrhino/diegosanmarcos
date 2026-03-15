@@ -1,28 +1,32 @@
 {
+  "fonts": {
+    "title": { "family": "Fidelma", "file": "Fidelma.ttf" },
+    "body": { "family": "Gill Sans MT Light", "file": "gill-sans-mt-light.ttf" }
+  },
   "modes": {
     "portfolio": {
       "categories": ["audiovisual", "identidadSonora", "audioInmersivo", "musicaMezcla", "about"],
       "background": "portfolio.webp",
       "frame": "frame-ff-crystal.svg",
-      "switchIcon": "espiral-personal.png",
-      "tileColor": { "bg": "#2830D2", "text": "#fff" }
+      "switchIcon": "ESPIRAL PERSONAL.png",
+      "tileColor": { "bg": "#4239E3", "text": "#fff" }
     },
     "personal": {
       "categories": ["miMusica", "textos"],
       "background": "personal.webp",
-      "frame": "frame-pkmn-modern.svg",
-      "switchIcon": "espiral-portfolio.png",
-      "tileColor": { "bg": "#781919", "text": "#fff" }
+      "frame": "frame-deco-04-arch.svg",
+      "switchIcon": "ESPIRAL PORTFOLIO.png",
+      "tileColor": { "bg": "#4239E3", "text": "#fff" }
     }
   },
   "typeColors": {
-    "audiovisual": "#808080",
-    "identidadSonora": "#808080",
-    "audioInmersivo": "#808080",
-    "musicaMezcla": "#808080",
+    "audiovisual": "#000000",
+    "identidadSonora": "#000000",
+    "audioInmersivo": "#000000",
+    "musicaMezcla": "#4A4A4A",
     "miMusica": "#4A4A4A",
-    "textos": "#4A4A4A",
-    "about": "#808080"
+    "textos": "#1C58BC",
+    "about": "#965521"
   },
   "bgm": {
     "file": "./data/bgm/A Través Del Sonido.mp3",
@@ -67,11 +71,9 @@
       "titulo_proyecto": "Purnima Midlife Moksha podcast jingle",
       "titulo_home": "Purnima",
       "tipo": "identidadSonora",
-      "visible": true,
+      "visible": false,
       "mostrarImagen": false,
-      "principal": [
-        "THE WISE BODY.webp"
-      ],
+      "principal": [],
       "texto1_es": [],
       "texto1_en": [],
       "texto1_fr": [],
@@ -83,7 +85,7 @@
       "texto2_es": [],
       "texto2_en": [],
       "texto2_fr": [],
-      "galeria": [],
+      "galeria": ["THE WISE BODY.webp"],
       "creditos_es": [
         "Logo sonoro e introducción musical para podcast y loop para meditación Nidra"
       ],
@@ -188,7 +190,7 @@
       "creditos_en": [],
       "creditos_fr": [],
       "archivosTexto": [
-        "1. El Oro del Rin, segunda escena Tran.txt",
+        "1. El Oro del Rin, segunda escena Transformación.txt",
         "2. LAGOS DE CRISTAL BRILLANTE.txt",
         "3. DESPERTAR.txt"
       ]
@@ -238,8 +240,7 @@
       "tipo": "audiovisual",
       "visible": true,
       "mostrarImagen": true,
-      "principal": [
-        "EXtracto alexander_1080.webm"
+      "principal": ["EXtracto alexander_1080.webm"
       ],
       "texto1_es": [],
       "texto1_en": [],
@@ -254,8 +255,7 @@
       "texto2_fr": [
         "Extrait du court métrage sur Alexandre le Grand, avec une musique originale composée pour la danse des Ménades"
       ],
-      "galeria": [
-        "PORTADA.webp"
+      "galeria": ["PORTADA.webp"        
       ],
       "creditos_es": [
         "Edición de sonido y composición de música adicional"
@@ -315,7 +315,7 @@
       "texto2_es": [],
       "texto2_en": [],
       "texto2_fr": [],
-      "galeria": [],
+      "galeria": ["CCLOGO.webp"],
       "creditos_es": [
         "Logo sonoro y outro para Círculo Cerrado"
       ],
@@ -331,7 +331,7 @@
       "titulo_proyecto": "Dark Roast Revelations Podcast (Vito Luis Ramos)",
       "titulo_home": "Dark Roast Revelations",
       "tipo": "identidadSonora",
-      "visible": true,
+      "visible": false,
       "mostrarImagen": false,
       "principal": [],
       "texto1_es": [],
@@ -350,7 +350,7 @@
         "<a href=\"https://open.spotify.com/episode/3u3hMkQ1pH6BF0e8ZaDDcn?si=XMG2_t5zS0eomAF86LbA-A\" target=\"_blank\" rel=\"noopener noreferrer\">Écouter l'épisode complet sur Spotify</a>"
       ],
       "galeria": [
-        "THE WISE BODY.webp"
+        "DDR.webp"
       ],
       "creditos_es": [
         "Intro musical para podcast de terror"
@@ -420,7 +420,7 @@
       "texto2_es": [],
       "texto2_en": [],
       "texto2_fr": [],
-      "galeria": [],
+      "galeria": ["PORTADALW.webp"],
       "creditos_es": [
         "Mezcla y edición de audio para la cover \"Please Please Please - Sabrina Carpenter\" del grupo Lost Weekend del guitarrista y cantante Michael Berman"
       ],
@@ -486,7 +486,7 @@
       "texto2_es": [],
       "texto2_en": [],
       "texto2_fr": [],
-      "galeria": [],
+      "galeria": ["PORTADA MADONNA.webp"],
       "creditos_es": [
         "Remix de la canción del álbum de Madonna para concurso de la plataforma Beatport"
       ],
@@ -514,7 +514,7 @@
       "texto2_es": [],
       "texto2_en": [],
       "texto2_fr": [],
-      "galeria": [],
+      "galeria": ["RAVEL REMIX4.webp"],
       "creditos_es": [
         "Remix electrónico del Bolero de Ravel para concurso de la plataforma Fiverr"
       ],
@@ -586,7 +586,7 @@
       "texto2_es": [],
       "texto2_en": [],
       "texto2_fr": [],
-      "galeria": [],
+      "galeria": ["MPPORTADA.webp"],
       "creditos_es": [
         "Interpretación, producción y mezcla (año 2020)"
       ],

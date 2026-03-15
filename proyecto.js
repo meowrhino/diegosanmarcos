@@ -122,6 +122,7 @@ async function loadData() {
             return;
         }
         appData = await response.json();
+        DSM_SHARED.applyFonts(appData.fonts);
     } catch (error) {
         console.error('Error cargando datos:', error);
     }
@@ -255,7 +256,20 @@ async function renderArchivosTexto() {
     }
 }
 
-// ===== RENDERIZAR ELEMENTO PRINCIPAL (VIDEO/IMAGEN) =====
+// ===== YOUTUBE EMBED HELPER =====
+function getYouTubeEmbedUrl(str) {
+    // Ya es URL de embed
+    if (/^https?:\/\/(www\.)?youtube\.com\/embed\//.test(str)) return str;
+    // URL estándar: youtube.com/watch?v=ID
+    let m = str.match(/(?:youtube\.com\/watch\?v=)([\w-]+)/);
+    if (m) return `https://www.youtube.com/embed/${m[1]}`;
+    // URL corta: youtu.be/ID
+    m = str.match(/(?:youtu\.be\/)([\w-]+)/);
+    if (m) return `https://www.youtube.com/embed/${m[1]}`;
+    return null;
+}
+
+// ===== RENDERIZAR ELEMENTO PRINCIPAL (VIDEO/IMAGEN/YOUTUBE) =====
 function renderPrincipal() {
     const section = document.getElementById('principal-section');
     const container = document.getElementById('principal-content');
@@ -270,9 +284,21 @@ function renderPrincipal() {
     let renderedCount = 0;
 
     principalFiles.forEach(file => {
-        const path = `./data/projects/${currentProject.slug}/${file}`;
+        const youtubeUrl = getYouTubeEmbedUrl(file);
 
-        if (file.match(/\.(mp4|webm|ogg)$/i)) {
+        if (youtubeUrl) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'video-responsive';
+            const iframe = document.createElement('iframe');
+            iframe.src = youtubeUrl;
+            iframe.setAttribute('allowfullscreen', '');
+            iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+            iframe.title = getProjectTitle(currentProject);
+            wrapper.appendChild(iframe);
+            container.appendChild(wrapper);
+            renderedCount++;
+        } else if (file.match(/\.(mp4|webm|ogg)$/i)) {
+            const path = `./data/projects/${currentProject.slug}/${file}`;
             const video = document.createElement('video');
             video.src = path;
             video.controls = true;
@@ -280,6 +306,7 @@ function renderPrincipal() {
             container.appendChild(video);
             renderedCount++;
         } else if (file.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+            const path = `./data/projects/${currentProject.slug}/${file}`;
             const img = document.createElement('img');
             img.src = path;
             img.alt = getProjectTitle(currentProject);
@@ -535,6 +562,8 @@ function setupClickOutsideBack() {
         const player = document.getElementById('audio-player');
         const menuOverlay = document.querySelector('.menu-overlay');
         if (menuOverlay) return; // Menu abierto — no navegar
+        // Ignorar clicks cerca de los bordes para evitar conflictos con gestos de swipe del navegador
+        if (e.clientX < 20 || e.clientX > window.innerWidth - 20) return;
         if (main && !main.contains(e.target) && (!player || !player.contains(e.target))) {
             DSM_SHARED.navigateTo(`./index.html?modo=${currentMode}&lang=${DSM_SHARED.langCode()}`);
         }

@@ -133,7 +133,7 @@ const DSM_Player = {
             <canvas id="player-canvas-webgl"></canvas>
             <div class="player-overlay">
                 <div class="player-drag-handle">
-                    <button class="player-fullscreen" id="fullscreen-btn" aria-label="fullscreen">&#x26F6;</button>
+                    <button class="player-fullscreen" id="fullscreen-btn" aria-label="fullscreen"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg></button>
                     <button class="player-close">&times;</button>
                 </div>
                 <div class="player-center">
@@ -145,14 +145,14 @@ const DSM_Player = {
                         <input type="range" id="progress-bar" min="0" max="100" value="0">
                     </div>
                     <div class="player-controls">
-                        <button class="control-btn" id="playlist-btn">&#x2630;</button>
+                        <button class="control-btn" id="playlist-btn"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M3 13h12v-2H3v2zm0-7v2h18V6H3zm0 12h18v-2H3v2z"/></svg></button>
                         <div class="player-controls-main">
-                            <button class="control-btn" id="prev-btn">&#x23EE;</button>
-                            <button class="control-btn" id="play-btn">&#x25B6;</button>
-                            <button class="control-btn" id="next-btn">&#x23ED;</button>
+                            <button class="control-btn" id="prev-btn"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+                            <button class="control-btn" id="play-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+                            <button class="control-btn" id="next-btn"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zm10 0h2V6h-2v12z"/></svg></button>
                         </div>
                         <div class="volume-control">
-                            <button class="control-btn" id="volume-btn" aria-label="volume">&#x1F50A;</button>
+                            <button class="control-btn" id="volume-btn" aria-label="volume"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0012 8.5v7a4.5 4.5 0 004.5-3.5zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg></button>
                             <div id="volume-popover" class="volume-popover hidden">
                                 <input type="range" id="volume-slider" min="0" max="100" value="70">
                             </div>
@@ -168,7 +168,7 @@ const DSM_Player = {
             <div id="playlist-panel" class="playlist-panel hidden">
                 <div class="preset-nav" id="preset-nav">
                     <button class="preset-nav-btn" id="preset-prev-btn">&#x2039;</button>
-                    <button class="preset-cycle-btn" id="preset-cycle-btn" title="pausar ciclo" aria-label="pausar ciclo">&#x23F8;</button>
+                    <button class="preset-cycle-btn" id="preset-cycle-btn" title="pausar ciclo" aria-label="pausar ciclo"><svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor"><path d="M6 19h4V5H6zm8-14v14h4V5z"/></svg></button>
                     <span class="preset-nav-name" id="preset-nav-name">—</span>
                     <button class="preset-nav-btn" id="preset-next-btn">&#x203A;</button>
                 </div>
@@ -635,7 +635,9 @@ const DSM_Player = {
         const btn = document.getElementById('preset-cycle-btn');
         if (!btn) return;
         const actionLabel = this.bcAutoCycle ? 'pausar ciclo' : 'activar ciclo';
-        btn.textContent = this.bcAutoCycle ? '\u23F8' : '\u25B6';
+        btn.innerHTML = this.bcAutoCycle
+            ? '<svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor"><path d="M6 19h4V5H6zm8-14v14h4V5z"/></svg>'
+            : '<svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
         btn.title = actionLabel;
         btn.setAttribute('aria-label', actionLabel);
     },
@@ -1063,7 +1065,9 @@ const DSM_Player = {
 
     updatePlayButton() {
         const btn = document.getElementById('play-btn');
-        if (btn) btn.textContent = this.isPlaying ? '\u23F8' : '\u25B6';
+        if (btn) btn.innerHTML = this.isPlaying
+            ? '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M6 19h4V5H6zm8-14v14h4V5z"/></svg>'
+            : '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
     },
 
     playPrevious() {
