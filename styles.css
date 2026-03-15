@@ -1,21 +1,5 @@
-/* ===== FUENTES ===== */
-@font-face {
-    font-family: 'Gill Sans MT Light';
-    src: url('./data/fonts/gill-sans-mt-light.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'Fidelma';
-    src: url('./data/fonts/Fidelma.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-}
-
 /* ===== CUSTOM PROPERTIES ===== */
+/* Las @font-face se cargan dinámicamente desde data.json via applyFonts() */
 :root {
     --font-title: 'Fidelma', serif;
     --font-body: 'Gill Sans MT Light', 'Gill Sans', 'Gill Sans MT', sans-serif;

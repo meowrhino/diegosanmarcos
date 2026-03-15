@@ -1056,7 +1056,7 @@ const DSM_Player = {
             this.element.pause();
             this.isPlaying = false;
         } else {
-            this.element.play();
+            this.element.play().catch(() => {});
             this.isPlaying = true;
         }
         this.updatePlayButton();
@@ -1126,7 +1126,7 @@ const DSM_Player = {
             item.innerHTML = `<span class="pl-num">${i + 1}</span><span class="pl-name">${track.title}</span>`;
             item.addEventListener('click', () => {
                 this.loadTrack(i);
-                if (this.isPlaying) this.element.play();
+                if (this.isPlaying) this.element.play().catch(() => {});
             });
             container.appendChild(item);
         });
