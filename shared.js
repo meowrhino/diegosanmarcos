@@ -48,6 +48,18 @@
         setTimeout(() => { _navigating = false; }, 2000);
     }
     window.addEventListener('popstate', () => { _navigating = false; });
+    // Al volver con "atrás", el navegador puede restaurar la página desde el
+    // bfcache congelada con la clase page-exit puesta (body en opacity:0 =>
+    // pantalla negra) y pointer-events:none. pageshow se dispara también en esa
+    // restauración (event.persisted === true), así que la limpiamos aquí.
+    window.addEventListener('pageshow', () => {
+        _navigating = false;
+        document.body.classList.remove('page-exit');
+        // Red de seguridad: si se navegó a mitad de la transición de modo, el
+        // overlay pudo quedar cubriendo la pantalla al restaurar desde bfcache.
+        const iris = document.getElementById('mode-iris-overlay');
+        if (iris) iris.style.background = 'none';
+    });
 
     function updateFavicon() {
         let link = document.querySelector("link[rel='icon']");
