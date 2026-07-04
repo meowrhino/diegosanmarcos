@@ -99,7 +99,11 @@ const DSM_Player = {
         }
 
         this.createPlayerDOM();
-        this.element.volume = 0.7;
+        // Volumen persistente entre visitas (localStorage), fallback 0.7
+        const savedVolume = parseFloat(localStorage.getItem('dsm_volume'));
+        this.element.volume = (!isNaN(savedVolume) && savedVolume >= 0 && savedVolume <= 1)
+            ? savedVolume
+            : 0.7;
         this.setupEvents();
         this.syncVolumeUI();
         this.stateRestored = this.restoreState();
@@ -398,6 +402,7 @@ const DSM_Player = {
     setVolume(volume) {
         const nextVolume = Math.max(0, Math.min(1, volume));
         this.element.volume = nextVolume;
+        localStorage.setItem('dsm_volume', String(nextVolume));
         this.syncVolumeUI();
         this.saveState();
     },

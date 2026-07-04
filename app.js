@@ -370,8 +370,15 @@ function getProjectThumbnail(project) {
 }
 
 function createProjectCard(project) {
-    const card = document.createElement('div');
+    // Enlace real: Google descubre /p/<slug>/ navegando y el tile es
+    // accesible por teclado (tab + enter)
+    const card = document.createElement('a');
     card.className = 'project-card';
+    // URL bonita generada por scripts/generate-project-pages.mjs.
+    // Si la pagina no existe (proyecto nuevo sin regenerar), 404.html
+    // redirige a proyecto.html?p=<slug> como red de seguridad.
+    card.href = `./p/${encodeURIComponent(project.slug)}/`;
+    card.draggable = false;
 
     const colorValue = appData.typeColors[project.tipo] || '#808080';
     const colorHex = colorValue.startsWith('#') ? colorValue : (coloresData.colores[colorValue] || '#808080');
@@ -409,11 +416,11 @@ function createProjectCard(project) {
     inner.appendChild(icon);
     inner.appendChild(title);
     card.appendChild(inner);
-    card.addEventListener('click', () => {
-        // URL bonita generada por scripts/generate-project-pages.mjs.
-        // Si la pagina no existe (proyecto nuevo sin regenerar), 404.html
-        // redirige a proyecto.html?p=<slug> como red de seguridad.
-        DSM_SHARED.navigateTo(`./p/${encodeURIComponent(project.slug)}/`);
+    card.addEventListener('click', (e) => {
+        // Dejar que el navegador gestione pestaña nueva / ventana nueva
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+        e.preventDefault();
+        DSM_SHARED.navigateTo(card.getAttribute('href'));
     });
 
     return card;

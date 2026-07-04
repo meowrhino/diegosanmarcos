@@ -131,6 +131,9 @@ body.page-exit {
     border-radius: 0;
     overflow: hidden;
     cursor: pointer;
+    /* El tile es un <a>: sin subrayado ni color de enlace */
+    text-decoration: none;
+    color: inherit;
     transition: transform 0.15s ease, filter 0.15s ease, background 0.2s ease;
     animation: tileIn 0.3s ease both;
     backdrop-filter: blur(12px);
