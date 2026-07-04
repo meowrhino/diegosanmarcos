@@ -3,6 +3,8 @@
 :root {
     --font-title: 'Fidelma', serif;
     --font-body: 'Gill Sans MT Light', 'Gill Sans', 'Gill Sans MT', sans-serif;
+    /* La pagina ya es oscura: evitar que el navegador fuerce su propio modo oscuro */
+    color-scheme: dark;
 }
 
 /* ===== RESET Y BASE ===== */
