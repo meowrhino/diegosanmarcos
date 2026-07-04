@@ -8,7 +8,7 @@ const rootDir = path.resolve(__dirname, '..');
 const dataPath = path.join(rootDir, 'data', 'data.json');
 const outputPath = path.join(rootDir, 'sitemap.xml');
 
-const baseUrlInput = (process.env.BASE_URL || 'https://example.com').trim();
+const baseUrlInput = (process.env.BASE_URL || 'https://diegosanmarcos.com').trim();
 const baseUrl = baseUrlInput.replace(/\/+$/, '');
 const today = new Date().toISOString().slice(0, 10);
 
@@ -21,12 +21,13 @@ const raw = fs.readFileSync(dataPath, 'utf8');
 const parsed = JSON.parse(raw);
 const projects = Array.isArray(parsed.projects) ? parsed.projects : [];
 const slugs = projects
+  .filter((project) => project?.visible !== false)
   .map((project) => project?.slug)
   .filter((slug) => typeof slug === 'string' && slug.length > 0);
 
 const urls = [
   `${baseUrl}/`,
-  ...slugs.map((slug) => `${baseUrl}/proyecto.html?proyecto=${encodeURIComponent(slug)}`),
+  ...slugs.map((slug) => `${baseUrl}/p/${encodeURIComponent(slug)}/`),
 ];
 
 const xmlLines = [

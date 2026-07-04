@@ -31,7 +31,13 @@
     function updateModeInURL(mode) {
         if (!VALID_MODES.has(mode)) return;
         const params = new URLSearchParams(window.location.search);
-        params.set('modo', mode);
+        // portfolio es el default: la URL limpia ya lo implica
+        if (mode === 'portfolio') {
+            params.delete('modo');
+            params.delete('mode');
+        } else {
+            params.set('modo', mode);
+        }
         const query = params.toString();
         const newUrl = query ? `${window.location.pathname}?${query}` : window.location.pathname;
         history.replaceState(null, '', newUrl);
@@ -103,10 +109,15 @@
         const code = langCode();
         localStorage.setItem('dsm_lang', code);
         document.documentElement.lang = lang();
+        // El idioma vive en localStorage, no en la URL. Si llega por un enlace
+        // compartido (?lang=...) se lee en initLang y aqui se limpia de la URL.
         const params = new URLSearchParams(window.location.search);
-        params.set('lang', code);
-        const query = params.toString();
-        history.replaceState(null, '', `${window.location.pathname}?${query}`);
+        if (params.has('lang')) {
+            params.delete('lang');
+            const query = params.toString();
+            const newUrl = query ? `${window.location.pathname}?${query}` : window.location.pathname;
+            history.replaceState(null, '', newUrl);
+        }
     }
 
     // ===== TIPOGRAFÍA DINÁMICA =====

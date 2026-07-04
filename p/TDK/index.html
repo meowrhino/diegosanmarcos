@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <base href="../../">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">TDK (Recopilación de tracks) — diego san marcos</title>
+    <meta name="description" content="Interpretación, producción y mezcla">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#000000">
+    <!-- Evitar que el navegador aplique su "modo oscuro forzado" (Brave Night Mode, Chrome auto-dark) -->
+    <meta name="color-scheme" content="dark">
+    <meta name="darkreader-lock">
+    <link rel="canonical" id="canonical-url" href="https://diegosanmarcos.com/p/TDK/">
+
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Diego San Marcos">
+    <meta property="og:title" content="TDK (Recopilación de tracks) — diego san marcos" id="og-title">
+    <meta property="og:description" content="Interpretación, producción y mezcla" id="og-description">
+    <meta property="og:url" content="https://diegosanmarcos.com/p/TDK/" id="og-url">
+    <meta property="og:image" content="https://diegosanmarcos.com/data/projects/TDK/TDK.webp" id="og-image">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="TDK (Recopilación de tracks) — diego san marcos" id="twitter-title">
+    <meta name="twitter:description" content="Interpretación, producción y mezcla" id="twitter-description">
+    <meta name="twitter:image" content="https://diegosanmarcos.com/data/projects/TDK/TDK.webp" id="twitter-image">
+
+    <script type="application/ld+json" id="project-json-ld">{"@context":"https://schema.org","@type":"CreativeWork","name":"TDK (Recopilación de tracks)","url":"https://diegosanmarcos.com/p/TDK/","inLanguage":"es","description":"Interpretación, producción y mezcla","image":"https://diegosanmarcos.com/data/projects/TDK/TDK.webp","genre":"miMusica","author":{"@type":"Person","name":"Diego San Marcos"}}</script>
+    <link rel="icon" type="image/png" href="./data/icons/LOGO URL.png">
+    <link rel="stylesheet" href="./styles.css">
+    <link rel="stylesheet" href="./proyecto.css">
+</head>
+<body class="project-page">
+    <!-- Fondo dinamico -->
+    <div id="background-container"></div>
+
+    <!-- Contenedor principal del proyecto -->
+    <main class="project-main">
+        <!-- Elemento principal (video o imagen) -->
+        <section id="principal-section" class="project-section">
+            <div id="principal-content" class="principal-container"></div>
+        </section>
+
+        <!-- Texto 1 -->
+        <section id="texto1-section" class="project-section">
+            <div id="texto1-content" class="text-content"></div>
+        </section>
+
+        <!-- Audios -->
+        <section id="audio-section" class="project-section">
+            <div id="audio-list" class="audio-list"></div>
+        </section>
+
+        <!-- Texto 2 -->
+        <section id="texto2-section" class="project-section">
+            <div id="texto2-content" class="text-content"></div>
+        </section>
+
+        <!-- Galeria -->
+        <section id="galeria-section" class="project-section">
+            <div id="galeria-content" class="gallery-grid"></div>
+        </section>
+
+        <!-- Creditos -->
+        <section id="creditos-section" class="project-section">
+            <div id="creditos-content" class="credits-content"></div>
+        </section>
+
+        <a href="https://meowrhino.studio" target="_blank" rel="noopener" class="studio-badge">meowrhino.studio</a>
+    </main>
+
+    <!-- Butterchurn visualizer (Milkdrop WebGL) -->
+    <script src="./vendor/butterchurn-presets/base.min.js" defer></script>
+    <script type="module">
+        import butterchurn from './vendor/butterchurn/butterchurn.js';
+        window.butterchurn = butterchurn;
+        window.dispatchEvent(new Event('butterchurn-ready'));
+    </script>
+
+    <script>window.DSM_PROJECT_SLUG = "TDK";</script>
+    <script src="./shared.js"></script>
+    <script src="./player.js"></script>
+    <script src="./proyecto.js"></script>
+</body>
+</html>

@@ -410,8 +410,10 @@ function createProjectCard(project) {
     inner.appendChild(title);
     card.appendChild(inner);
     card.addEventListener('click', () => {
-        const slug = encodeURIComponent(project.slug);
-        DSM_SHARED.navigateTo(`./proyecto.html?proyecto=${slug}&modo=${currentMode}&lang=${DSM_SHARED.langCode()}`);
+        // URL bonita generada por scripts/generate-project-pages.mjs.
+        // Si la pagina no existe (proyecto nuevo sin regenerar), 404.html
+        // redirige a proyecto.html?p=<slug> como red de seguridad.
+        DSM_SHARED.navigateTo(`./p/${encodeURIComponent(project.slug)}/`);
     });
 
     return card;

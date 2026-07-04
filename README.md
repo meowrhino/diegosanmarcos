@@ -32,10 +32,15 @@ Portfolio web de Diego San Marcos, compositor y diseñador sonoro. Diseño inspi
 diegosanmarcos/
 ├── index.html              # Página principal (home)
 ├── proyecto.html           # Plantilla de páginas de proyecto
+├── 404.html                # Fallback: redirige /p/<slug>/ sin generar a proyecto.html
+├── p/                      # Páginas de proyecto generadas (URLs bonitas)
 ├── app.js                  # Lógica de la home
 ├── proyecto.js             # Lógica de páginas de proyecto
 ├── styles.css              # Estilos globales y de la home
 ├── proyecto.css            # Estilos específicos de páginas de proyecto
+├── scripts/
+│   ├── generate-project-pages.mjs  # Genera p/<slug>/index.html desde data.json
+│   └── generate-sitemap.mjs        # Genera sitemap.xml
 ├── data/
 │   ├── data.json          # Datos de proyectos y categorías
 │   ├── colores.json       # Paleta de colores HTML
@@ -45,6 +50,23 @@ diegosanmarcos/
 ├── generadorFondos/       # Experimentos de generador de fondos
 └── manus/                 # Documentación del proceso
 ```
+
+## URLs
+
+Cada proyecto tiene una URL corta del tipo `https://diegosanmarcos.com/p/<slug>/`,
+generada como página estática con sus propios meta de SEO/og (imagen y
+descripción reales al compartir el enlace).
+
+**Al añadir, quitar o renombrar proyectos en `data.json`, regenerar y commitear:**
+
+```
+node scripts/generate-project-pages.mjs
+node scripts/generate-sitemap.mjs
+```
+
+Si se olvida este paso, los enlaces `/p/<slug>/` nuevos siguen funcionando:
+`404.html` redirige a `proyecto.html?p=<slug>`. Los enlaces antiguos
+(`proyecto.html?proyecto=<slug>`) también siguen funcionando.
 
 ## Tecnologías
 
@@ -111,7 +133,7 @@ Reemplazar `data/backgrounds/fondo1.jpg` (portfolio) y `data/backgrounds/fondo2.
 ## Navegación
 
 - **Home**: Muestra todos los proyectos según el modo activo (portfolio/personal)
-- **Click en proyecto**: Navega a `proyecto.html?proyecto=[slug]`
+- **Click en proyecto**: Navega a `p/[slug]/` (página generada con URL bonita)
 - **Click en audio**: Activa el reproductor persistente con la playlist del proyecto
 - **Botón volver**: Regresa a la home desde cualquier página de proyecto
 

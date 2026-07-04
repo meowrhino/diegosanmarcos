@@ -54,22 +54,26 @@ function updateProjectSEO() {
 
     const projectTitle = getProjectTitle(currentProject);
     const description = getProjectSeoDescription(currentProject);
-    const canonicalURL = new URL(window.location.pathname, window.location.origin);
-    canonicalURL.searchParams.set('proyecto', currentProject.slug);
-    const canonical = canonicalURL.toString();
-    const image = new URL(getProjectSeoImagePath(currentProject), window.location.href).toString();
+    // Pagina generada (/p/<slug>/): el pathname ya identifica al proyecto.
+    // proyecto.html suelto: canonicalizar hacia la URL bonita.
+    const canonical = window.DSM_PROJECT_SLUG
+        ? new URL(window.location.pathname, window.location.origin).toString()
+        : new URL(`./p/${encodeURIComponent(currentProject.slug)}/`, document.baseURI).toString();
+    // document.baseURI respeta el <base href="../../"> de las paginas generadas
+    const image = new URL(getProjectSeoImagePath(currentProject), document.baseURI).toString();
 
-    document.title = SITE_TITLE;
+    const pageTitle = `${projectTitle} — ${SITE_TITLE}`;
+    document.title = pageTitle;
     const titleEl = document.getElementById('page-title');
-    if (titleEl) titleEl.textContent = SITE_TITLE;
+    if (titleEl) titleEl.textContent = pageTitle;
 
     setCanonicalHref(canonical);
     setMetaContent('meta[name="description"]', description);
-    setMetaContent('meta[property="og:title"]', SITE_TITLE);
+    setMetaContent('meta[property="og:title"]', pageTitle);
     setMetaContent('meta[property="og:description"]', description);
     setMetaContent('meta[property="og:url"]', canonical);
     setMetaContent('meta[property="og:image"]', image);
-    setMetaContent('meta[name="twitter:title"]', SITE_TITLE);
+    setMetaContent('meta[name="twitter:title"]', pageTitle);
     setMetaContent('meta[name="twitter:description"]', description);
     setMetaContent('meta[name="twitter:image"]', image);
 
@@ -98,7 +102,11 @@ function getModeFromURL() {
     return VALID_MODES.has(mode) ? mode : null;
 }
 
-const updateModeInURL = DSM_SHARED.updateModeInURL;
+// URL de vuelta a la home: solo lleva modo cuando no es el default.
+// En paginas generadas (/p/<slug>/) el <base href="../../"> resuelve a la raiz.
+function getHomeUrl() {
+    return currentMode === 'personal' ? './index.html?modo=personal' : './index.html';
+}
 
 function getInferredMode() {
     if (!appData || !currentProject) return 'portfolio';
@@ -130,7 +138,10 @@ async function loadData() {
 
 // ===== CARGAR PROYECTO DESDE URL =====
 async function loadProjectFromURL() {
-    const projectSlug = new URLSearchParams(window.location.search).get('proyecto');
+    // Paginas generadas (/p/<slug>/) inyectan el slug; proyecto.html lo lee
+    // del query param (?p= corto, ?proyecto= para enlaces antiguos)
+    const params = new URLSearchParams(window.location.search);
+    const projectSlug = window.DSM_PROJECT_SLUG || params.get('p') || params.get('proyecto');
 
     if (!projectSlug) {
         console.error('No se especifico un proyecto en la URL');
@@ -145,7 +156,6 @@ async function loadProjectFromURL() {
     }
 
     currentMode = getModeFromURL() || getInferredMode();
-    updateModeInURL(currentMode);
     setupBackground(currentMode);
     await renderProject();
     createMenuButton();
@@ -536,7 +546,7 @@ function renderMenuContent(container) {
     backBtn.className = 'menu-item';
     backBtn.textContent = labels.back;
     backBtn.addEventListener('click', () => {
-        DSM_SHARED.navigateTo(`./index.html?modo=${currentMode}&lang=${DSM_SHARED.langCode()}`);
+        DSM_SHARED.navigateTo(getHomeUrl());
     });
     container.appendChild(backBtn);
 
@@ -565,7 +575,7 @@ function setupClickOutsideBack() {
         // Ignorar clicks cerca de los bordes para evitar conflictos con gestos de swipe del navegador
         if (e.clientX < 20 || e.clientX > window.innerWidth - 20) return;
         if (main && !main.contains(e.target) && (!player || !player.contains(e.target))) {
-            DSM_SHARED.navigateTo(`./index.html?modo=${currentMode}&lang=${DSM_SHARED.langCode()}`);
+            DSM_SHARED.navigateTo(getHomeUrl());
         }
     });
 }

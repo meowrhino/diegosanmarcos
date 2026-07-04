@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>diego san marcos</title>
+    <meta name="robots" content="noindex">
+    <meta name="theme-color" content="#000000">
+    <meta name="color-scheme" content="dark">
+    <meta name="darkreader-lock">
+    <style>
+        html { color-scheme: dark; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            color: #fff;
+            font-family: 'Gill Sans', 'Gill Sans MT', sans-serif;
+        }
+        a { color: #8888ee; }
+    </style>
+    <script>
+        // Red de seguridad para URLs bonitas /p/<slug>/ sin pagina generada
+        // (proyecto nuevo en data.json sin ejecutar generate-project-pages.mjs):
+        // redirigir a proyecto.html?p=<slug>, que carga el proyecto via JS.
+        (function () {
+            var match = window.location.pathname.match(/^(.*)\/p\/([^/]+)\/?$/);
+            if (match) {
+                var prefix = match[1]; // raiz del sitio (soporta hosting en subpath)
+                var slug = match[2];
+                window.location.replace(prefix + '/proyecto.html?p=' + slug);
+            }
+        })();
+    </script>
+</head>
+<body>
+    <p>página no encontrada — <a href="/">volver a la home</a></p>
+</body>
+</html>
