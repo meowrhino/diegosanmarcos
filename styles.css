@@ -104,6 +104,28 @@ body.page-exit {
 }
 
 /* ===== TILES DE PROYECTO (GLASSMORPHISM) ===== */
+/* Sin seleccion/arrastre nativo: evita el resaltado del navegador al arrastrar
+   ligeramente sobre un tile (la "linea amarilla" fantasma) */
+.project-card,
+.special-tile {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.project-card img,
+.special-tile img {
+    -webkit-user-drag: none;
+    user-drag: none;
+}
+
+/* Foco de teclado propio en lugar del anillo por defecto del navegador */
+.project-card:focus-visible,
+.special-tile:focus-visible {
+    outline: 1px solid rgba(255, 255, 255, 0.7);
+    outline-offset: -1px;
+}
+
 .project-card {
     position: relative;
     border-radius: 0;
