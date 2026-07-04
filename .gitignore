@@ -6,3 +6,4 @@ manus/
 .vscode/
 node_modules/
 .env
+update-cliente-*.zip
