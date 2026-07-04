@@ -22,6 +22,12 @@ body {
     min-height: 100vh;
 }
 
+/* ===== SPA: home y vista de proyecto conviven en el DOM (el player nunca se
+   destruye); solo una esta visible a la vez ===== */
+.dsm-hidden {
+    display: none !important;
+}
+
 /* ===== PAGE TRANSITIONS ===== */
 body.page-exit {
     animation: pageExit 0.3s ease both;
@@ -673,6 +679,12 @@ span.special-tile-icon.lang-icon {
 }
 
 .playlist-item {
+    /* Es un <button>: neutralizar estilos de user-agent */
+    background: none;
+    border: none;
+    font: inherit;
+    width: 100%;
+    text-align: left;
     display: flex;
     align-items: center;
     gap: 8px;

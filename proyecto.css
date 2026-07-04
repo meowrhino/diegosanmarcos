@@ -179,6 +179,11 @@
 }
 
 .audio-item {
+    /* Es un <button>: neutralizar estilos de user-agent */
+    font: inherit;
+    color: inherit;
+    width: 100%;
+    text-align: left;
     background: rgba(255, 255, 255, 0.05);
     border: none;
     padding: 0.9rem 1.2rem;

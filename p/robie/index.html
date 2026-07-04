@@ -30,12 +30,15 @@
     <link rel="stylesheet" href="./styles.css">
     <link rel="stylesheet" href="./proyecto.css">
 </head>
-<body class="project-page">
-    <!-- Fondo dinamico -->
+<body>
+    <!-- Fondo dinamico (compartido por ambas vistas) -->
     <div id="background-container"></div>
 
-    <!-- Contenedor principal del proyecto -->
-    <main class="project-main">
+    <!-- Vista: home (grid de proyectos) -->
+    <main id="projects-container" class="dsm-hidden"></main>
+
+    <!-- Vista: proyecto -->
+    <main class="project-main dsm-hidden">
         <!-- Elemento principal (video o imagen) -->
         <section id="principal-section" class="project-section">
             <div id="principal-content" class="principal-container"></div>
@@ -77,9 +80,8 @@
         window.dispatchEvent(new Event('butterchurn-ready'));
     </script>
 
-    <script>window.DSM_PROJECT_SLUG = "robie";</script>
     <script src="./shared.js"></script>
     <script src="./player.js"></script>
-    <script src="./proyecto.js"></script>
+    <script src="./app.js"></script>
 </body>
 </html>

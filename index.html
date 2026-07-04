@@ -27,13 +27,49 @@
     <script type="application/ld+json" id="home-json-ld">{"@context":"https://schema.org","@type":"WebSite","name":"Diego San Marcos","description":"Portfolio de Diego San Marcos: musica, mezcla, audio inmersivo y proyectos audiovisuales."}</script>
     <link rel="icon" type="image/png" href="./data/icons/LOGO URL.png">
     <link rel="stylesheet" href="./styles.css">
+    <link rel="stylesheet" href="./proyecto.css">
 </head>
 <body>
-    <!-- Fondo dinamico -->
+    <!-- Fondo dinamico (compartido por ambas vistas) -->
     <div id="background-container"></div>
 
-    <!-- Contenedor principal de proyectos -->
-    <main id="projects-container"></main>
+    <!-- Vista: home (grid de proyectos) -->
+    <main id="projects-container" class="dsm-hidden"></main>
+
+    <!-- Vista: proyecto -->
+    <main class="project-main dsm-hidden">
+        <!-- Elemento principal (video o imagen) -->
+        <section id="principal-section" class="project-section">
+            <div id="principal-content" class="principal-container"></div>
+        </section>
+
+        <!-- Texto 1 -->
+        <section id="texto1-section" class="project-section">
+            <div id="texto1-content" class="text-content"></div>
+        </section>
+
+        <!-- Audios -->
+        <section id="audio-section" class="project-section">
+            <div id="audio-list" class="audio-list"></div>
+        </section>
+
+        <!-- Texto 2 -->
+        <section id="texto2-section" class="project-section">
+            <div id="texto2-content" class="text-content"></div>
+        </section>
+
+        <!-- Galeria -->
+        <section id="galeria-section" class="project-section">
+            <div id="galeria-content" class="gallery-grid"></div>
+        </section>
+
+        <!-- Creditos -->
+        <section id="creditos-section" class="project-section">
+            <div id="creditos-content" class="credits-content"></div>
+        </section>
+
+        <a href="https://meowrhino.studio" target="_blank" rel="noopener" class="studio-badge">meowrhino.studio</a>
+    </main>
 
     <!-- Butterchurn visualizer (Milkdrop WebGL) -->
     <script src="./vendor/butterchurn-presets/base.min.js" defer></script>

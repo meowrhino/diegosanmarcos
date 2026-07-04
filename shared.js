@@ -3,6 +3,20 @@
     const VALID_MODES = new Set(['portfolio', 'personal']);
     const SITE_TITLE = 'diego san marcos';
 
+    // Raiz del sitio resuelta UNA VEZ al arrancar (respeta <base href="../../">
+    // de las paginas generadas y subpaths de GH Pages de proyecto). No usar
+    // document.baseURI/rutas relativas despues de un pushState: al no haber
+    // <base> en index.html/proyecto.html, cambian con la URL empujada.
+    const SITE_ROOT = new URL('.', document.baseURI).href;
+    const SITE_ROOT_PATH = new URL(SITE_ROOT).pathname;
+
+    // Resuelve una ruta de asset/fetch ("./data/x" o "data/x") contra la raiz
+    // del sitio, sin depender de la URL actual del documento.
+    function assetUrl(path) {
+        const clean = String(path || '').replace(/^\.?\//, '');
+        return new URL(clean, SITE_ROOT).href;
+    }
+
     function normalizeLanguageCode(value) {
         const upper = (value || '').toUpperCase();
         return LANG_SUFFIX[upper] ? upper : null;
@@ -43,26 +57,50 @@
         history.replaceState(null, '', newUrl);
     }
 
+    // ===== NAVEGACION SPA =====
+    // La app registra aqui su router (una funcion que relee window.location y
+    // pinta la vista correspondiente) para que navigateTo() nunca recargue el
+    // documento — el <audio>/AudioContext/canvas de DSM_Player sobreviven.
+    let _routeRenderer = null;
+    function setRouteRenderer(fn) { _routeRenderer = fn; }
+
     let _navigating = false;
-    function navigateTo(url, duration) {
+    function navigateTo(targetUrl, duration) {
         if (_navigating) return;
+        if (!_routeRenderer) {
+            // Red de seguridad si el router aun no se registro
+            window.location.href = targetUrl;
+            return;
+        }
         _navigating = true;
         const ms = duration ?? 300;
         document.body.classList.add('page-exit');
-        setTimeout(() => { window.location.href = url; }, ms);
-        // Safety reset: si la navegación falla, desbloquear tras 2s
+        setTimeout(() => {
+            // targetUrl siempre debe llegar absoluta (construida con
+            // DSM_SHARED.assetUrl) para no depender de la base URL actual.
+            history.pushState({}, '', targetUrl);
+            Promise.resolve(_routeRenderer()).finally(() => {
+                document.body.classList.remove('page-exit');
+                _navigating = false;
+                window.scrollTo(0, 0);
+            });
+        }, ms);
+        // Safety reset: si algo falla, desbloquear tras 2s
         setTimeout(() => { _navigating = false; }, 2000);
     }
-    window.addEventListener('popstate', () => { _navigating = false; });
-    // Al volver con "atrás", el navegador puede restaurar la página desde el
-    // bfcache congelada con la clase page-exit puesta (body en opacity:0 =>
-    // pantalla negra) y pointer-events:none. pageshow se dispara también en esa
-    // restauración (event.persisted === true), así que la limpiamos aquí.
+
+    window.addEventListener('popstate', () => {
+        _navigating = false;
+        if (_routeRenderer) _routeRenderer();
+    });
+
+    // Red de seguridad para bfcache: si el usuario navega a un sitio externo y
+    // vuelve con "atras", el navegador puede restaurar esta pagina congelada
+    // con page-exit puesto (pantalla negra) o con el iris de modo a mitad.
+    // La navegacion interna ya no depende de esto (nunca recarga el documento).
     window.addEventListener('pageshow', () => {
         _navigating = false;
         document.body.classList.remove('page-exit');
-        // Red de seguridad: si se navegó a mitad de la transición de modo, el
-        // overlay pudo quedar cubriendo la pantalla al restaurar desde bfcache.
         const iris = document.getElementById('mode-iris-overlay');
         if (iris) iris.style.background = 'none';
     });
@@ -75,7 +113,7 @@
             document.head.appendChild(link);
         }
         link.type = 'image/png';
-        link.href = './data/icons/LOGO URL.png';
+        link.href = assetUrl('data/icons/LOGO URL.png');
     }
 
     // ===== GESTION CENTRALIZADA DE IDIOMA =====
@@ -125,7 +163,7 @@
         if (!fontsConfig) return;
         const style = document.createElement('style');
         let css = '';
-        const fontPath = './data/fonts/';
+        const fontPath = assetUrl('data/fonts/');
 
         if (fontsConfig.title && fontsConfig.title.file) {
             const ext = fontsConfig.title.file.split('.').pop().toLowerCase();
@@ -152,6 +190,9 @@
         VALID_MODES,
         SITE_TITLE,
         LANGUAGES,
+        SITE_ROOT,
+        SITE_ROOT_PATH,
+        assetUrl,
         normalizeLanguageCode,
         languageCodeToHtml,
         normalizeMode,
@@ -159,6 +200,7 @@
         setCanonicalHref,
         updateModeInURL,
         navigateTo,
+        setRouteRenderer,
         updateFavicon,
         initLang,
         langCode,

@@ -2,17 +2,186 @@
 let appData = null;
 let coloresData = null;
 let currentMode = 'portfolio';
+let currentProject = null;
+let currentView = null; // 'home' | 'project'
 const VALID_MODES = DSM_SHARED.VALID_MODES;
+const SITE_TITLE = DSM_SHARED.SITE_TITLE;
+const { setMetaContent, setCanonicalHref, assetUrl } = DSM_SHARED;
+const normalizeMode = DSM_SHARED.normalizeMode;
+const updateModeInURL = DSM_SHARED.updateModeInURL;
 
 // ===== IDIOMA (centralizado en shared.js) =====
 DSM_SHARED.initLang();
 
-function getProjectTitle(project) {
+// ===== HELPERS COMPARTIDOS =====
+function getHomeProjectTitle(project) {
     return project.titulo_home ?? project.titulo_proyecto ?? project.slug;
 }
 
-const SITE_TITLE = DSM_SHARED.SITE_TITLE;
-const { setMetaContent, setCanonicalHref } = DSM_SHARED;
+function getFullProjectTitle(project) {
+    return project.titulo_proyecto ?? project.titulo_home ?? project.slug;
+}
+
+function loc(obj, field) {
+    // Un array vacio cuenta como "sin contenido": data.json plantilla trae
+    // texto1_en: [] etc. en todos los proyectos, y si solo se rellena _es los
+    // demas idiomas deben caer al espanol, no mostrar la seccion vacia.
+    const pick = (v) => (Array.isArray(v) ? (v.length ? v : null) : v ?? null);
+    return pick(obj[field + '_' + DSM_SHARED.lang()])
+        ?? pick(obj[field + '_es'])
+        ?? pick(obj[field])
+        ?? [];
+}
+
+function stripHtml(text) {
+    return String(text || '')
+        .replace(/<[^>]*>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function truncateText(text, maxLength = 170) {
+    if (text.length <= maxLength) return text;
+    return text.slice(0, maxLength - 3).trimEnd() + '...';
+}
+
+// Convierte hex (#RRGGBB) a objeto {r, g, b}
+function hexToRgb(hex) {
+    if (!hex || hex[0] !== '#' || hex.length < 7) return { r: 128, g: 128, b: 128 };
+    return {
+        r: parseInt(hex.slice(1, 3), 16) || 0,
+        g: parseInt(hex.slice(3, 5), 16) || 0,
+        b: parseInt(hex.slice(5, 7), 16) || 0
+    };
+}
+
+// ===== ROUTER =====
+// Determina si la URL actual apunta a un proyecto (/p/<slug>/ o
+// proyecto.html?p=<slug>) y devuelve su slug, o null si es la home.
+function parseProjectSlugFromLocation() {
+    const pathname = window.location.pathname;
+    const rootPath = DSM_SHARED.SITE_ROOT_PATH;
+    const projectsPrefix = rootPath.endsWith('/') ? `${rootPath}p/` : `${rootPath}/p/`;
+    if (pathname.startsWith(projectsPrefix)) {
+        const rest = pathname.slice(projectsPrefix.length);
+        const slug = rest.split('/')[0];
+        if (slug) return decodeURIComponent(slug);
+    }
+    if (/proyecto\.html$/.test(pathname)) {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('p') || params.get('proyecto') || null;
+    }
+    return null;
+}
+
+function getInitialModeFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    return normalizeMode(params.get('modo')) || normalizeMode(params.get('mode')) || 'portfolio';
+}
+
+function getModeFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    const mode = params.get('modo') || params.get('mode');
+    return VALID_MODES.has(mode) ? mode : null;
+}
+
+function getInferredMode() {
+    if (!appData || !currentProject) return 'portfolio';
+    const portfolioCategories = appData.modes && appData.modes.portfolio && appData.modes.portfolio.categories || [];
+    return portfolioCategories.includes(currentProject.tipo) ? 'portfolio' : 'personal';
+}
+
+// URL de vuelta a la home, absoluta desde la raiz del sitio (segura tras un
+// pushState a /p/<slug>/, donde una ruta relativa resolveria mal).
+function getHomeUrl() {
+    const base = assetUrl('');
+    return currentMode === 'personal' ? `${base}?modo=personal` : base;
+}
+
+async function renderRoute() {
+    const closingMenu = document.querySelector('.menu-overlay');
+    if (closingMenu) closingMenu.remove();
+
+    const slug = parseProjectSlugFromLocation();
+    if (slug) {
+        const project = appData.projects.find(p => p.slug === slug);
+        if (project) {
+            await enterProjectView(project);
+            return;
+        }
+        console.error('Proyecto no encontrado:', slug);
+        // Dejar la URL coherente con la vista que se va a pintar (la home)
+        history.replaceState(null, '', getHomeUrl());
+    }
+    enterHomeView();
+}
+
+// ===== INICIALIZACION =====
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadData();
+    if (!appData || !coloresData) return; // Datos no cargados
+
+    DSM_SHARED.syncLang();
+    createMenuButtonOnce();
+    setupClickOutsideBackOnce();
+    DSM_SHARED.setRouteRenderer(renderRoute);
+
+    await renderRoute();
+    if (currentView === 'home') loadBgmIfNeeded();
+
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            if (currentView === 'home') renderProjects();
+        }, 200);
+    });
+});
+
+// ===== CARGA DE DATOS =====
+async function loadData() {
+    try {
+        const [dataResponse, coloresResponse] = await Promise.all([
+            fetch(assetUrl('data/data.json')),
+            fetch(assetUrl('data/colores.json'))
+        ]);
+
+        if (!dataResponse.ok || !coloresResponse.ok) {
+            console.error('Error cargando datos: respuesta no ok');
+            return;
+        }
+
+        appData = await dataResponse.json();
+        coloresData = await coloresResponse.json();
+        DSM_SHARED.applyFonts(appData.fonts);
+    } catch (error) {
+        console.error('Error cargando datos:', error);
+    }
+}
+
+// ===== CAMBIO DE VISTA =====
+// #projects-container y .project-main conviven siempre en el DOM (para que
+// DSM_Player nunca se destruya) — solo se alterna cual esta visible.
+function showView(view) {
+    const home = document.getElementById('projects-container');
+    const project = document.querySelector('.project-main');
+    // Limpiar SIEMPRE los restos del proyecto anterior: los saltos directos
+    // proyecto→proyecto via historial del navegador no pasan por la home, y
+    // sin esto renderProject() acumularia titulo/textos/galeria duplicados.
+    document.body.classList.remove(...[...document.body.classList].filter(c => c.startsWith('tipo-')));
+    resetProjectDynamicContent();
+    if (view === 'home') {
+        home.classList.remove('dsm-hidden');
+        project.classList.add('dsm-hidden');
+        document.body.classList.remove('project-page');
+    } else {
+        home.classList.add('dsm-hidden');
+        project.classList.remove('dsm-hidden');
+        document.body.classList.add('project-page');
+    }
+}
+
+// ===== VISTA: HOME =====
 
 const HOME_SEO_COPY = {
     ES: {
@@ -48,9 +217,7 @@ function updateHomeSEO() {
 
     const canonical = new URL(window.location.pathname, window.location.origin).toString();
     const bgFile = appData?.modes?.[currentMode]?.background;
-    const image = bgFile
-        ? new URL(`./data/backgrounds/${bgFile}`, window.location.href).toString()
-        : new URL('./data/icons/LOGO URL.png', window.location.href).toString();
+    const image = bgFile ? assetUrl(`data/backgrounds/${bgFile}`) : assetUrl('data/icons/LOGO URL.png');
 
     document.title = SITE_TITLE;
     setCanonicalHref(canonical);
@@ -87,24 +254,6 @@ function updateHomeSEO() {
     }
 }
 
-const normalizeMode = DSM_SHARED.normalizeMode;
-const updateModeInURL = DSM_SHARED.updateModeInURL;
-
-function getInitialModeFromURL() {
-    const params = new URLSearchParams(window.location.search);
-    return normalizeMode(params.get('modo')) || normalizeMode(params.get('mode')) || 'portfolio';
-}
-
-// Convierte hex (#RRGGBB) a objeto {r, g, b}
-function hexToRgb(hex) {
-    if (!hex || hex[0] !== '#' || hex.length < 7) return { r: 128, g: 128, b: 128 };
-    return {
-        r: parseInt(hex.slice(1, 3), 16) || 0,
-        g: parseInt(hex.slice(3, 5), 16) || 0,
-        b: parseInt(hex.slice(5, 7), 16) || 0
-    };
-}
-
 // Posibles tamanos de tile [w, h] — basados en la celda cuadrada del grid
 // Desktop: mas probabilidad de 1x1, pero manteniendo variedad
 const TILE_SIZES_DESKTOP = [
@@ -121,49 +270,14 @@ const TILE_SIZES_MOBILE = [
     [1,2]
 ];
 
-// ===== INICIALIZACION =====
-document.addEventListener('DOMContentLoaded', async () => {
-    await loadData();
-    if (!appData || !coloresData) return; // Datos no cargados
-    initializeUI();
-
-    let resizeTimeout;
-    window.addEventListener('resize', () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(() => renderProjects(), 200);
-    });
-});
-
-// ===== CARGA DE DATOS =====
-async function loadData() {
-    try {
-        const [dataResponse, coloresResponse] = await Promise.all([
-            fetch('./data/data.json'),
-            fetch('./data/colores.json')
-        ]);
-
-        if (!dataResponse.ok || !coloresResponse.ok) {
-            console.error('Error cargando datos: respuesta no ok');
-            return;
-        }
-
-        appData = await dataResponse.json();
-        coloresData = await coloresResponse.json();
-        DSM_SHARED.applyFonts(appData.fonts);
-    } catch (error) {
-        console.error('Error cargando datos:', error);
-    }
-}
-
-// ===== INICIALIZACION DE UI =====
-function initializeUI() {
+function enterHomeView() {
+    currentView = 'home';
+    currentProject = null;
     currentMode = getInitialModeFromURL();
-    DSM_SHARED.syncLang();
-    setBackground(currentMode);
+    showView('home');
+    setHomeBackground(currentMode);
     DSM_SHARED.updateFavicon();
-    updateHomeSEO();
     renderProjects();
-    loadBgmIfNeeded();
 }
 
 // ===== BGM (MUSICA DE FONDO) =====
@@ -180,11 +294,11 @@ function loadBgmIfNeeded() {
 }
 
 // ===== FONDO DINAMICO (desde data.json) =====
-function setBackground(mode) {
+function setHomeBackground(mode) {
     const bgContainer = document.getElementById('background-container');
     const modeData = appData.modes && appData.modes[mode];
     if (modeData && modeData.background) {
-        bgContainer.style.backgroundImage = `url('./data/backgrounds/${modeData.background}')`;
+        bgContainer.style.backgroundImage = `url('${assetUrl(`data/backgrounds/${modeData.background}`)}')`;
     }
 }
 
@@ -357,13 +471,13 @@ function getProjectThumbnail(project) {
     // Primero buscar en principal (solo imagenes, no videos)
     const principalImages = (project.principal || []).filter(f => f && imageExts.test(f));
     if (principalImages.length > 0) {
-        return `./data/projects/${project.slug}/${principalImages[0]}`;
+        return assetUrl(`data/projects/${project.slug}/${principalImages[0]}`);
     }
 
     // Luego en galeria
     const galeriaImages = (project.galeria || []).filter(f => f && imageExts.test(f));
     if (galeriaImages.length > 0) {
-        return `./data/projects/${project.slug}/${galeriaImages[0]}`;
+        return assetUrl(`data/projects/${project.slug}/${galeriaImages[0]}`);
     }
 
     return null;
@@ -374,10 +488,11 @@ function createProjectCard(project) {
     // accesible por teclado (tab + enter)
     const card = document.createElement('a');
     card.className = 'project-card';
-    // URL bonita generada por scripts/generate-project-pages.mjs.
+    // URL bonita generada por scripts/generate-project-pages.mjs, absoluta
+    // desde la raiz del sitio (valida se navegue desde donde se navegue).
     // Si la pagina no existe (proyecto nuevo sin regenerar), 404.html
     // redirige a proyecto.html?p=<slug> como red de seguridad.
-    card.href = `./p/${encodeURIComponent(project.slug)}/`;
+    card.href = assetUrl(`p/${encodeURIComponent(project.slug)}/`);
     card.draggable = false;
 
     const colorValue = appData.typeColors[project.tipo] || '#808080';
@@ -405,13 +520,13 @@ function createProjectCard(project) {
     icon.className = 'project-icon';
     // about usa SVG, el resto PNG
     const iconExt = project.tipo === 'about' ? 'svg' : 'png';
-    icon.src = `./data/icons/${project.tipo}.${iconExt}`;
+    icon.src = assetUrl(`data/icons/${project.tipo}.${iconExt}`);
     icon.alt = project.tipo;
     icon.onerror = () => { icon.style.display = 'none'; };
 
     const title = document.createElement('span');
     title.className = 'project-title';
-    title.textContent = getProjectTitle(project);
+    title.textContent = getHomeProjectTitle(project);
 
     inner.appendChild(icon);
     inner.appendChild(title);
@@ -450,7 +565,7 @@ function createSwitchTile() {
     inner.className = 'special-tile-inner';
 
     const icon = document.createElement('img');
-    icon.src = `./data/icons/${appData.modes[currentMode].switchIcon}`;
+    icon.src = assetUrl(`data/icons/${appData.modes[currentMode].switchIcon}`);
     icon.alt = 'switch';
     icon.className = 'special-tile-icon';
 
@@ -544,7 +659,7 @@ function openHomeMenu() {
     // Aplicar misma border-image que el modo actual
     const frameFile = appData.modes && appData.modes[currentMode] && appData.modes[currentMode].frame;
     if (frameFile) {
-        modal.style.borderImage = `url('./data/9slice/${frameFile}') 16 fill / 16px / 0 stretch`;
+        modal.style.borderImage = `url('${assetUrl(`data/9slice/${frameFile}`)}') 16 fill / 16px / 0 stretch`;
     }
 
     const itemsContainer = document.createElement('div');
@@ -671,7 +786,525 @@ function switchMode(mode) {
     if (mode === currentMode) return;
     currentMode = mode;
     updateModeInURL(mode);
-    setBackground(mode);
+    setHomeBackground(mode);
     DSM_SHARED.updateFavicon();
     renderProjects();
+}
+
+// ===== VISTA: PROYECTO =====
+
+function getProjectSeoDescription(project) {
+    const credit = (loc(project, 'creditos') || []).find(Boolean);
+    const text1 = (loc(project, 'texto1') || []).find(Boolean);
+    const text2 = (loc(project, 'texto2') || []).find(Boolean);
+    const fallback = `Proyecto de ${getFullProjectTitle(project)} por Diego San Marcos.`;
+    return truncateText(stripHtml(credit || text1 || text2 || fallback));
+}
+
+function getProjectSeoImagePath(project) {
+    const imagePattern = /\.(jpg|jpeg|png|gif|webp|svg)$/i;
+    const principalImage = (project.principal || []).find(file => imagePattern.test(file));
+    if (principalImage) return `data/projects/${project.slug}/${principalImage}`;
+
+    const galleryImage = (project.galeria || []).find(file => imagePattern.test(file));
+    if (galleryImage) return `data/projects/${project.slug}/${galleryImage}`;
+
+    return 'data/icons/LOGO URL.png';
+}
+
+function updateProjectSEO() {
+    if (!currentProject) return;
+
+    const projectTitle = getFullProjectTitle(currentProject);
+    const description = getProjectSeoDescription(currentProject);
+    const canonical = assetUrl(`p/${encodeURIComponent(currentProject.slug)}/`);
+    const image = assetUrl(getProjectSeoImagePath(currentProject));
+
+    const pageTitle = `${projectTitle} — ${SITE_TITLE}`;
+    document.title = pageTitle;
+    const titleEl = document.getElementById('page-title');
+    if (titleEl) titleEl.textContent = pageTitle;
+
+    setCanonicalHref(canonical);
+    setMetaContent('meta[name="description"]', description);
+    setMetaContent('meta[property="og:title"]', pageTitle);
+    setMetaContent('meta[property="og:description"]', description);
+    setMetaContent('meta[property="og:url"]', canonical);
+    setMetaContent('meta[property="og:image"]', image);
+    setMetaContent('meta[name="twitter:title"]', pageTitle);
+    setMetaContent('meta[name="twitter:description"]', description);
+    setMetaContent('meta[name="twitter:image"]', image);
+
+    const jsonLdEl = document.getElementById('project-json-ld');
+    if (jsonLdEl) {
+        jsonLdEl.textContent = JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'CreativeWork',
+            name: projectTitle,
+            url: canonical,
+            inLanguage: DSM_SHARED.lang(),
+            description,
+            image,
+            genre: currentProject.tipo,
+            author: {
+                '@type': 'Person',
+                name: 'Diego San Marcos'
+            }
+        });
+    }
+}
+
+async function enterProjectView(project) {
+    currentView = 'project';
+    currentProject = project;
+    currentMode = getModeFromURL() || getInferredMode();
+    showView('project');
+    setupProjectBackground(currentMode);
+    await renderProject();
+}
+
+// Limpia todo lo que renderProject() fue insertando/marcando la vez anterior,
+// para que volver a entrar (mismo proyecto u otro) no acumule contenido.
+function resetProjectDynamicContent() {
+    document.querySelectorAll('.project-main > .dsm-dynamic-section').forEach(el => el.remove());
+    ['principal-content', 'texto1-content', 'audio-list', 'texto2-content', 'galeria-content', 'creditos-content']
+        .forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.innerHTML = '';
+        });
+}
+
+// ===== CONFIGURAR FONDO Y FRAME =====
+function setupProjectBackground(mode) {
+    const bgContainer = document.getElementById('background-container');
+
+    // Fondo dinamico desde data.json
+    const modeData = appData.modes && appData.modes[mode];
+    if (modeData && modeData.background) {
+        bgContainer.style.backgroundImage = `url('${assetUrl(`data/backgrounds/${modeData.background}`)}')`;
+    }
+
+    // Frame 9-slice desde data.json
+    const frameFile = modeData && modeData.frame;
+    const main = document.querySelector('.project-main');
+    main.style.borderImage = frameFile
+        ? `url('${assetUrl(`data/9slice/${frameFile}`)}') 16 fill / 16px / 0 stretch`
+        : '';
+
+    DSM_SHARED.updateFavicon();
+
+    // Clase de tipo en body para estilos especificos (ej: tipo-textos)
+    document.body.classList.add(`tipo-${currentProject.tipo}`);
+}
+
+// ===== RENDERIZAR PROYECTO =====
+async function renderProject() {
+    updateProjectSEO();
+
+    renderTitle();
+
+    if (currentProject.archivosTexto && currentProject.archivosTexto.length > 0) {
+        await renderArchivosTexto();
+    }
+
+    renderPrincipal();
+    renderTextSection('texto1-section', 'texto1-content', loc(currentProject, 'texto1'));
+    renderAudios();
+    renderTextSection('texto2-section', 'texto2-content', loc(currentProject, 'texto2'));
+    renderGaleria();
+    renderCreditos();
+}
+
+// ===== RENDERIZAR TITULO =====
+function renderTitle() {
+    const main = document.querySelector('.project-main');
+    const section = document.createElement('div');
+    section.className = 'project-title-section project-section dsm-dynamic-section';
+
+    const h1 = document.createElement('h1');
+    h1.textContent = getFullProjectTitle(currentProject);
+    section.appendChild(h1);
+
+    main.insertBefore(section, main.firstChild);
+}
+
+// ===== RENDERIZAR ARCHIVOS DE TEXTO EXTERNOS =====
+async function renderArchivosTexto() {
+    const main = document.querySelector('.project-main');
+    const principalSection = document.getElementById('principal-section');
+
+    // Fetch en paralelo; el orden lo garantiza el array de resultados
+    const cargas = await Promise.all(currentProject.archivosTexto.map(async (archivo) => {
+        try {
+            const response = await fetch(assetUrl(`data/projects/${currentProject.slug}/${archivo}`));
+            if (!response.ok) return null;
+            return { archivo, text: await response.text() };
+        } catch (e) {
+            return null; // Skip archivos que no se pueden cargar
+        }
+    }));
+
+    for (const carga of cargas) {
+        if (!carga) continue;
+        const { archivo, text } = carga;
+
+        const section = document.createElement('section');
+        section.className = 'project-section dsm-dynamic-section';
+
+        // Titulo: extraer del nombre de archivo sin numero ni extension
+        const titulo = archivo
+            .replace(/^\d+\.\s*/, '')
+            .replace(/\.txt$/i, '');
+
+        const h2 = document.createElement('h2');
+        h2.className = 'section-title';
+        h2.textContent = titulo;
+        section.appendChild(h2);
+
+        const content = document.createElement('div');
+        content.className = 'text-content';
+
+        // Respetar saltos de linea del texto original
+        text.split('\n').forEach(line => {
+            const trimmed = line.trim();
+            if (!trimmed) {
+                const spacer = document.createElement('div');
+                spacer.style.height = '1em';
+                content.appendChild(spacer);
+                return;
+            }
+            const p = document.createElement('p');
+            p.textContent = trimmed;
+            content.appendChild(p);
+        });
+
+        section.appendChild(content);
+        main.insertBefore(section, principalSection);
+    }
+}
+
+// ===== YOUTUBE EMBED HELPER =====
+function getYouTubeEmbedUrl(str) {
+    // Ya es URL de embed
+    if (/^https?:\/\/(www\.)?youtube\.com\/embed\//.test(str)) return str;
+    // URL estándar: youtube.com/watch?v=ID
+    let m = str.match(/(?:youtube\.com\/watch\?v=)([\w-]+)/);
+    if (m) return `https://www.youtube.com/embed/${m[1]}`;
+    // URL corta: youtu.be/ID
+    m = str.match(/(?:youtu\.be\/)([\w-]+)/);
+    if (m) return `https://www.youtube.com/embed/${m[1]}`;
+    return null;
+}
+
+// ===== RENDERIZAR ELEMENTO PRINCIPAL (VIDEO/IMAGEN/YOUTUBE) =====
+function renderPrincipal() {
+    const section = document.getElementById('principal-section');
+    const container = document.getElementById('principal-content');
+    const principalFiles = (currentProject.principal || []).filter(Boolean);
+
+    if (principalFiles.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+
+    container.innerHTML = '';
+    let renderedCount = 0;
+
+    principalFiles.forEach(file => {
+        const youtubeUrl = getYouTubeEmbedUrl(file);
+
+        if (youtubeUrl) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'video-responsive';
+            const iframe = document.createElement('iframe');
+            iframe.src = youtubeUrl;
+            iframe.setAttribute('allowfullscreen', '');
+            iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+            iframe.title = getFullProjectTitle(currentProject);
+            wrapper.appendChild(iframe);
+            container.appendChild(wrapper);
+            renderedCount++;
+        } else if (file.match(/\.(mp4|webm|ogg)$/i)) {
+            const path = assetUrl(`data/projects/${currentProject.slug}/${file}`);
+            const video = document.createElement('video');
+            video.src = path;
+            video.controls = true;
+            video.autoplay = false;
+            container.appendChild(video);
+            renderedCount++;
+        } else if (file.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+            const path = assetUrl(`data/projects/${currentProject.slug}/${file}`);
+            const img = document.createElement('img');
+            img.src = path;
+            img.alt = getFullProjectTitle(currentProject);
+            container.appendChild(img);
+            renderedCount++;
+        }
+    });
+
+    if (renderedCount === 0) {
+        section.style.display = 'none';
+    } else {
+        section.style.display = '';
+    }
+}
+
+// ===== RENDERIZAR SECCION DE TEXTO (reutilizable para texto1 y texto2) =====
+function renderTextSection(sectionId, contentId, textos) {
+    const section = document.getElementById(sectionId);
+    const container = document.getElementById(contentId);
+
+    if (!textos || textos.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+
+    section.style.display = '';
+    textos.forEach(texto => {
+        const p = document.createElement('p');
+        p.innerHTML = texto;
+        container.appendChild(p);
+    });
+}
+
+// ===== RENDERIZAR AUDIOS =====
+function renderAudios() {
+    const section = document.getElementById('audio-section');
+    const container = document.getElementById('audio-list');
+
+    if (!currentProject.audio || currentProject.audio.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+
+    section.style.display = '';
+
+    // Construir playlist una vez
+    const playlist = currentProject.audio.map(f => ({
+        file: f,
+        title: f.replace(/\.(wav|mp3)$/i, ''),
+        project: getFullProjectTitle(currentProject)
+    }));
+
+    currentProject.audio.forEach((audioFile, index) => {
+        // Boton real: accesible por teclado (tab + enter)
+        const item = document.createElement('button');
+        item.type = 'button';
+        item.className = 'audio-item';
+
+        const icon = document.createElement('span');
+        icon.className = 'audio-icon';
+        icon.textContent = '▶';
+
+        const name = document.createElement('span');
+        name.className = 'audio-name';
+        name.textContent = audioFile.replace(/\.(wav|mp3)$/i, '');
+
+        item.appendChild(icon);
+        item.appendChild(name);
+        item.addEventListener('click', () => {
+            DSM_Player.loadPlaylist(playlist, currentProject.slug, index);
+        });
+
+        container.appendChild(item);
+    });
+}
+
+// ===== RENDERIZAR GALERIA =====
+function renderGaleria() {
+    const section = document.getElementById('galeria-section');
+    const container = document.getElementById('galeria-content');
+
+    if (!currentProject.galeria || currentProject.galeria.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+
+    section.style.display = '';
+
+    currentProject.galeria.forEach(imageName => {
+        const item = document.createElement('div');
+        item.className = 'gallery-item';
+
+        const img = document.createElement('img');
+        let imagePath = assetUrl(`data/projects/${currentProject.slug}/${imageName}`);
+
+        // Si no tiene extension, probar con .jpg por defecto
+        if (!imageName.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+            imagePath += '.jpg';
+        }
+
+        img.src = imagePath;
+        img.alt = imageName;
+        img.loading = 'lazy';
+        img.onerror = function () {
+            if (this.src.endsWith('.jpg')) {
+                this.src = this.src.slice(0, -4) + '.png';
+            } else {
+                this.style.display = 'none';
+            }
+        };
+
+        item.appendChild(img);
+        container.appendChild(item);
+    });
+}
+
+// ===== RENDERIZAR CREDITOS =====
+function renderCreditos() {
+    const section = document.getElementById('creditos-section');
+    const container = document.getElementById('creditos-content');
+
+    const creditos = loc(currentProject, 'creditos');
+    if (!creditos || creditos.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+
+    section.style.display = '';
+
+    creditos.forEach(credito => {
+        const p = document.createElement('p');
+        p.textContent = credito;
+        container.appendChild(p);
+    });
+}
+
+// ===== MENU (PROYECTO) =====
+const MENU_LABELS = {
+    es: { trigger: 'menu', openPlayer: 'abrir reproductor', changeLang: 'cambiar idioma', back: 'volver', close: 'cerrar menu' },
+    en: { trigger: 'menu', openPlayer: 'open player', changeLang: 'change language', back: 'back', close: 'close menu' },
+    fr: { trigger: 'menu', openPlayer: 'ouvrir lecteur', changeLang: 'changer de langue', back: 'retour', close: 'fermer menu' }
+};
+
+function getMenuLabels() {
+    return MENU_LABELS[DSM_SHARED.lang()] || MENU_LABELS.es;
+}
+
+// El boton se crea una unica vez: .project-main persiste en el DOM entre
+// navegaciones, asi que no hay que recrearlo (ni sus listeners) cada visita.
+function createMenuButtonOnce() {
+    if (document.querySelector('.menu-trigger')) return;
+    const main = document.querySelector('.project-main');
+    const btn = document.createElement('button');
+    btn.className = 'menu-trigger';
+    btn.textContent = getMenuLabels().trigger;
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openMenu();
+    });
+    main.appendChild(btn);
+}
+
+function openMenu() {
+    // Evitar duplicados
+    if (document.querySelector('.menu-overlay')) return;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'menu-overlay';
+
+    const modal = document.createElement('div');
+    modal.className = 'menu-modal';
+
+    // Aplicar misma border-image que project-main
+    const modeData = appData.modes && appData.modes[currentMode];
+    const frameFile = modeData && modeData.frame;
+    if (frameFile) {
+        modal.style.borderImage = `url('${assetUrl(`data/9slice/${frameFile}`)}') 16 fill / 16px / 0 stretch`;
+    }
+
+    const itemsContainer = document.createElement('div');
+    itemsContainer.className = 'menu-items';
+    modal.appendChild(itemsContainer);
+
+    renderMenuContent(itemsContainer);
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+
+    // Click fuera del modal = cerrar
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+            e.stopPropagation();
+            closeMenu();
+        }
+    });
+
+    // Bloquear propagacion del modal para que no active el click-outside-back
+    modal.addEventListener('click', (e) => e.stopPropagation());
+}
+
+function renderMenuContent(container) {
+    container.innerHTML = '';
+    const labels = getMenuLabels();
+
+    // 1. Abrir reproductor (si esta vacio, cargar BGM)
+    const playerBtn = document.createElement('button');
+    playerBtn.className = 'menu-item';
+    playerBtn.textContent = labels.openPlayer;
+    playerBtn.addEventListener('click', () => {
+        if (DSM_Player.hasContent()) {
+            DSM_Player.show();
+        } else {
+            loadBgm();
+        }
+        closeMenu();
+    });
+    container.appendChild(playerBtn);
+
+    // 2. Cambiar idioma
+    const langBtn = document.createElement('button');
+    langBtn.className = 'menu-item';
+    langBtn.textContent = labels.changeLang;
+    langBtn.addEventListener('click', () => {
+        DSM_SHARED.cycleLang();
+        updateProjectSEO();
+        // Re-renderizar el contenido del menu con el nuevo idioma
+        renderMenuContent(container);
+        // Actualizar tambien el boton trigger debajo del contenido
+        const trigger = document.querySelector('.menu-trigger');
+        if (trigger) trigger.textContent = getMenuLabels().trigger;
+    });
+    container.appendChild(langBtn);
+
+    // 3. Volver
+    const backBtn = document.createElement('button');
+    backBtn.className = 'menu-item';
+    backBtn.textContent = labels.back;
+    backBtn.addEventListener('click', () => {
+        DSM_SHARED.navigateTo(getHomeUrl());
+    });
+    container.appendChild(backBtn);
+
+    // 4. Cerrar menu
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'menu-item';
+    closeBtn.textContent = labels.close;
+    closeBtn.addEventListener('click', () => closeMenu());
+    container.appendChild(closeBtn);
+}
+
+function closeMenu() {
+    const overlay = document.querySelector('.menu-overlay');
+    if (!overlay || overlay.classList.contains('closing')) return;
+    overlay.classList.add('closing');
+    overlay.addEventListener('animationend', () => overlay.remove(), { once: true });
+}
+
+// ===== CLICK FUERA DEL MAIN PARA VOLVER =====
+// Se registra una unica vez; el propio handler comprueba si la vista de
+// proyecto esta activa (no se re-liga en cada navegacion).
+function setupClickOutsideBackOnce() {
+    document.addEventListener('click', (e) => {
+        if (currentView !== 'project') return;
+        const main = document.querySelector('.project-main');
+        const player = document.getElementById('audio-player');
+        const menuOverlay = document.querySelector('.menu-overlay');
+        if (menuOverlay) return; // Menu abierto — no navegar
+        // Ignorar clicks cerca de los bordes para evitar conflictos con gestos de swipe del navegador
+        if (e.clientX < 20 || e.clientX > window.innerWidth - 20) return;
+        if (main && !main.contains(e.target) && (!player || !player.contains(e.target))) {
+            DSM_SHARED.navigateTo(getHomeUrl());
+        }
+    });
 }

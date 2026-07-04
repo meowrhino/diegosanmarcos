@@ -30,14 +30,16 @@ Portfolio web de Diego San Marcos, compositor y diseñador sonoro. Diseño inspi
 
 ```
 diegosanmarcos/
-├── index.html              # Página principal (home)
-├── proyecto.html           # Plantilla de páginas de proyecto
+├── index.html              # SPA: home + vista de proyecto en un solo documento
+├── proyecto.html           # Mismo shell SPA; plantilla de páginas de proyecto
+│                           #   y fallback para enlaces ?p=<slug>
 ├── 404.html                # Fallback: redirige /p/<slug>/ sin generar a proyecto.html
 ├── p/                      # Páginas de proyecto generadas (URLs bonitas)
-├── app.js                  # Lógica de la home
-├── proyecto.js             # Lógica de páginas de proyecto
+├── shared.js               # Router SPA, idioma, rutas de assets (DSM_SHARED)
+├── player.js               # Reproductor de audio global (DSM_Player)
+├── app.js                  # Lógica de ambas vistas (home + proyecto) y su router
 ├── styles.css              # Estilos globales y de la home
-├── proyecto.css            # Estilos específicos de páginas de proyecto
+├── proyecto.css            # Estilos específicos de la vista de proyecto
 ├── scripts/
 │   ├── generate-project-pages.mjs  # Genera p/<slug>/index.html desde data.json
 │   └── generate-sitemap.mjs        # Genera sitemap.xml

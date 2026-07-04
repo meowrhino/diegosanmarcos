@@ -31,7 +31,7 @@ const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
 const projects = (Array.isArray(data.projects) ? data.projects : [])
   .filter((p) => typeof p?.slug === 'string' && p.slug.length > 0 && p.visible !== false);
 
-// ===== Helpers (replican la logica de proyecto.js) =====
+// ===== Helpers (replican la logica de app.js) =====
 const IMAGE_PATTERN = /\.(jpg|jpeg|png|gif|webp|svg)$/i;
 
 function loc(project, field) {
@@ -133,12 +133,6 @@ function buildPage(project) {
   html = html.replace(
     /(<script type="application\/ld\+json" id="project-json-ld">)[^<]*(<\/script>)/,
     `$1${JSON.stringify(jsonLd)}$2`
-  );
-
-  // Slug inyectado: proyecto.js lo lee en vez del query param
-  html = html.replace(
-    '<script src="./shared.js"></script>',
-    `<script>window.DSM_PROJECT_SLUG = ${JSON.stringify(project.slug)};</script>\n    <script src="./shared.js"></script>`
   );
 
   return html;

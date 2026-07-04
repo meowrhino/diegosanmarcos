@@ -18,6 +18,10 @@ const DSM_Player = {
     dragOffset: { x: 0, y: 0 },
     dragStartPos: { x: 0, y: 0 },
 
+    // Seek: mientras el usuario arrastra la barra de progreso, timeupdate no
+    // debe sobreescribir el valor del slider (tiron del thumb bajo el dedo)
+    isSeeking: false,
+
     // UI
     playlistOpen: false,
     volumeOpen: false,
@@ -242,7 +246,10 @@ const DSM_Player = {
         document.getElementById('playlist-btn').addEventListener('click', () => this.togglePlaylist());
         document.querySelector('.player-close').addEventListener('click', () => this.close());
         document.querySelector('.playlist-close').addEventListener('click', () => this.togglePlaylist());
-        document.getElementById('progress-bar').addEventListener('input', (e) => this.seek(e));
+        const progressBar = document.getElementById('progress-bar');
+        progressBar.addEventListener('input', (e) => this.seek(e));
+        progressBar.addEventListener('pointerdown', () => { this.isSeeking = true; });
+        document.addEventListener('pointerup', () => { this.isSeeking = false; });
         document.getElementById('volume-btn').addEventListener('click', (e) => {
             e.stopPropagation();
             this.toggleVolumePopover();
@@ -996,8 +1003,10 @@ const DSM_Player = {
         document.querySelector('#audio-player .track-title').textContent = title || 'bgm';
         document.querySelector('#audio-player .track-project').textContent = project || '';
 
-        // Ruta directa (no relativa a proyecto)
-        this.element.src = path;
+        // Ruta directa (no relativa a proyecto) — resuelta contra la raiz del
+        // sitio: tras un pushState a /p/<slug>/ una ruta relativa sin mas se
+        // resolveria contra esa URL, no contra la raiz.
+        this.element.src = DSM_SHARED.assetUrl(path);
         this.show();
         this.renderPlaylistPanel();
 
@@ -1053,9 +1062,9 @@ const DSM_Player = {
 
         // BGM usa ruta directa, playlists usan ruta relativa al proyecto
         if (this.isBgm) {
-            this.element.src = track.file;
+            this.element.src = DSM_SHARED.assetUrl(track.file);
         } else {
-            this.element.src = `./data/projects/${this.currentProjectSlug}/${track.file}`;
+            this.element.src = DSM_SHARED.assetUrl(`data/projects/${this.currentProjectSlug}/${track.file}`);
         }
         this.saveState();
         this.highlightPlaylistItem();
@@ -1103,7 +1112,7 @@ const DSM_Player = {
         if (!this.element.duration) return;
         const progress = (this.element.currentTime / this.element.duration) * 100;
         const bar = document.getElementById('progress-bar');
-        if (bar) bar.value = progress;
+        if (bar && !this.isSeeking) bar.value = progress;
         const cur = document.querySelector('#audio-player .time-current');
         if (cur) cur.textContent = this.formatTime(this.element.currentTime);
     },
@@ -1133,7 +1142,9 @@ const DSM_Player = {
         container.innerHTML = '';
 
         this.currentPlaylist.forEach((track, i) => {
-            const item = document.createElement('div');
+            // Boton real: accesible por teclado (tab + enter)
+            const item = document.createElement('button');
+            item.type = 'button';
             item.className = 'playlist-item' + (i === this.currentIndex ? ' active' : '');
             item.innerHTML = `<span class="pl-num">${i + 1}</span><span class="pl-name">${track.title}</span>`;
             item.addEventListener('click', () => {
@@ -1241,14 +1252,21 @@ const DSM_Player = {
 
             // BGM usa ruta directa, playlists usan ruta relativa al proyecto
             if (this.isBgm) {
-                this.element.src = track.file;
+                this.element.src = DSM_SHARED.assetUrl(track.file);
             } else {
-                this.element.src = `./data/projects/${this.currentProjectSlug}/${track.file}`;
+                this.element.src = DSM_SHARED.assetUrl(`data/projects/${this.currentProjectSlug}/${track.file}`);
             }
 
             this.show();
             this.renderPlaylistPanel();
             this.highlightPlaylistItem();
+
+            // Si el audio guardado ya no carga (404, proyecto renombrado),
+            // loadedmetadata nunca dispara: liberar _restoring para que
+            // saveState() no quede bloqueado el resto de la sesion.
+            this.element.addEventListener('error', () => {
+                this._restoring = false;
+            }, { once: true });
 
             this.element.addEventListener('loadedmetadata', () => {
                 this.element.currentTime = state.time || 0;
