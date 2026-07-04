@@ -615,15 +615,15 @@ function createLanguageTile() {
     return tile;
 }
 
-// ===== MENU (HOME) =====
-const HOME_MENU_LABELS = {
-    ES: { trigger: 'menu', openPlayer: 'abrir reproductor', changeLang: 'cambiar idioma', close: 'cerrar menu' },
-    EN: { trigger: 'menu', openPlayer: 'open player', changeLang: 'change language', close: 'close menu' },
-    FR: { trigger: 'menu', openPlayer: 'ouvrir lecteur', changeLang: 'changer de langue', close: 'fermer menu' }
+// ===== MENU (compartido entre home y proyecto) =====
+const MENU_LABELS = {
+    ES: { trigger: 'menu', openPlayer: 'abrir reproductor', changeLang: 'cambiar idioma', back: 'volver', close: 'cerrar menu' },
+    EN: { trigger: 'menu', openPlayer: 'open player', changeLang: 'change language', back: 'back', close: 'close menu' },
+    FR: { trigger: 'menu', openPlayer: 'ouvrir lecteur', changeLang: 'changer de langue', back: 'retour', close: 'fermer menu' }
 };
 
-function getHomeMenuLabels() {
-    return HOME_MENU_LABELS[DSM_SHARED.langCode()] || HOME_MENU_LABELS.ES;
+function getMenuLabels() {
+    return MENU_LABELS[DSM_SHARED.langCode()] || MENU_LABELS.ES;
 }
 
 function createMenuTile() {
@@ -638,15 +638,15 @@ function createMenuTile() {
     const label = document.createElement('span');
     label.className = 'project-title';
     label.style.color = colors.text;
-    label.textContent = getHomeMenuLabels().trigger;
+    label.textContent = getMenuLabels().trigger;
 
     inner.appendChild(label);
     tile.appendChild(inner);
-    tile.addEventListener('click', () => openHomeMenu());
+    tile.addEventListener('click', () => openMenu({ showBack: false }));
     return tile;
 }
 
-function openHomeMenu() {
+function openMenu({ showBack } = {}) {
     // Evitar duplicados
     if (document.querySelector('.menu-overlay')) return;
 
@@ -666,7 +666,7 @@ function openHomeMenu() {
     itemsContainer.className = 'menu-items';
     modal.appendChild(itemsContainer);
 
-    renderHomeMenuContent(itemsContainer);
+    renderMenuContent(itemsContainer, showBack);
 
     overlay.appendChild(modal);
     document.body.appendChild(overlay);
@@ -675,16 +675,17 @@ function openHomeMenu() {
     overlay.addEventListener('click', (e) => {
         if (e.target === overlay) {
             e.stopPropagation();
-            closeHomeMenu();
+            closeMenu();
         }
     });
 
+    // Bloquear propagacion del modal para que no active el click-outside-back
     modal.addEventListener('click', (e) => e.stopPropagation());
 }
 
-function renderHomeMenuContent(container) {
+function renderMenuContent(container, showBack) {
     container.innerHTML = '';
-    const labels = getHomeMenuLabels();
+    const labels = getMenuLabels();
 
     // 1. Abrir reproductor (si esta vacio, cargar BGM)
     const playerBtn = document.createElement('button');
@@ -696,7 +697,7 @@ function renderHomeMenuContent(container) {
         } else {
             loadBgm();
         }
-        closeHomeMenu();
+        closeMenu();
     });
     container.appendChild(playerBtn);
 
@@ -706,22 +707,40 @@ function renderHomeMenuContent(container) {
     langBtn.textContent = labels.changeLang;
     langBtn.addEventListener('click', () => {
         DSM_SHARED.cycleLang();
-        // Re-renderizar el grid de la home (tiles con titulos en el nuevo idioma)
-        renderProjects();
+        if (currentView === 'home') {
+            // Re-renderizar el grid de la home (tiles con titulos en el nuevo idioma)
+            renderProjects();
+        } else {
+            updateProjectSEO();
+            // Actualizar tambien el boton trigger debajo del contenido
+            const trigger = document.querySelector('.menu-trigger');
+            if (trigger) trigger.textContent = getMenuLabels().trigger;
+        }
         // Re-renderizar el contenido del menu con el nuevo idioma
-        renderHomeMenuContent(container);
+        renderMenuContent(container, showBack);
     });
     container.appendChild(langBtn);
 
-    // 3. Cerrar menu (sin "volver" porque ya estamos en la home)
+    // 3. Volver (solo en la vista de proyecto)
+    if (showBack) {
+        const backBtn = document.createElement('button');
+        backBtn.className = 'menu-item';
+        backBtn.textContent = labels.back;
+        backBtn.addEventListener('click', () => {
+            DSM_SHARED.navigateTo(getHomeUrl());
+        });
+        container.appendChild(backBtn);
+    }
+
+    // 4. Cerrar menu
     const closeBtn = document.createElement('button');
     closeBtn.className = 'menu-item';
     closeBtn.textContent = labels.close;
-    closeBtn.addEventListener('click', () => closeHomeMenu());
+    closeBtn.addEventListener('click', () => closeMenu());
     container.appendChild(closeBtn);
 }
 
-function closeHomeMenu() {
+function closeMenu() {
     const overlay = document.querySelector('.menu-overlay');
     if (!overlay || overlay.classList.contains('closing')) return;
     overlay.classList.add('closing');
@@ -1170,17 +1189,7 @@ function renderCreditos() {
     });
 }
 
-// ===== MENU (PROYECTO) =====
-const MENU_LABELS = {
-    es: { trigger: 'menu', openPlayer: 'abrir reproductor', changeLang: 'cambiar idioma', back: 'volver', close: 'cerrar menu' },
-    en: { trigger: 'menu', openPlayer: 'open player', changeLang: 'change language', back: 'back', close: 'close menu' },
-    fr: { trigger: 'menu', openPlayer: 'ouvrir lecteur', changeLang: 'changer de langue', back: 'retour', close: 'fermer menu' }
-};
-
-function getMenuLabels() {
-    return MENU_LABELS[DSM_SHARED.lang()] || MENU_LABELS.es;
-}
-
+// ===== MENU (PROYECTO): boton trigger =====
 // El boton se crea una unica vez: .project-main persiste en el DOM entre
 // navegaciones, asi que no hay que recrearlo (ni sus listeners) cada visita.
 function createMenuButtonOnce() {
@@ -1191,104 +1200,9 @@ function createMenuButtonOnce() {
     btn.textContent = getMenuLabels().trigger;
     btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        openMenu();
+        openMenu({ showBack: true });
     });
     main.appendChild(btn);
-}
-
-function openMenu() {
-    // Evitar duplicados
-    if (document.querySelector('.menu-overlay')) return;
-
-    const overlay = document.createElement('div');
-    overlay.className = 'menu-overlay';
-
-    const modal = document.createElement('div');
-    modal.className = 'menu-modal';
-
-    // Aplicar misma border-image que project-main
-    const modeData = appData.modes && appData.modes[currentMode];
-    const frameFile = modeData && modeData.frame;
-    if (frameFile) {
-        modal.style.borderImage = `url('${assetUrl(`data/9slice/${frameFile}`)}') 16 fill / 16px / 0 stretch`;
-    }
-
-    const itemsContainer = document.createElement('div');
-    itemsContainer.className = 'menu-items';
-    modal.appendChild(itemsContainer);
-
-    renderMenuContent(itemsContainer);
-
-    overlay.appendChild(modal);
-    document.body.appendChild(overlay);
-
-    // Click fuera del modal = cerrar
-    overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) {
-            e.stopPropagation();
-            closeMenu();
-        }
-    });
-
-    // Bloquear propagacion del modal para que no active el click-outside-back
-    modal.addEventListener('click', (e) => e.stopPropagation());
-}
-
-function renderMenuContent(container) {
-    container.innerHTML = '';
-    const labels = getMenuLabels();
-
-    // 1. Abrir reproductor (si esta vacio, cargar BGM)
-    const playerBtn = document.createElement('button');
-    playerBtn.className = 'menu-item';
-    playerBtn.textContent = labels.openPlayer;
-    playerBtn.addEventListener('click', () => {
-        if (DSM_Player.hasContent()) {
-            DSM_Player.show();
-        } else {
-            loadBgm();
-        }
-        closeMenu();
-    });
-    container.appendChild(playerBtn);
-
-    // 2. Cambiar idioma
-    const langBtn = document.createElement('button');
-    langBtn.className = 'menu-item';
-    langBtn.textContent = labels.changeLang;
-    langBtn.addEventListener('click', () => {
-        DSM_SHARED.cycleLang();
-        updateProjectSEO();
-        // Re-renderizar el contenido del menu con el nuevo idioma
-        renderMenuContent(container);
-        // Actualizar tambien el boton trigger debajo del contenido
-        const trigger = document.querySelector('.menu-trigger');
-        if (trigger) trigger.textContent = getMenuLabels().trigger;
-    });
-    container.appendChild(langBtn);
-
-    // 3. Volver
-    const backBtn = document.createElement('button');
-    backBtn.className = 'menu-item';
-    backBtn.textContent = labels.back;
-    backBtn.addEventListener('click', () => {
-        DSM_SHARED.navigateTo(getHomeUrl());
-    });
-    container.appendChild(backBtn);
-
-    // 4. Cerrar menu
-    const closeBtn = document.createElement('button');
-    closeBtn.className = 'menu-item';
-    closeBtn.textContent = labels.close;
-    closeBtn.addEventListener('click', () => closeMenu());
-    container.appendChild(closeBtn);
-}
-
-function closeMenu() {
-    const overlay = document.querySelector('.menu-overlay');
-    if (!overlay || overlay.classList.contains('closing')) return;
-    overlay.classList.add('closing');
-    overlay.addEventListener('animationend', () => overlay.remove(), { once: true });
 }
 
 // ===== CLICK FUERA DEL MAIN PARA VOLVER =====
