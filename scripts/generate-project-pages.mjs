@@ -9,12 +9,17 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import DSM_SEO from '../seo-shared.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '..');
 const dataPath = path.join(rootDir, 'data', 'data.json');
 const templatePath = path.join(rootDir, 'proyecto.html');
 const outputDir = path.join(rootDir, 'p');
+
+// Las paginas estaticas se generan siempre en espanol (inLanguage: 'es' mas
+// abajo) — no hay concepto de "idioma actual" en Node como en el navegador.
+const STATIC_LANG = 'es';
 
 const baseUrlInput = (process.env.BASE_URL || 'https://diegosanmarcos.com').trim();
 const baseUrl = baseUrlInput.replace(/\/+$/, '');
@@ -31,43 +36,21 @@ const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
 const projects = (Array.isArray(data.projects) ? data.projects : [])
   .filter((p) => typeof p?.slug === 'string' && p.slug.length > 0 && p.visible !== false);
 
-// ===== Helpers (replican la logica de app.js) =====
-const IMAGE_PATTERN = /\.(jpg|jpeg|png|gif|webp|svg)$/i;
-
-function loc(project, field) {
-  return project[`${field}_es`] ?? project[field] ?? [];
-}
-
+// ===== Helpers especificos del generador (el resto vive en seo-shared.js) =====
 function getProjectTitle(project) {
-  return project.titulo_proyecto ?? project.titulo_home ?? project.slug;
-}
-
-function stripHtml(text) {
-  return String(text || '')
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-function truncateText(text, maxLength = 170) {
-  if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength - 3).trimEnd() + '...';
+  return DSM_SEO.getFullProjectTitle(project);
 }
 
 function getSeoDescription(project) {
-  const credit = (loc(project, 'creditos') || []).find(Boolean);
-  const text1 = (loc(project, 'texto1') || []).find(Boolean);
-  const text2 = (loc(project, 'texto2') || []).find(Boolean);
-  const fallback = `Proyecto de ${getProjectTitle(project)} por Diego San Marcos.`;
-  return truncateText(stripHtml(credit || text1 || text2 || fallback));
+  return DSM_SEO.getProjectSeoDescription(project, STATIC_LANG);
 }
 
+// Convierte la ruta relativa de DSM_SEO en URL absoluta contra baseUrl,
+// encodeando cada segmento (crawlers necesitan una URL completa, no relativa).
 function getSeoImageUrl(project) {
-  const principal = (project.principal || []).find((f) => IMAGE_PATTERN.test(f));
-  if (principal) return `${baseUrl}/data/projects/${project.slug}/${encodeURIComponent(principal)}`;
-  const gallery = (project.galeria || []).find((f) => IMAGE_PATTERN.test(f));
-  if (gallery) return `${baseUrl}/data/projects/${project.slug}/${encodeURIComponent(gallery)}`;
-  return `${baseUrl}/data/icons/LOGO%20URL.png`;
+  const relPath = DSM_SEO.getProjectSeoImagePath(project);
+  const encoded = relPath.split('/').map(encodeURIComponent).join('/');
+  return `${baseUrl}/${encoded}`;
 }
 
 function escapeHtml(text) {

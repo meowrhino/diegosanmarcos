@@ -18,31 +18,14 @@ function getHomeProjectTitle(project) {
     return project.titulo_home ?? project.titulo_proyecto ?? project.slug;
 }
 
-function getFullProjectTitle(project) {
-    return project.titulo_proyecto ?? project.titulo_home ?? project.slug;
-}
+const getFullProjectTitle = DSM_SEO.getFullProjectTitle;
+const stripHtml = DSM_SEO.stripHtml;
+const truncateText = DSM_SEO.truncateText;
 
+// loc() y getProjectSeo* viven en seo-shared.js (DSM_SEO), compartidos con el
+// generador estatico. Aqui solo fijamos el idioma actual del navegador.
 function loc(obj, field) {
-    // Un array vacio cuenta como "sin contenido": data.json plantilla trae
-    // texto1_en: [] etc. en todos los proyectos, y si solo se rellena _es los
-    // demas idiomas deben caer al espanol, no mostrar la seccion vacia.
-    const pick = (v) => (Array.isArray(v) ? (v.length ? v : null) : v ?? null);
-    return pick(obj[field + '_' + DSM_SHARED.lang()])
-        ?? pick(obj[field + '_es'])
-        ?? pick(obj[field])
-        ?? [];
-}
-
-function stripHtml(text) {
-    return String(text || '')
-        .replace(/<[^>]*>/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
-}
-
-function truncateText(text, maxLength = 170) {
-    if (text.length <= maxLength) return text;
-    return text.slice(0, maxLength - 3).trimEnd() + '...';
+    return DSM_SEO.loc(obj, field, DSM_SHARED.lang());
 }
 
 // Convierte hex (#RRGGBB) a objeto {r, g, b}
@@ -813,22 +796,11 @@ function switchMode(mode) {
 // ===== VISTA: PROYECTO =====
 
 function getProjectSeoDescription(project) {
-    const credit = (loc(project, 'creditos') || []).find(Boolean);
-    const text1 = (loc(project, 'texto1') || []).find(Boolean);
-    const text2 = (loc(project, 'texto2') || []).find(Boolean);
-    const fallback = `Proyecto de ${getFullProjectTitle(project)} por Diego San Marcos.`;
-    return truncateText(stripHtml(credit || text1 || text2 || fallback));
+    return DSM_SEO.getProjectSeoDescription(project, DSM_SHARED.lang());
 }
 
 function getProjectSeoImagePath(project) {
-    const imagePattern = /\.(jpg|jpeg|png|gif|webp|svg)$/i;
-    const principalImage = (project.principal || []).find(file => imagePattern.test(file));
-    if (principalImage) return `data/projects/${project.slug}/${principalImage}`;
-
-    const galleryImage = (project.galeria || []).find(file => imagePattern.test(file));
-    if (galleryImage) return `data/projects/${project.slug}/${galleryImage}`;
-
-    return 'data/icons/LOGO URL.png';
+    return DSM_SEO.getProjectSeoImagePath(project);
 }
 
 function updateProjectSEO() {

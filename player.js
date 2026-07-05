@@ -51,48 +51,8 @@ const DSM_Player = {
     freqData: null,
     waveData: null,
 
-    // Butterchurn (Milkdrop visualizer)
-    butterchurn: null,        // modulo butterchurn (cargado dinamicamente)
-    visualizer: null,         // instancia del visualizador
-    canvasGL: null,           // canvas WebGL dedicado
-    bcPresets: null,          // objeto { key: presetData } con los presets seleccionados
-    bcPresetKeys: [],         // array de keys de presets
-    bcPresetIndex: 0,         // indice del preset actual
-    bcCycleInterval: null,    // intervalo para ciclar presets
-    bcReady: false,           // true cuando butterchurn esta listo para renderizar
-    bcRecovering: false,
-    bcRenderFailCount: 0,
-    bcRecoveryTimeout: null,
-    bcLastRecoveryAt: 0,
-
-    // Presets prioritarios — van al principio de la lista, en este orden
-    BC_PRIORITY_PRESETS: [
-        'martin - castle in the air',
-        '_Mig_085',
-        'Aderrasi - Potion of Spirits'
-    ],
-    BC_CYCLE_SECONDS: 18,     // segundos entre cambio de preset
-    BC_BLEND_SECONDS: 2.7,    // duracion del crossfade entre presets
-    bcAutoCycle: true,         // ciclo automatico activado por defecto
-    BC_RENDER_BOOST_FULLSCREEN: 1.22,
-    BC_RENDER_DPR_MAX_WINDOWED: 2,
-    BC_RENDER_DPR_MAX_FULLSCREEN: 3,
-    BC_RENDER_MAX_SIDE_WINDOWED: 3200,
-    BC_RENDER_MAX_SIDE_FULLSCREEN: 4600,
-    BC_ADAPTIVE_LOW_FPS: 45,
-    BC_ADAPTIVE_HIGH_FPS: 56,
-    BC_ADAPTIVE_MIN_SCALE: 0.62,
-    BC_ADAPTIVE_DOWNSHIFT: 0.08,
-    BC_ADAPTIVE_UPSHIFT: 0.04,
-    BC_ADAPTIVE_COOLDOWN_MS: 1200,
-    BC_ADAPTIVE_SMOOTHING: 0.12,
-    BC_RENDER_FAIL_THRESHOLD: 3,
-    BC_RECOVERY_COOLDOWN_MS: 3000,
-    BC_RECOVERY_DELAY_MS: 650,
-    renderQualityScale: 1,
-    renderFpsEma: 60,
-    renderLastFrameTs: 0,
-    renderLastAdjustTs: 0,
+    // Canvas WebGL dedicado a Butterchurn (el renderer vive en DSM_Visualizer)
+    canvasGL: null,
 
     // Ambience settings (del generador de fondos — fallback sin WebGL2)
     ambience: {
@@ -114,6 +74,7 @@ const DSM_Player = {
             document.body.appendChild(this.element);
         }
 
+        DSM_Visualizer.init(this);
         this.createPlayerDOM();
         // Volumen persistente entre visitas (localStorage), fallback 0.7
         const savedVolume = parseFloat(localStorage.getItem('dsm_volume'));
@@ -123,7 +84,7 @@ const DSM_Player = {
         this.setupEvents();
         this.syncVolumeUI();
         this.stateRestored = this.restoreState();
-        this.initButterchurn(); // Carga asincrona, no bloquea
+        DSM_Visualizer.initButterchurn(); // Carga asincrona, no bloquea
         this.animate();
     },
 
@@ -136,10 +97,6 @@ const DSM_Player = {
         if (this.resizeRaf) {
             cancelAnimationFrame(this.resizeRaf);
             this.resizeRaf = 0;
-        }
-        if (this.bcRecoveryTimeout) {
-            clearTimeout(this.bcRecoveryTimeout);
-            this.bcRecoveryTimeout = null;
         }
 
         const old = document.getElementById('audio-player');
@@ -211,16 +168,14 @@ const DSM_Player = {
             // Si el contexto WebGL se pierde, caer a canvas 2D para que la animacion no se congele.
             this.canvasGL.addEventListener('webglcontextlost', (e) => {
                 e.preventDefault();
-                this.markButterchurnUnavailable('webgl context lost');
-                this.scheduleButterchurnRecovery('webgl context lost');
+                DSM_Visualizer.markButterchurnUnavailable('webgl context lost');
+                DSM_Visualizer.scheduleButterchurnRecovery('webgl context lost');
                 console.warn('DSM_Player: WebGL context lost, usando fallback 2D');
             });
 
             this.canvasGL.addEventListener('webglcontextrestored', () => {
                 console.info('DSM_Player: WebGL context restored, reintentando Butterchurn');
-                if (this.butterchurn && this.audioCtx && this.analyser) {
-                    this.setupButterchurn();
-                }
+                DSM_Visualizer.onContextRestored();
             });
         }
 
@@ -229,8 +184,8 @@ const DSM_Player = {
             this.resizeObserver.observe(this.playerEl);
         }
 
-        this.updatePresetNavUI();
-        this.updateAutoCycleBtn();
+        DSM_Visualizer.updatePresetNavUI();
+        DSM_Visualizer.updateAutoCycleBtn();
 
         // Restaurar posicion guardada (con bounds check)
         const savedPos = sessionStorage.getItem('dsm_player_pos');
@@ -279,9 +234,9 @@ const DSM_Player = {
         document.getElementById('fullscreen-btn').addEventListener('click', () => this.toggleFullscreen());
 
         // Preset navigation
-        document.getElementById('preset-prev-btn').addEventListener('click', () => this.prevPreset());
-        document.getElementById('preset-next-btn').addEventListener('click', () => this.nextPreset());
-        document.getElementById('preset-cycle-btn').addEventListener('click', () => this.toggleAutoCycle());
+        document.getElementById('preset-prev-btn').addEventListener('click', () => DSM_Visualizer.prevPreset());
+        document.getElementById('preset-next-btn').addEventListener('click', () => DSM_Visualizer.nextPreset());
+        document.getElementById('preset-cycle-btn').addEventListener('click', () => DSM_Visualizer.toggleAutoCycle());
 
         // Audio events
         this.element.addEventListener('timeupdate', () => this.updateProgress());
@@ -467,9 +422,7 @@ const DSM_Player = {
             this.waveData = new Uint8Array(this.analyser.frequencyBinCount);
 
             // Si Butterchurn esta cargado pero no inicializado (faltaba AudioContext), inicializar ahora
-            if (this.butterchurn && !this.bcReady) {
-                this.setupButterchurn();
-            }
+            DSM_Visualizer.onAudioContextReady();
         } catch (e) {
             // Si falla (ej: MediaElementSource ya conectado), no romper nada
             console.warn('DSM_Player: No se pudo crear AudioContext:', e.message);
@@ -500,308 +453,12 @@ const DSM_Player = {
         return this.waveData;
     },
 
-    // ===== BUTTERCHURN (MILKDROP VISUALIZER) =====
-    initButterchurn() {
-        // Verificar WebGL2 con canvas temporal
-        if (!this.canvasGL) return;
-        const testCanvas = document.createElement('canvas');
-        if (!testCanvas.getContext('webgl2')) {
-            console.warn('DSM_Player: WebGL2 no disponible, usando fallback de ondas');
-            this.markButterchurnUnavailable('webgl2 unavailable');
-            return;
-        }
-
-        // Cargar presets del pack base (window.base cargado via <script> tag)
-        if (!window.base || !window.base.default) {
-            console.warn('DSM_Player: Presets de Butterchurn no encontrados');
-            this.markButterchurnUnavailable('presets missing');
-            return;
-        }
-
-        const allPresets = window.base.default;
-        const allKeys = Object.keys(allPresets);
-        if (allKeys.length === 0) {
-            console.warn('DSM_Player: Ningun preset encontrado en el pack');
-            this.markButterchurnUnavailable('empty presets');
-            return;
-        }
-
-        // Ordenar: prioritarios primero (en orden), despues el resto alfabeticamente
-        const prioritySet = new Set(this.BC_PRIORITY_PRESETS);
-        const priorityKeys = this.BC_PRIORITY_PRESETS.filter(k => allPresets[k]);
-        const restKeys = allKeys.filter(k => !prioritySet.has(k)).sort();
-        this.bcPresetKeys = [...priorityKeys, ...restKeys];
-
-        this.bcPresets = {};
-        for (const key of this.bcPresetKeys) {
-            this.bcPresets[key] = allPresets[key];
-        }
-
-        // Butterchurn core se carga como ES module (deferred)
-        // Puede estar listo ya o llegar despues via evento 'butterchurn-ready'
-        if (window.butterchurn && typeof window.butterchurn.createVisualizer === 'function') {
-            this.butterchurn = window.butterchurn;
-            this.setupButterchurn();
-        } else {
-            window.addEventListener('butterchurn-ready', () => {
-                this.butterchurn = window.butterchurn;
-                this.setupButterchurn();
-            }, { once: true });
-        }
-    },
-
-    setupButterchurn() {
-        if (!this.butterchurn || !this.canvasGL || !this.audioCtx || !this.analyser) return;
-        if (this.bcReady) return; // Ya inicializado
-
-        // Usar tamaño fijo si el player esta oculto (getBoundingClientRect devuelve 0)
-        const rect = this.canvasGL.getBoundingClientRect();
-        let { w, h, pixelRatio } = this.getRenderSize(rect, { fullscreenBoost: this.isFullscreen });
-        // Fallback a tamaño razonable si el canvas no es visible aun
-        if (w === 0 || h === 0) {
-            w = 400; h = 400;
-            pixelRatio = 1;
-        }
-        this.canvasGL.width = w;
-        this.canvasGL.height = h;
-
-        try {
-            this.visualizer = this.butterchurn.createVisualizer(this.audioCtx, this.canvasGL, {
-                width: w,
-                height: h,
-                pixelRatio,
-                textureRatio: 1
-            });
-
-            // Conectar nuestro analyser existente
-            this.visualizer.connectAudio(this.analyser);
-
-            // Cargar primer preset — siempre empieza por el primero (castle in the air)
-            this.bcPresetIndex = 0;
-            this.visualizer.loadPreset(this.bcPresets[this.bcPresetKeys[0]], 0.0);
-
-            // Ocultar canvas 2D, mostrar WebGL
-            this.canvas.style.display = 'none';
-            this.canvasGL.style.display = 'block';
-            this.bcReady = true;
-            this.bcRecovering = false;
-            this.bcRenderFailCount = 0;
-
-            // Actualizar controles/nombre de preset con el estado real del visualizador
-            this.updateAutoCycleBtn();
-            this.updatePresetNavUI();
-
-            // Iniciar ciclo de presets
-            this.startPresetCycle();
-        } catch (err) {
-            console.warn('DSM_Player: Error inicializando Butterchurn:', err.message);
-            this.bcRecovering = false;
-            this.markButterchurnUnavailable('setup error');
-            this.scheduleButterchurnRecovery('setup error');
-        }
-    },
-
-    startPresetCycle() {
-        if (this.bcCycleInterval) clearInterval(this.bcCycleInterval);
-        this.bcCycleInterval = null;
-        if (!this.bcAutoCycle || this.bcPresetKeys.length <= 1) return;
-
-        this.bcCycleInterval = setInterval(() => {
-            if (!this.bcReady || !this.visualizer) return;
-            this.bcPresetIndex = (this.bcPresetIndex + 1) % this.bcPresetKeys.length;
-            this.visualizer.loadPreset(
-                this.bcPresets[this.bcPresetKeys[this.bcPresetIndex]],
-                this.BC_BLEND_SECONDS
-            );
-            this.updatePresetNavName();
-        }, this.BC_CYCLE_SECONDS * 1000);
-    },
-
-    toggleAutoCycle() {
-        this.bcAutoCycle = !this.bcAutoCycle;
-        if (this.bcAutoCycle) {
-            this.startPresetCycle();
-        } else {
-            if (this.bcCycleInterval) clearInterval(this.bcCycleInterval);
-            this.bcCycleInterval = null;
-        }
-        this.updateAutoCycleBtn();
-    },
-
-    updatePresetNavUI() {
-        const prevBtn = document.getElementById('preset-prev-btn');
-        const nextBtn = document.getElementById('preset-next-btn');
-        const cycleBtn = document.getElementById('preset-cycle-btn');
-        const nameEl = document.getElementById('preset-nav-name');
-        const controlsVisible = this.bcReady && this.bcPresetKeys.length > 0;
-
-        [prevBtn, nextBtn, cycleBtn].forEach((btn) => {
-            if (!btn) return;
-            btn.classList.toggle('hidden', !controlsVisible);
-            btn.disabled = !controlsVisible;
-            btn.setAttribute('aria-hidden', String(!controlsVisible));
-        });
-
-        if (!nameEl) return;
-        if (this.bcRecovering) {
-            nameEl.textContent = 'reconectando visual...';
-            return;
-        }
-        if (!controlsVisible) {
-            nameEl.textContent = 'visual base';
-            return;
-        }
-        nameEl.textContent = this.bcPresetKeys[this.bcPresetIndex] || '—';
-    },
-
-    updateAutoCycleBtn() {
-        const btn = document.getElementById('preset-cycle-btn');
-        if (!btn) return;
-        const actionLabel = this.bcAutoCycle ? 'pausar ciclo' : 'activar ciclo';
-        btn.innerHTML = this.bcAutoCycle ? ICONS.pause(10) : ICONS.play(10);
-        btn.title = actionLabel;
-        btn.setAttribute('aria-label', actionLabel);
-    },
-
     scheduleRendererResize() {
         if (this.resizeRaf) return;
         this.resizeRaf = requestAnimationFrame(() => {
             this.resizeRaf = 0;
-            if (this.bcReady) this.resizeButterchurn();
+            DSM_Visualizer.onResize();
         });
-    },
-
-    updateAdaptiveQuality(now) {
-        if (!Number.isFinite(now)) return;
-        if (this.renderLastFrameTs > 0) {
-            const dt = now - this.renderLastFrameTs;
-            if (dt > 0 && dt < 1000) {
-                const fps = 1000 / dt;
-                this.renderFpsEma += (fps - this.renderFpsEma) * this.BC_ADAPTIVE_SMOOTHING;
-            }
-        }
-        this.renderLastFrameTs = now;
-
-        if (now - this.renderLastAdjustTs < this.BC_ADAPTIVE_COOLDOWN_MS) return;
-
-        let nextScale = this.renderQualityScale;
-        if (this.renderFpsEma < this.BC_ADAPTIVE_LOW_FPS && nextScale > this.BC_ADAPTIVE_MIN_SCALE) {
-            nextScale = Math.max(this.BC_ADAPTIVE_MIN_SCALE, nextScale - this.BC_ADAPTIVE_DOWNSHIFT);
-        } else if (this.renderFpsEma > this.BC_ADAPTIVE_HIGH_FPS && nextScale < 1) {
-            nextScale = Math.min(1, nextScale + this.BC_ADAPTIVE_UPSHIFT);
-        }
-
-        if (nextScale !== this.renderQualityScale) {
-            this.renderQualityScale = Number(nextScale.toFixed(3));
-            this.renderLastAdjustTs = now;
-            this.scheduleRendererResize();
-        }
-    },
-
-    markButterchurnUnavailable(reason) {
-        this.bcReady = false;
-        this.visualizer = null;
-        this.bcRenderFailCount = 0;
-        if (this.bcCycleInterval) clearInterval(this.bcCycleInterval);
-        this.bcCycleInterval = null;
-        if (this.canvasGL) this.canvasGL.style.display = 'none';
-        if (this.canvas) this.canvas.style.display = 'block';
-        this.updatePresetNavUI();
-        this.updateAutoCycleBtn();
-        if (reason) console.warn(`DSM_Player: Butterchurn desactivado (${reason})`);
-    },
-
-    scheduleButterchurnRecovery(reason = 'recovery') {
-        if (this.bcRecoveryTimeout) return;
-        const now = Date.now();
-        if (now - this.bcLastRecoveryAt < this.BC_RECOVERY_COOLDOWN_MS) return;
-
-        this.bcRecovering = true;
-        this.updatePresetNavUI();
-        this.bcRecoveryTimeout = setTimeout(() => {
-            this.bcRecoveryTimeout = null;
-            this.bcLastRecoveryAt = Date.now();
-
-            if (!this.playerEl || this.playerEl.classList.contains('hidden')) {
-                this.bcRecovering = false;
-                this.updatePresetNavUI();
-                return;
-            }
-            if (!this.butterchurn || !this.audioCtx || !this.analyser || !this.canvasGL) {
-                this.bcRecovering = false;
-                this.updatePresetNavUI();
-                return;
-            }
-            console.info(`DSM_Player: intentando recuperar Butterchurn (${reason})`);
-            this.setupButterchurn();
-        }, this.BC_RECOVERY_DELAY_MS);
-    },
-
-    getRenderSize(rect, { fullscreenBoost = false } = {}) {
-        const width = Math.max(0, rect.width || 0);
-        const height = Math.max(0, rect.height || 0);
-        if (width === 0 || height === 0) {
-            return { w: 0, h: 0, pixelRatio: 1 };
-        }
-        const baseDpr = window.devicePixelRatio || 1;
-        const adaptiveScale = Math.max(this.BC_ADAPTIVE_MIN_SCALE, Math.min(1, this.renderQualityScale || 1));
-
-        const dprTarget = fullscreenBoost
-            ? Math.min(baseDpr * this.BC_RENDER_BOOST_FULLSCREEN * adaptiveScale, this.BC_RENDER_DPR_MAX_FULLSCREEN)
-            : Math.min(baseDpr * adaptiveScale, this.BC_RENDER_DPR_MAX_WINDOWED);
-
-        let w = Math.round(width * dprTarget);
-        let h = Math.round(height * dprTarget);
-
-        const maxSide = fullscreenBoost
-            ? this.BC_RENDER_MAX_SIDE_FULLSCREEN
-            : this.BC_RENDER_MAX_SIDE_WINDOWED;
-        const longest = Math.max(w, h);
-        let effectiveDpr = dprTarget;
-
-        if (longest > maxSide) {
-            const scale = maxSide / longest;
-            w = Math.max(1, Math.round(w * scale));
-            h = Math.max(1, Math.round(h * scale));
-            effectiveDpr = dprTarget * scale;
-        }
-
-        return { w, h, pixelRatio: effectiveDpr };
-    },
-
-    resizeButterchurn() {
-        if (!this.visualizer || !this.canvasGL) return;
-        const rect = this.canvasGL.getBoundingClientRect();
-        const { w, h } = this.getRenderSize(rect, { fullscreenBoost: this.isFullscreen });
-        if (w === 0 || h === 0) return;
-        this.canvasGL.width = w;
-        this.canvasGL.height = h;
-        this.visualizer.setRendererSize(w, h);
-    },
-
-    // Cambiar al preset anterior (manual)
-    prevPreset() {
-        if (!this.bcReady || this.bcPresetKeys.length === 0) return;
-        this.bcPresetIndex = (this.bcPresetIndex - 1 + this.bcPresetKeys.length) % this.bcPresetKeys.length;
-        this.visualizer.loadPreset(this.bcPresets[this.bcPresetKeys[this.bcPresetIndex]], this.BC_BLEND_SECONDS);
-        this.updatePresetNavName();
-        // Reiniciar el ciclo automatico
-        this.startPresetCycle();
-    },
-
-    // Cambiar al preset siguiente (manual)
-    nextPreset() {
-        if (!this.bcReady || this.bcPresetKeys.length === 0) return;
-        this.bcPresetIndex = (this.bcPresetIndex + 1) % this.bcPresetKeys.length;
-        this.visualizer.loadPreset(this.bcPresets[this.bcPresetKeys[this.bcPresetIndex]], this.BC_BLEND_SECONDS);
-        this.updatePresetNavName();
-        // Reiniciar el ciclo automatico
-        this.startPresetCycle();
-    },
-
-    // Actualizar el nombre del preset en el navegador
-    updatePresetNavName() {
-        this.updatePresetNavUI();
     },
 
     // ===== FULLSCREEN (expande player a toda la ventana) =====
@@ -850,7 +507,7 @@ const DSM_Player = {
 
             this.fullscreenAnim.onfinish = () => {
                 this.fullscreenAnim = null;
-                if (this.bcReady) this.scheduleRendererResize();
+                if (DSM_Visualizer.isReady()) this.scheduleRendererResize();
             };
             this.fullscreenAnim.oncancel = () => { this.fullscreenAnim = null; };
         }
@@ -863,12 +520,12 @@ const DSM_Player = {
         }
 
         // Resize Butterchurn al nuevo tamaño
-        if (this.bcReady) {
+        if (DSM_Visualizer.isReady()) {
             this.scheduleRendererResize();
         }
     },
 
-    // ===== AMBIENCE ANIMATION (reactivo al audio via AnalyserNode) =====
+    // ===== ANIMACION (delega en DSM_Visualizer/DSM_Ambience segun disponibilidad) =====
     animate() {
         if (!this.canvas && !this.canvasGL) return;
 
@@ -878,28 +535,17 @@ const DSM_Player = {
             return;
         }
 
-        this.updateAdaptiveQuality(performance.now());
+        DSM_Visualizer.updateAdaptiveQuality(performance.now());
 
         // Si Butterchurn esta listo, usarlo en vez de las ondas procedurales
-        if (this.bcReady && this.visualizer) {
-            try {
-                this.visualizer.render();
-                this.bcRenderFailCount = 0;
-            } catch (err) {
-                this.bcRenderFailCount += 1;
-                console.warn(`DSM_Player: render Butterchurn fallo (${this.bcRenderFailCount}/${this.BC_RENDER_FAIL_THRESHOLD}):`, err?.message || err);
-                if (this.bcRenderFailCount >= this.BC_RENDER_FAIL_THRESHOLD) {
-                    this.markButterchurnUnavailable('repeated render errors');
-                    this.scheduleButterchurnRecovery('render errors');
-                }
-            }
+        if (DSM_Visualizer.renderFrame()) {
             this.animationId = requestAnimationFrame(() => this.animate());
             return;
         }
 
         try {
             const rect = this.canvas.getBoundingClientRect();
-            const { w, h } = this.getRenderSize(rect, { fullscreenBoost: this.isFullscreen });
+            const { w, h } = DSM_Visualizer.getRenderSize(rect, { fullscreenBoost: this.isFullscreen });
             if (this.canvas.width !== w) this.canvas.width = w;
             if (this.canvas.height !== h) this.canvas.height = h;
             if (w === 0 || h === 0) {
@@ -907,87 +553,18 @@ const DSM_Player = {
                 return;
             }
 
-            const timeSec = (Date.now() - this.startTime) * 0.001;
-            const playing = this.isPlaying;
-            const s = this.ambience;
-
             // Leer datos de audio si el analyser esta disponible
             const energy = this.analyser ? this.getAudioEnergy() : 0;
-            const reactiveEnergy = Math.min(1, Math.pow(energy, 0.72) * 1.35);
             const waveform = this.getWaveform(); // null si no hay analyser
-            const hasAudio = this.analyser && playing && reactiveEnergy > 0.01;
 
-            // Trail fade (fondo semitransparente para efecto estela)
-            // Cuando hay audio reactivo, trail mas largo para efecto mas fluido
-            const trailBase = hasAudio ? 0.06 : 0.08;
-            const fade = trailBase + (1 - s.trail) * 0.15;
-            this.ctx.fillStyle = `rgba(0, 0, 0, ${fade})`;
-            this.ctx.fillRect(0, 0, w, h);
-
-            // Hue rotando con el tiempo — modulado por energia del audio
-            const hueSpeed = hasAudio ? (s.colorSpeed * 20 + reactiveEnergy * 70) : (s.colorSpeed * 20);
-            const hue = (s.hueShift + timeSec * hueSpeed) % 360;
-            const lines = Math.max(4, Math.round(s.lineCount));
-
-            // Amplitud: si hay analyser reactivo, modulada por energia del audio
-            // Si no hay analyser, fallback al comportamiento original (tiempo-basado)
-            const baseMul = playing ? 1.0 : 0.3;
-            let amplitude;
-            if (hasAudio) {
-                // Energia del audio controla la amplitud (0..1 mapeado a rango visual)
-                amplitude = Math.min(w, h) * 0.12 * s.amplitude * (0.45 + reactiveEnergy * 2.1);
-            } else {
-                amplitude = Math.min(w, h) * 0.12 * s.amplitude * (0.7 + 0.3 * baseMul);
-            }
-
-            const freq = 0.004 * s.frequency;
-            const animTime = timeSec * (playing ? 1.0 : 0.3);
-
-            this.ctx.save();
-            this.ctx.globalCompositeOperation = 'lighter';
-            // Linea mas gruesa cuando hay mucha energia
-            this.ctx.lineWidth = hasAudio ? (1.4 + reactiveEnergy * 1.8) : 1.4;
-
-            const waveLen = waveform ? waveform.length : 0;
-
-            for (let i = 0; i < lines; i++) {
-                const offset = (i / lines) * Math.PI * 2;
-                // Alpha modulada por energia
-                const alphaBase = (0.15 + s.glow * 0.25);
-                const alpha = hasAudio
-                    ? alphaBase * (0.5 + reactiveEnergy * 0.9)
-                    : alphaBase * (playing ? 1 : 0.5);
-                this.ctx.strokeStyle = `hsla(${(hue + i * 22) % 360}, 80%, 70%, ${alpha})`;
-                this.ctx.beginPath();
-
-                const steps = Math.ceil(w / 8);
-                for (let step = 0; step <= steps; step++) {
-                    const x = step * 8;
-                    // Onda base procedural (siempre presente)
-                    const wave = Math.sin(x * freq + animTime + offset);
-                    const ripple = Math.cos(x * freq * 0.7 - animTime * 0.8 + offset) * 0.4;
-
-                    // Modulacion con waveform real del audio
-                    let audioMod = 0;
-                    if (hasAudio && waveform && waveLen > 0) {
-                        // Mapear posicion x del canvas a posicion en el buffer de waveform
-                        const waveIdx = Math.min(waveLen - 1, Math.floor((step / steps) * waveLen));
-                        // waveData es 0..255 donde 128 es silencio
-                        audioMod = ((waveform[waveIdx] - 128) / 128) * reactiveEnergy;
-                    }
-
-                    const y = h * 0.5
-                        + (wave + ripple) * amplitude
-                        + audioMod * amplitude * 1.15
-                        + (i - lines / 2) * 12;
-
-                    if (x === 0) this.ctx.moveTo(x, y);
-                    else this.ctx.lineTo(x, y);
-                }
-                this.ctx.stroke();
-            }
-
-            this.ctx.restore();
+            DSM_Ambience.render(this.ctx, this.canvas, {
+                startTime: this.startTime,
+                isPlaying: this.isPlaying,
+                settings: this.ambience,
+                energy,
+                waveform,
+                hasAnalyser: !!this.analyser
+            });
         } catch (err) {
             console.warn('DSM_Player: render 2D fallo, reintentando siguiente frame:', err?.message || err);
         }
@@ -1149,7 +726,14 @@ const DSM_Player = {
             const item = document.createElement('button');
             item.type = 'button';
             item.className = 'playlist-item' + (i === this.currentIndex ? ' active' : '');
-            item.innerHTML = `<span class="pl-num">${i + 1}</span><span class="pl-name">${track.title}</span>`;
+            const num = document.createElement('span');
+            num.className = 'pl-num';
+            num.textContent = String(i + 1);
+            const name = document.createElement('span');
+            name.className = 'pl-name';
+            name.textContent = track.title;
+            item.appendChild(num);
+            item.appendChild(name);
             item.addEventListener('click', () => {
                 this.loadTrack(i);
                 if (this.isPlaying) this.element.play().catch(() => {});
@@ -1169,11 +753,9 @@ const DSM_Player = {
         if (this.playerEl) {
             this.playerEl.classList.remove('hidden');
             // Reintentar setup de Butterchurn si aun no esta listo
-            if (this.butterchurn && !this.bcReady) {
-                this.setupButterchurn();
-            }
+            DSM_Visualizer.onShow();
             // Resize al tamaño real ahora que es visible
-            if (this.bcReady) {
+            if (DSM_Visualizer.isReady()) {
                 this.scheduleRendererResize();
             }
         }
@@ -1217,7 +799,6 @@ const DSM_Player = {
             index: this.currentIndex,
             playing: this.isPlaying,
             time: this.element ? this.element.currentTime : 0,
-            volume: this.element ? this.element.volume : 0.7,
             isBgm: this.isBgm
         };
     },
@@ -1241,8 +822,8 @@ const DSM_Player = {
             this.currentPlaylist = state.playlist;
             this.currentProjectSlug = state.slug;
             this.currentIndex = state.index;
-            this.element.volume = state.volume ?? 0.7;
-            this.syncVolumeUI();
+            // El volumen NO viaja en el estado de sesion: init() ya lo aplico
+            // desde localStorage (dsm_volume), unica fuente de verdad.
             this.isBgm = !!state.isBgm;
             this.element.loop = this.isBgm;
 

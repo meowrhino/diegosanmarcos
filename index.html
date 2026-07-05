@@ -10,19 +10,21 @@
     <!-- Evitar que el navegador aplique su "modo oscuro forzado" (Brave Night Mode, Chrome auto-dark) -->
     <meta name="color-scheme" content="dark">
     <meta name="darkreader-lock">
-    <link rel="canonical" id="canonical-url" href="/">
+    <link rel="canonical" id="canonical-url" href="https://diegosanmarcos.com/">
 
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Diego San Marcos">
     <meta property="og:title" content="diego san marcos">
     <meta property="og:description" content="Portfolio de Diego San Marcos: musica, mezcla, audio inmersivo y proyectos audiovisuales.">
-    <meta property="og:url" content="/" id="og-url">
-    <meta property="og:image" content="./data/icons/LOGO URL.png" id="og-image">
+    <!-- og:image/og:url deben ser URLs absolutas: los crawlers (WhatsApp,
+         Twitter) no ejecutan JS ni resuelven rutas relativas -->
+    <meta property="og:url" content="https://diegosanmarcos.com/" id="og-url">
+    <meta property="og:image" content="https://diegosanmarcos.com/data/icons/LOGO%20URL.png" id="og-image">
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="diego san marcos">
     <meta name="twitter:description" content="Portfolio de Diego San Marcos: musica, mezcla, audio inmersivo y proyectos audiovisuales.">
-    <meta name="twitter:image" content="./data/icons/LOGO URL.png" id="twitter-image">
+    <meta name="twitter:image" content="https://diegosanmarcos.com/data/icons/LOGO%20URL.png" id="twitter-image">
 
     <script type="application/ld+json" id="home-json-ld">{"@context":"https://schema.org","@type":"WebSite","name":"Diego San Marcos","description":"Portfolio de Diego San Marcos: musica, mezcla, audio inmersivo y proyectos audiovisuales."}</script>
     <link rel="icon" type="image/png" href="./data/icons/LOGO URL.png">
@@ -80,7 +82,10 @@
     </script>
 
     <script src="./shared.js"></script>
+    <script src="./player-ambience.js"></script>
+    <script src="./player-butterchurn.js"></script>
     <script src="./player.js"></script>
+    <script src="./seo-shared.js"></script>
     <script src="./app.js"></script>
 </body>
 </html>

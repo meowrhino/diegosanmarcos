@@ -818,9 +818,10 @@ span.special-tile-icon.lang-icon {
         left: 1rem;
     }
 
+    /* En proyecto solo bajamos un pelin la posicion; el tamano se mantiene en
+       180px porque a 120px los controles (titulo + subtitulo de 2 lineas +
+       barra + botones + tiempo) no caben y se salen por abajo. */
     .project-page #audio-player {
-        width: 120px;
-        height: 120px;
         bottom: 0.5rem;
         left: 0.5rem;
     }
