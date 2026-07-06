@@ -37,7 +37,14 @@ diegosanmarcos/
 ├── p/                      # Páginas de proyecto generadas (URLs bonitas)
 ├── shared.js               # Router SPA, idioma, rutas de assets (DSM_SHARED)
 ├── player.js               # Reproductor de audio global (DSM_Player)
-├── app.js                  # Lógica de ambas vistas (home + proyecto) y su router
+├── app.js                  # Entrada (type=module): carga datos, idioma y router (renderRoute)
+├── js/                     # Módulos ES nativos importados por app.js
+│   ├── state.js            # Estado global compartido (appData, currentMode, currentProject…)
+│   ├── helpers.js          # Helpers puros (loc, hexToRgb, títulos, aliases de DSM_SEO)
+│   ├── router.js           # Parseo de URL, modos y token renderVersion (anti-race)
+│   ├── menu.js             # Menú compartido (overlay, labels, trigger, click-outside-back)
+│   ├── home.js             # Vista home: grid, tiles especiales, BGM, SEO, transición iris
+│   └── project.js          # Vista proyecto: render de secciones, showView y SEO
 ├── styles.css              # Estilos globales y de la home
 ├── proyecto.css            # Estilos específicos de la vista de proyecto
 ├── scripts/
