@@ -39,6 +39,12 @@ function hexToRgb(hex) {
 }
 
 // ===== ROUTER =====
+// Helper compartido: evita repetir `new URLSearchParams(window.location.search)`
+// en cada funcion que necesita leer parametros de la URL.
+function getSearchParams() {
+    return new URLSearchParams(window.location.search);
+}
+
 // Determina si la URL actual apunta a un proyecto (/p/<slug>/ o
 // proyecto.html?p=<slug>) y devuelve su slug, o null si es la home.
 function parseProjectSlugFromLocation() {
@@ -51,19 +57,19 @@ function parseProjectSlugFromLocation() {
         if (slug) return decodeURIComponent(slug);
     }
     if (/proyecto\.html$/.test(pathname)) {
-        const params = new URLSearchParams(window.location.search);
+        const params = getSearchParams();
         return params.get('p') || params.get('proyecto') || null;
     }
     return null;
 }
 
 function getInitialModeFromURL() {
-    const params = new URLSearchParams(window.location.search);
+    const params = getSearchParams();
     return normalizeMode(params.get('modo')) || normalizeMode(params.get('mode')) || 'portfolio';
 }
 
 function getModeFromURL() {
-    const params = new URLSearchParams(window.location.search);
+    const params = getSearchParams();
     const mode = params.get('modo') || params.get('mode');
     return VALID_MODES.has(mode) ? mode : null;
 }
@@ -81,7 +87,15 @@ function getHomeUrl() {
     return currentMode === 'personal' ? `${base}?modo=personal` : base;
 }
 
+// Contador de version: cada llamada a renderRoute() se identifica con un
+// numero creciente. Si el usuario navega rapido (o usa atras/adelante) antes
+// de que termine un render async anterior, ese render obsoleto se aborta al
+// comprobar que renderVersion ya avanzo.
+let renderVersion = 0;
+
 async function renderRoute() {
+    ++renderVersion; // Invalida cualquier render async anterior aun en vuelo
+
     const closingMenu = document.querySelector('.menu-overlay');
     if (closingMenu) closingMenu.remove();
 
@@ -122,6 +136,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ===== CARGA DE DATOS =====
+// Mensaje simple y visible si falla la carga de data.json/colores.json
+// (sin esto el usuario solo ve una pagina en blanco).
+function showDataLoadError() {
+    const div = document.createElement('div');
+    div.id = 'data-load-error';
+    div.textContent = 'Error cargando los datos. Recarga la pagina.';
+    div.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;background:rgba(0,0,0,0.85);padding:1em 1.5em;border-radius:8px;font-family:sans-serif;text-align:center;z-index:9999;';
+    document.body.appendChild(div);
+}
+
 async function loadData() {
     try {
         const [dataResponse, coloresResponse] = await Promise.all([
@@ -131,6 +155,7 @@ async function loadData() {
 
         if (!dataResponse.ok || !coloresResponse.ok) {
             console.error('Error cargando datos: respuesta no ok');
+            showDataLoadError();
             return;
         }
 
@@ -139,6 +164,7 @@ async function loadData() {
         DSM_SHARED.applyFonts(appData.fonts);
     } catch (error) {
         console.error('Error cargando datos:', error);
+        showDataLoadError();
     }
 }
 
@@ -490,7 +516,7 @@ function createProjectCard(project) {
         const thumb = document.createElement('img');
         thumb.className = 'project-thumb';
         thumb.src = thumbSrc;
-        thumb.alt = '';
+        thumb.alt = getHomeProjectTitle(project);
         thumb.loading = 'lazy';
         thumb.onerror = () => { thumb.style.display = 'none'; };
         card.appendChild(thumb);
@@ -890,12 +916,16 @@ function setupProjectBackground(mode) {
 
 // ===== RENDERIZAR PROYECTO =====
 async function renderProject() {
+    const myVersion = renderVersion;
+
     updateProjectSEO();
 
     renderTitle();
 
     if (currentProject.archivosTexto && currentProject.archivosTexto.length > 0) {
         await renderArchivosTexto();
+        // Render obsoleto: otra navegacion se disparo durante el fetch de textos
+        if (myVersion !== renderVersion) return;
     }
 
     renderPrincipal();
@@ -921,6 +951,7 @@ function renderTitle() {
 
 // ===== RENDERIZAR ARCHIVOS DE TEXTO EXTERNOS =====
 async function renderArchivosTexto() {
+    const myVersion = renderVersion;
     const main = document.querySelector('.project-main');
     const principalSection = document.getElementById('principal-section');
 
@@ -934,6 +965,9 @@ async function renderArchivosTexto() {
             return null; // Skip archivos que no se pueden cargar
         }
     }));
+
+    // Render obsoleto: otra navegacion se disparo mientras cargaban los textos
+    if (myVersion !== renderVersion) return;
 
     for (const carga of cargas) {
         if (!carga) continue;

@@ -216,7 +216,6 @@ const DSM_Player = {
         const progressBar = document.getElementById('progress-bar');
         progressBar.addEventListener('input', (e) => this.seek(e));
         progressBar.addEventListener('pointerdown', () => { this.isSeeking = true; });
-        document.addEventListener('pointerup', () => { this.isSeeking = false; });
         document.getElementById('volume-btn').addEventListener('click', (e) => {
             e.stopPropagation();
             this.toggleVolumePopover();
@@ -225,10 +224,6 @@ const DSM_Player = {
             this.setVolume(e.target.value / 100);
         });
         document.getElementById('volume-popover').addEventListener('click', (e) => e.stopPropagation());
-        document.addEventListener('click', (e) => {
-            if (!this.volumeOpen) return;
-            if (!e.target.closest('.volume-control')) this.toggleVolumePopover(false);
-        });
 
         // Fullscreen
         document.getElementById('fullscreen-btn').addEventListener('click', () => this.toggleFullscreen());
@@ -246,10 +241,6 @@ const DSM_Player = {
         // Drag — todo el player cuando controles ocultos, solo handle cuando visibles
         this.playerEl.addEventListener('mousedown', (e) => this.handlePointerDown(e));
         this.playerEl.addEventListener('touchstart', (e) => this.handlePointerDown(e), { passive: false });
-        document.addEventListener('mousemove', (e) => this.onDrag(e));
-        document.addEventListener('touchmove', (e) => this.onDrag(e), { passive: false });
-        document.addEventListener('mouseup', () => this.handlePointerUp());
-        document.addEventListener('touchend', () => this.handlePointerUp());
 
         // Hover para mostrar/ocultar controles (desktop)
         this.playerEl.addEventListener('mouseenter', () => this.showControls());
@@ -257,11 +248,31 @@ const DSM_Player = {
             if (!this.playlistOpen) this.hideControls();
         });
 
-        // Intentar desbloquear/resumir AudioContext en el primer gesto real del usuario.
-        document.addEventListener('pointerdown', () => this.ensureAudioContext(), { once: true, passive: true });
-        document.addEventListener('keydown', () => this.ensureAudioContext(), { once: true });
-        window.addEventListener('resize', () => this.scheduleRendererResize());
+        // Listeners globales en document/window: el player en si se recrea en
+        // cada createPlayerDOM(), pero document/window persisten toda la vida
+        // de la pagina. Si setupEvents() se llamara mas de una vez estos se
+        // duplicarian (cada init() sumaria otro listener). Se registran una
+        // unica vez; usan this.playerEl en el momento del evento (no una
+        // referencia capturada), asi que siguen apuntando al player vigente
+        // aunque el DOM se haya recreado despues de este primer registro.
+        if (!this._globalEventsBound) {
+            this._globalEventsBound = true;
 
+            document.addEventListener('pointerup', () => { this.isSeeking = false; });
+            document.addEventListener('click', (e) => {
+                if (!this.volumeOpen) return;
+                if (!e.target.closest('.volume-control')) this.toggleVolumePopover(false);
+            });
+            document.addEventListener('mousemove', (e) => this.onDrag(e));
+            document.addEventListener('touchmove', (e) => this.onDrag(e), { passive: false });
+            document.addEventListener('mouseup', () => this.handlePointerUp());
+            document.addEventListener('touchend', () => this.handlePointerUp());
+
+            // Intentar desbloquear/resumir AudioContext en el primer gesto real del usuario.
+            document.addEventListener('pointerdown', () => this.ensureAudioContext(), { once: true, passive: true });
+            document.addEventListener('keydown', () => this.ensureAudioContext(), { once: true });
+            window.addEventListener('resize', () => this.scheduleRendererResize());
+        }
     },
 
     // ===== POINTER HANDLING (drag + tap-to-toggle) =====
