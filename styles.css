@@ -132,6 +132,23 @@ body.page-exit {
     outline-offset: -1px;
 }
 
+/* Foco de teclado visible en controles interactivos (menu, audio, player) */
+.menu-item:focus-visible,
+.menu-trigger:focus-visible,
+.audio-item:focus-visible,
+.playlist-item:focus-visible,
+.control-btn:focus-visible,
+.player-fullscreen:focus-visible,
+.player-close:focus-visible,
+.playlist-close:focus-visible,
+.preset-nav-btn:focus-visible,
+.preset-cycle-btn:focus-visible,
+#progress-bar:focus-visible,
+#volume-slider:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.85);
+    outline-offset: 2px;
+}
+
 .project-card {
     position: relative;
     border-radius: 0;

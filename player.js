@@ -110,8 +110,8 @@ const DSM_Player = {
             <canvas id="player-canvas-webgl"></canvas>
             <div class="player-overlay">
                 <div class="player-drag-handle">
-                    <button class="player-fullscreen" id="fullscreen-btn" aria-label="fullscreen">${ICONS.fullscreenExpand}</button>
-                    <button class="player-close">&times;</button>
+                    <button class="player-fullscreen" id="fullscreen-btn" aria-label="pantalla completa">${ICONS.fullscreenExpand}</button>
+                    <button class="player-close" aria-label="cerrar reproductor">&times;</button>
                 </div>
                 <div class="player-center">
                     <div class="track-title">sin audio</div>
@@ -119,19 +119,19 @@ const DSM_Player = {
                 </div>
                 <div class="player-bottom">
                     <div class="player-progress-mini">
-                        <input type="range" id="progress-bar" min="0" max="100" value="0">
+                        <input type="range" id="progress-bar" min="0" max="100" value="0" aria-label="progreso de la pista">
                     </div>
                     <div class="player-controls">
-                        <button class="control-btn" id="playlist-btn"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M3 13h12v-2H3v2zm0-7v2h18V6H3zm0 12h18v-2H3v2z"/></svg></button>
+                        <button class="control-btn" id="playlist-btn" aria-label="mostrar playlist"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M3 13h12v-2H3v2zm0-7v2h18V6H3zm0 12h18v-2H3v2z"/></svg></button>
                         <div class="player-controls-main">
-                            <button class="control-btn" id="prev-btn"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
-                            <button class="control-btn" id="play-btn">${ICONS.play(16)}</button>
-                            <button class="control-btn" id="next-btn"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zm10 0h2V6h-2v12z"/></svg></button>
+                            <button class="control-btn" id="prev-btn" aria-label="pista anterior"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+                            <button class="control-btn" id="play-btn" aria-label="reproducir">${ICONS.play(16)}</button>
+                            <button class="control-btn" id="next-btn" aria-label="pista siguiente"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zm10 0h2V6h-2v12z"/></svg></button>
                         </div>
                         <div class="volume-control">
-                            <button class="control-btn" id="volume-btn" aria-label="volume">${ICONS.volumeHigh()}</button>
+                            <button class="control-btn" id="volume-btn" aria-label="volumen">${ICONS.volumeHigh()}</button>
                             <div id="volume-popover" class="volume-popover hidden">
-                                <input type="range" id="volume-slider" min="0" max="100" value="70">
+                                <input type="range" id="volume-slider" min="0" max="100" value="70" aria-label="nivel de volumen">
                             </div>
                         </div>
                     </div>
@@ -144,14 +144,14 @@ const DSM_Player = {
             </div>
             <div id="playlist-panel" class="playlist-panel hidden">
                 <div class="preset-nav" id="preset-nav">
-                    <button class="preset-nav-btn" id="preset-prev-btn">&#x2039;</button>
+                    <button class="preset-nav-btn" id="preset-prev-btn" aria-label="preset anterior">&#x2039;</button>
                     <button class="preset-cycle-btn" id="preset-cycle-btn" title="pausar ciclo" aria-label="pausar ciclo">${ICONS.pause(10)}</button>
                     <span class="preset-nav-name" id="preset-nav-name">—</span>
-                    <button class="preset-nav-btn" id="preset-next-btn">&#x203A;</button>
+                    <button class="preset-nav-btn" id="preset-next-btn" aria-label="siguiente preset">&#x203A;</button>
                 </div>
                 <div class="playlist-header">
                     <span>playlist</span>
-                    <button class="playlist-close">&times;</button>
+                    <button class="playlist-close" aria-label="cerrar playlist">&times;</button>
                 </div>
                 <div id="playlist-items" class="playlist-items"></div>
             </div>
@@ -679,7 +679,10 @@ const DSM_Player = {
 
     updatePlayButton() {
         const btn = document.getElementById('play-btn');
-        if (btn) btn.innerHTML = this.isPlaying ? ICONS.pause(16) : ICONS.play(16);
+        if (btn) {
+            btn.innerHTML = this.isPlaying ? ICONS.pause(16) : ICONS.play(16);
+            btn.setAttribute('aria-label', this.isPlaying ? 'pausar' : 'reproducir');
+        }
     },
 
     playPrevious() {

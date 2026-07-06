@@ -97,7 +97,16 @@ async function renderRoute() {
     ++renderVersion; // Invalida cualquier render async anterior aun en vuelo
 
     const closingMenu = document.querySelector('.menu-overlay');
-    if (closingMenu) closingMenu.remove();
+    if (closingMenu) {
+        closingMenu.remove();
+        // Mismo cleanup que closeMenu(): sin esto el listener de Escape
+        // quedaria colgado en document al cerrar el menu navegando
+        if (menuKeydownHandler) {
+            document.removeEventListener('keydown', menuKeydownHandler);
+            menuKeydownHandler = null;
+        }
+        menuOpenerElement = null;
+    }
 
     const slug = parseProjectSlugFromLocation();
     if (slug) {
@@ -655,15 +664,25 @@ function createMenuTile() {
     return tile;
 }
 
+// Elemento que tenia el foco antes de abrir el menu, para devolverselo al cerrar
+let menuOpenerElement = null;
+// Listener de Escape: se guarda la referencia para poder eliminarla al cerrar
+let menuKeydownHandler = null;
+
 function openMenu({ showBack } = {}) {
     // Evitar duplicados
     if (document.querySelector('.menu-overlay')) return;
+
+    menuOpenerElement = document.activeElement;
 
     const overlay = document.createElement('div');
     overlay.className = 'menu-overlay';
 
     const modal = document.createElement('div');
     modal.className = 'menu-modal';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', getMenuLabels().trigger === 'menu' ? 'Menú' : getMenuLabels().trigger);
 
     // Aplicar misma border-image que el modo actual
     const frameFile = appData.modes && appData.modes[currentMode] && appData.modes[currentMode].frame;
@@ -690,6 +709,19 @@ function openMenu({ showBack } = {}) {
 
     // Bloquear propagacion del modal para que no active el click-outside-back
     modal.addEventListener('click', (e) => e.stopPropagation());
+
+    // Cerrar con Escape (listener en document; se elimina al cerrar el menu)
+    menuKeydownHandler = (e) => {
+        if (e.key === 'Escape') {
+            e.stopPropagation();
+            closeMenu();
+        }
+    };
+    document.addEventListener('keydown', menuKeydownHandler);
+
+    // Mover el foco al primer elemento enfocable del modal
+    const firstFocusable = modal.querySelector('button, a, [tabindex]');
+    if (firstFocusable) firstFocusable.focus();
 }
 
 function renderMenuContent(container, showBack) {
@@ -754,6 +786,18 @@ function closeMenu() {
     if (!overlay || overlay.classList.contains('closing')) return;
     overlay.classList.add('closing');
     overlay.addEventListener('animationend', () => overlay.remove(), { once: true });
+
+    // Quitar el listener de Escape (no dejar listeners colgando en document)
+    if (menuKeydownHandler) {
+        document.removeEventListener('keydown', menuKeydownHandler);
+        menuKeydownHandler = null;
+    }
+
+    // Devolver el foco al elemento que abrio el menu
+    if (menuOpenerElement && typeof menuOpenerElement.focus === 'function') {
+        menuOpenerElement.focus();
+    }
+    menuOpenerElement = null;
 }
 
 // ===== TRANSICION IRIS RADIAL =====
@@ -1116,6 +1160,7 @@ function renderAudios() {
         const item = document.createElement('button');
         item.type = 'button';
         item.className = 'audio-item';
+        item.setAttribute('aria-label', audioFile.replace(/\.(wav|mp3)$/i, ''));
 
         const icon = document.createElement('span');
         icon.className = 'audio-icon';
