@@ -1,7 +1,7 @@
 {
   "fonts": {
-    "title": { "family": "Fidelma", "file": "Fidelma.ttf" },
-    "body": { "family": "Gill Sans MT Light", "file": "gill-sans-mt-light.ttf" }
+    "title": { "family": "Omnes", "file": "Omnes.ttf" },
+    "body": { "family": "Gill Sans MT Light", "file": "Omnes.ttf" }
   },
   "modes": {
     "portfolio": {
@@ -41,8 +41,7 @@
       "tipo": "audiovisual",
       "visible": true,
       "mostrarImagen": true,
-      "principal": [
-        "mde_baja.webm"
+      "principal": ["https://youtu.be/lao3BA7VHXk"
       ],
       "texto1_es": [],
       "texto1_en": [],
@@ -190,7 +189,7 @@
       "creditos_en": [],
       "creditos_fr": [],
       "archivosTexto": [
-        "1. El Oro del Rin, segunda escena Transformación.txt",
+        "1. TRANSFORMACIÓN.txt",
         "2. LAGOS DE CRISTAL BRILLANTE.txt",
         "3. DESPERTAR.txt"
       ]
@@ -204,19 +203,13 @@
       "mostrarImagen": true,
       "principal": [],
       "texto1_es": [
-        "Diego Saint-Mard, alias Diego San Marcos, desarrolla su práctica artística en el entorno digital, explorando la creación de música electrónica, el diseño sonoro y la edición de audio.",
-        "Su investigación sonora nace de una necesidad de introspección y comprensión simbólica del mundo, entendiendo el sonido como medio de contacto, percepción alterada y experiencia compartida.",
-        "Su obra se sitúa entre la cultura de baile, la estética ritual y una línea de trabajo orientada hacia el arte sonoro y la instalación. Ha compuesto música para danza contemporánea (Maricón de España, 2022), ha participado en la producción del álbum Debut3000 (Roberta Nikita, 2024) y publicado en el recopilatorio Igoera (sello Lotura, 2023)."
+        "Diego San Marcos crea en el entorno digital, explorando la música electrónica, el diseño sonoro y la edición de audio."
       ],
       "texto1_en": [
-        "Diego Saint-Mard, aka Diego San Marcos, develops his artistic practice in the digital environment, exploring electronic music creation, sound design, and audio editing.",
-        "His sonic research stems from a need for introspection and symbolic understanding of the world, understanding sound as a medium of contact, altered perception, and shared experience.",
-        "His work sits between dance culture, ritual aesthetics, and a line of practice oriented toward sound art and installation. He has composed music for contemporary dance (Maricón de España, 2022), participated in the production of the album Debut3000 (Roberta Nikita, 2024), and published in the compilation Igoera (Lotura label, 2023)."
+        "Diego San Marcos develops his practice in the digital environment, exploring electronic music creation, sound design, and audio editing."
       ],
       "texto1_fr": [
-        "Diego Saint-Mard, alias Diego San Marcos, développe sa pratique artistique dans l'environnement numérique, en explorant la création de musique électronique, le design sonore et le montage audio.",
-        "Sa recherche sonore naît d'un besoin d'introspection et de compréhension symbolique du monde, en concevant le son comme un moyen de contact, de perception altérée et d'expérience partagée.",
-        "Son œuvre se situe entre la culture de la danse, l'esthétique rituelle et une ligne de travail orientée vers l'art sonore et l'installation. Il a composé de la musique pour la danse contemporaine (Maricón de España, 2022), participé à la production de l'album Debut3000 (Roberta Nikita, 2024) et publié dans la compilation Igoera (label Lotura, 2023)."
+        "Diego San Marcos développe sa pratique dans l'environnement digital, en explorant la création de musique électronique, le design sonore et le montage audio."
       ],
       "audio": [],
       "texto2_es": [
@@ -275,7 +268,7 @@
       "visible": true,
       "mostrarImagen": true,
       "principal": [
-        "SDBC2192_1080.webm"
+        "https://youtu.be/fiOHo6ouaps"
       ],
       "texto1_es": [],
       "texto1_en": [],
@@ -525,6 +518,39 @@
         "Remix électronique du Boléro de Ravel pour le concours de la plateforme Fiverr"
       ]
     },
+    { 
+      "slug": "Nel",
+      "titulo_proyecto": "Nel en el Huca (APADA)",
+      "titulo_home": "Nel en el Huca",
+      "tipo": "audiovisual",
+      "visible": true,
+      "mostrarImagen": true,
+      "principal": ["https://youtu.be/-U6r4ht1lQc?si=7UHpOwyL3fUI9Ew9"
+      ],
+      "texto1_es": [],
+      "texto1_en": [],
+      "texto1_fr": [],
+      "audio": [],
+      "texto2_es": [
+        "Sonorización de audiocuento. Cuento creado para trabajar con el alumnado de Educación Primaria las características y necesidades de las personas con discapacidad auditiva."
+      ],
+      "texto2_en": [
+        "Audiobook sonorization. Story created to work with Primary Education students on the characteristics and needs of people with hearing disabilities."
+      ],
+      "texto2_fr": [
+        "Sonorisation du conte audio. Conte créé pour travailler avec les élèves de enseignement primaire sur les caractéristiques et les besoins des personnes en situation de handicap auditif."
+      ],
+      "galeria": ["NEL PORTADA.webp"        
+      ],
+      "creditos_es": [
+        "Edición de sonido y mezcla"
+      ],
+      "creditos_en": [
+        "Sound editing and mix"
+      ],
+      "creditos_fr": [
+        "Montage sonore et mixage"
+      ]},
     {
       "slug": "conexionesfera",
       "titulo_proyecto": "Conexionesfera Records For Mind Freeing And Liberation Of The Sense Of Self",
@@ -577,7 +603,7 @@
       "visible": true,
       "mostrarImagen": true,
       "principal": [
-        "ME PROYECTO.mp4"
+        "https://youtu.be/wMZKD9lPXu0"
       ],
       "texto1_es": [],
       "texto1_en": [],
