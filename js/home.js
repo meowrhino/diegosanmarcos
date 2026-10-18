@@ -297,13 +297,13 @@ function getProjectThumbnail(project) {
     // Primero buscar en principal (solo imagenes, no videos)
     const principalImages = (project.principal || []).filter(f => f && imageExts.test(f));
     if (principalImages.length > 0) {
-        return assetUrl(`data/projects/${project.slug}/${principalImages[0]}`);
+        return assetUrl(`projects/${project.slug}/${principalImages[0]}`);
     }
 
     // Luego en galeria
     const galeriaImages = (project.galeria || []).filter(f => f && imageExts.test(f));
     if (galeriaImages.length > 0) {
-        return assetUrl(`data/projects/${project.slug}/${galeriaImages[0]}`);
+        return assetUrl(`projects/${project.slug}/${galeriaImages[0]}`);
     }
 
     return null;

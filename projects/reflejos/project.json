@@ -1,0 +1,37 @@
+{
+  "$schema": "../../schema/project.json",
+  "title": "Reflejos (Diego San Marcos)",
+  "short": "Reflejos",
+  "type": "miMusica",
+  "showImage": true,
+  "main": [],
+  "text": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "audio": [
+    "Reflejos.mp3"
+  ],
+  "text2": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "photos": [
+    "REFLEJOS_3000x3000.webp",
+    "REFLEJOS_3.webp",
+    "REFLEJOS_4.webp"
+  ],
+  "credits": {
+    "es": [
+      "Interpretación, producción y mezcla"
+    ],
+    "en": [
+      "Performance, production and mixing"
+    ],
+    "fr": [
+      "Interprétation, production et mixage"
+    ]
+  }
+}

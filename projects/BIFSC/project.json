@@ -1,0 +1,35 @@
+{
+  "$schema": "../../schema/project.json",
+  "title": "Berlin International Sound Design Competition (2025 Submission)",
+  "short": "BIFSC25",
+  "type": "audiovisual",
+  "showImage": true,
+  "main": [
+    "https://youtu.be/fiOHo6ouaps"
+  ],
+  "text": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "audio": [],
+  "text2": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "photos": [
+    "LOGO.webp"
+  ],
+  "credits": {
+    "es": [
+      "Re-diseño de sonido para el concurso BIFSC de 2025"
+    ],
+    "en": [
+      "Sound redesign for the 2025 BIFSC competition"
+    ],
+    "fr": [
+      "Refonte sonore pour le concours BIFSC 2025"
+    ]
+  }
+}

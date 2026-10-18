@@ -1,0 +1,35 @@
+{
+  "$schema": "../../schema/project.json",
+  "title": "Me Proyecto En El Vacío",
+  "short": "Me Proyecto",
+  "type": "miMusica",
+  "showImage": true,
+  "main": [
+    "https://youtu.be/wMZKD9lPXu0"
+  ],
+  "text": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "audio": [],
+  "text2": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "photos": [
+    "MPPORTADA.webp"
+  ],
+  "credits": {
+    "es": [
+      "Interpretación, producción y mezcla (año 2020)"
+    ],
+    "en": [
+      "Performance, production and mixing (year 2020)"
+    ],
+    "fr": [
+      "Interprétation, production et mixage (année 2020)"
+    ]
+  }
+}

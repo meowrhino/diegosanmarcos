@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schema/project.json",
+  "title": "Alexander The Untold Story (Ervin Musabelliu)",
+  "short": "Alexander",
+  "type": "audiovisual",
+  "showImage": true,
+  "main": [
+    "EXtracto alexander_1080.webm"
+  ],
+  "text": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "audio": [],
+  "text2": {
+    "es": [
+      "Extracto del cortometraje sobre Alejandro Magno, música original compuesta para la danza de las Ménades"
+    ],
+    "en": [
+      "Excerpt from the short film about Alexander the Great, with original music composed for the dance of the Maenads"
+    ],
+    "fr": [
+      "Extrait du court métrage sur Alexandre le Grand, avec une musique originale composée pour la danse des Ménades"
+    ]
+  },
+  "photos": [
+    "PORTADA.webp"
+  ],
+  "credits": {
+    "es": [
+      "Edición de sonido y composición de música adicional"
+    ],
+    "en": [
+      "Sound editing and additional music composition"
+    ],
+    "fr": [
+      "Montage sonore et composition de musique additionnelle"
+    ]
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "$schema": "../../schema/project.json",
+  "title": "Conexionesfera Records For Mind Freeing And Liberation Of The Sense Of Self",
+  "short": "Conexionesfera",
+  "type": "miMusica",
+  "showImage": true,
+  "main": [],
+  "text": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "audio": [
+    "Sueño Lúcido.mp3",
+    "Cascade Electronique.mp3",
+    "Finder.mp3",
+    "Hiperespacio.mp3",
+    "Amor Superestéreo.mp3",
+    "Espacio De Armonía y Alta Vibración.mp3",
+    "Flying Through The Timeless Mind.mp3",
+    "Psicodelia.mp3",
+    "Luces Verdes Violetas.mp3",
+    "Libera Tu Mente.mp3",
+    "Tech Trance.mp3",
+    "Living In My Head.mp3",
+    "Trance Futura.mp3",
+    "Xfera.mp3"
+  ],
+  "text2": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "photos": [
+    "PORTADA blanco contraste blanco.webp",
+    "PORTADA TRACKLIST blanco contraste negro.webp"
+  ],
+  "credits": {
+    "es": [
+      "Interpretación, producción y mezcla"
+    ],
+    "en": [
+      "Performance, production and mixing"
+    ],
+    "fr": [
+      "Interprétation, production et mixage"
+    ]
+  }
+}

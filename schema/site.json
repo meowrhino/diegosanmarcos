@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "data/site.json: lo general de la web",
+  "description": "data/site.json: las fuentes, los dos modos (portfolio y personal), los colores, la música de fondo y qué proyectos salen, en qué orden. VS Code lee este fichero (por el \"$schema\" de arriba del JSON) para autocompletar, explicar cada campo y subrayar lo que está mal; el build y la vista previa lo usan para revisar.",
+  "type": "object",
+  "required": [
+    "title",
+    "fonts",
+    "modes",
+    "typeColors",
+    "lists"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "_": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string",
+      "description": "El nombre de la web: \"diego san marcos\""
+    },
+    "url": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^https://[^/]+$",
+      "description": "El dominio, sin barra al final: \"https://diegosanmarcos.com\". Sin dominio, null (y Google no la indexa)."
+    },
+    "fonts": {
+      "type": "object",
+      "description": "Las fuentes (title y body): { \"family\": \"…\", \"file\": \"….ttf\" }, en data/fonts/."
+    },
+    "modes": {
+      "type": "object",
+      "description": "Los dos modos de la home: qué tipos salen en cada uno (categories), su fondo, su marco y su icono."
+    },
+    "typeColors": {
+      "type": "object",
+      "description": "El color de cada tipo de proyecto: { \"audiovisual\": \"#000000\" }",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^#[0-9A-Fa-f]{6}$"
+      }
+    },
+    "bgm": {
+      "type": "object",
+      "description": "La música de fondo de la home: file, title y project."
+    },
+    "lists": {
+      "type": "object",
+      "description": "Los proyectos, en el orden de la home. Uno oculto (tiene su página para mandarla, pero no sale en la home ni en Google): { \"project\": \"nombre\", \"visible\": false }",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "projects"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "projects": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9_-]+$",
+                  "description": "El nombre de la carpeta en projects/: letras sin acentos, números, guiones. Sale en la dirección: /p/<nombre>/"
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "project",
+                    "visible"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "project": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]+$",
+                      "description": "El nombre de la carpeta en projects/: letras sin acentos, números, guiones. Sale en la dirección: /p/<nombre>/"
+                    },
+                    "visible": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              ],
+              "description": "\"nombre\", o { \"project\": \"nombre\", \"visible\": false } para esconderlo"
+            }
+          }
+        }
+      }
+    }
+  }
+}

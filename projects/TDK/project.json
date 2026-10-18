@@ -1,0 +1,40 @@
+{
+  "$schema": "../../schema/project.json",
+  "title": "TDK (Recopilación de tracks)",
+  "short": "TDK",
+  "type": "miMusica",
+  "showImage": true,
+  "main": [],
+  "text": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "audio": [
+    "ALMA_V5.mp3",
+    "tranquilidad.mp3",
+    "LLAMA DE TI_V8.mp3",
+    "océano profundo_4.mp3",
+    "ONDA MAESTRA_3.mp3",
+    "perc ralf MASTER.mp3"
+  ],
+  "text2": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "photos": [
+    "TDK.webp"
+  ],
+  "credits": {
+    "es": [
+      "Interpretación, producción y mezcla"
+    ],
+    "en": [
+      "Performance, production and mixing"
+    ],
+    "fr": [
+      "Interprétation, production et mixage"
+    ]
+  }
+}

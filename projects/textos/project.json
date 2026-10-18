@@ -1,0 +1,30 @@
+{
+  "$schema": "../../schema/project.json",
+  "title": "Textos",
+  "short": "Textos",
+  "type": "textos",
+  "showImage": true,
+  "main": [],
+  "text": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "audio": [],
+  "text2": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "photos": [],
+  "credits": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "textFiles": [
+    "1. TRANSFORMACIÓN.txt",
+    "2. LAGOS DE CRISTAL BRILLANTE.txt",
+    "3. DESPERTAR.txt"
+  ]
+}

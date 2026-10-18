@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schema/project.json",
+  "title": "Nel en el Huca (APADA)",
+  "short": "Nel en el Huca",
+  "type": "audiovisual",
+  "showImage": true,
+  "main": [
+    "https://youtu.be/-U6r4ht1lQc?si=7UHpOwyL3fUI9Ew9"
+  ],
+  "text": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "audio": [],
+  "text2": {
+    "es": [
+      "Sonorización de audiocuento. Cuento creado para trabajar con el alumnado de Educación Primaria las características y necesidades de las personas con discapacidad auditiva."
+    ],
+    "en": [
+      "Audiobook sonorization. Story created to work with Primary Education students on the characteristics and needs of people with hearing disabilities."
+    ],
+    "fr": [
+      "Sonorisation du conte audio. Conte créé pour travailler avec les élèves de enseignement primaire sur les caractéristiques et les besoins des personnes en situation de handicap auditif."
+    ]
+  },
+  "photos": [
+    "NEL PORTADA.webp"
+  ],
+  "credits": {
+    "es": [
+      "Edición de sonido y mezcla"
+    ],
+    "en": [
+      "Sound editing and mix"
+    ],
+    "fr": [
+      "Montage sonore et mixage"
+    ]
+  }
+}

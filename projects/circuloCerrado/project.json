@@ -1,0 +1,36 @@
+{
+  "$schema": "../../schema/project.json",
+  "title": "Círculo Cerrado (Logo sonoro)",
+  "short": "Círculo Cerrado",
+  "type": "identidadSonora",
+  "showImage": true,
+  "main": [
+    "CIRCULO CERRADO_LOGO_MASTER (V2)_1080.webm",
+    "CIRCULO CERRADO_OUTRO_MASTER (V2)_1080.webm"
+  ],
+  "text": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "audio": [],
+  "text2": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "photos": [
+    "CCLOGO.webp"
+  ],
+  "credits": {
+    "es": [
+      "Logo sonoro y outro para Círculo Cerrado"
+    ],
+    "en": [
+      "Sonic logo and outro for Círculo Cerrado"
+    ],
+    "fr": [
+      "Logo sonore et outro pour Círculo Cerrado"
+    ]
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "$schema": "../schema/site.json",
+  "title": "diego san marcos",
+  "url": "https://diegosanmarcos.com",
+  "fonts": {
+    "title": {
+      "family": "Omnes",
+      "file": "Omnes.ttf"
+    },
+    "body": {
+      "family": "Gill Sans MT Light",
+      "file": "Omnes.ttf"
+    }
+  },
+  "modes": {
+    "portfolio": {
+      "categories": [
+        "audiovisual",
+        "identidadSonora",
+        "audioInmersivo",
+        "musicaMezcla",
+        "about"
+      ],
+      "background": "portfolio.webp",
+      "frame": "frame-ff-crystal.svg",
+      "switchIcon": "ESPIRAL PERSONAL.png",
+      "tileColor": {
+        "bg": "#4239E3",
+        "text": "#fff"
+      }
+    },
+    "personal": {
+      "categories": [
+        "miMusica",
+        "textos"
+      ],
+      "background": "personal.webp",
+      "frame": "frame-deco-04-arch.svg",
+      "switchIcon": "ESPIRAL PORTFOLIO.png",
+      "tileColor": {
+        "bg": "#4239E3",
+        "text": "#fff"
+      }
+    }
+  },
+  "typeColors": {
+    "audiovisual": "#000000",
+    "identidadSonora": "#000000",
+    "audioInmersivo": "#000000",
+    "musicaMezcla": "#4A4A4A",
+    "miMusica": "#4A4A4A",
+    "textos": "#1C58BC",
+    "about": "#965521"
+  },
+  "bgm": {
+    "file": "./data/bgm/A Través Del Sonido.mp3",
+    "title": "A Través Del Sonido",
+    "project": "diego san marcos"
+  },
+  "lists": {
+    "work": {
+      "projects": [
+        "mde",
+        {
+          "project": "purnima",
+          "visible": false
+        },
+        "robie",
+        "reflejos",
+        "textos",
+        "about",
+        "alexander",
+        "BIFSC",
+        "BIFSC2",
+        "circuloCerrado",
+        {
+          "project": "DDR",
+          "visible": false
+        },
+        "feel",
+        "pleasex3",
+        "lotura",
+        "remix_madonna",
+        {
+          "project": "remix_ravel",
+          "visible": false
+        },
+        "Nel",
+        "conexionesfera",
+        "meProyecto",
+        "TDK"
+      ]
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "$schema": "../../schema/project.json",
+  "title": "about",
+  "short": "about",
+  "type": "about",
+  "showImage": true,
+  "main": [],
+  "text": {
+    "es": [
+      "Diego San Marcos crea en el entorno digital, explorando la música electrónica, el diseño sonoro y la edición de audio."
+    ],
+    "en": [
+      "Diego San Marcos develops his practice in the digital environment, exploring electronic music creation, sound design, and audio editing."
+    ],
+    "fr": [
+      "Diego San Marcos développe sa pratique dans l'environnement digital, en explorant la création de musique électronique, le design sonore et le montage audio."
+    ]
+  },
+  "audio": [],
+  "text2": {
+    "es": [
+      "<a href=\"mailto:diegosanmarcos21@gmail.com\">diegosanmarcos21@gmail.com</a>"
+    ],
+    "en": [
+      "<a href=\"mailto:diegosanmarcos21@gmail.com\">diegosanmarcos21@gmail.com</a>"
+    ],
+    "fr": [
+      "<a href=\"mailto:diegosanmarcos21@gmail.com\">diegosanmarcos21@gmail.com</a>"
+    ]
+  },
+  "photos": [],
+  "credits": {
+    "es": [],
+    "en": [],
+    "fr": []
+  }
+}

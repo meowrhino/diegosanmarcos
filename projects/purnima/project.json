@@ -1,0 +1,37 @@
+{
+  "$schema": "../../schema/project.json",
+  "title": "Purnima Midlife Moksha podcast jingle",
+  "short": "Purnima",
+  "type": "identidadSonora",
+  "showImage": false,
+  "main": [],
+  "text": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "audio": [
+    "INTRO VARIATION.mp3",
+    "LOGO (INTRO_OUTRO).mp3",
+    "NIDRA BACKGROUND SOUNDSCAPE.mp3"
+  ],
+  "text2": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "photos": [
+    "THE WISE BODY.webp"
+  ],
+  "credits": {
+    "es": [
+      "Logo sonoro e introducción musical para podcast y loop para meditación Nidra"
+    ],
+    "en": [
+      "Sonic logo and musical introduction for podcast and loop for Nidra meditation"
+    ],
+    "fr": [
+      "Logo sonore et introduction musicale pour podcast et boucle pour méditation Nidra"
+    ]
+  }
+}

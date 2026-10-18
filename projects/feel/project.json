@@ -1,0 +1,46 @@
+{
+  "$schema": "../../schema/project.json",
+  "title": "Feel (Immersive Soundscapes)",
+  "short": "Feel",
+  "type": "identidadSonora",
+  "showImage": true,
+  "main": [],
+  "text": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "audio": [
+    "TRANQUILITY.mp3",
+    "DREAMY.mp3",
+    "PEACE.mp3",
+    "FOCUS.mp3",
+    "SADNESS.mp3",
+    "TRANSCENDENCE.mp3"
+  ],
+  "text2": {
+    "es": [
+      "<a href=\"https://www.feelapp.io/\" target=\"_blank\" rel=\"noopener noreferrer\">Visitar web de Feel</a>"
+    ],
+    "en": [
+      "<a href=\"https://www.feelapp.io/\" target=\"_blank\" rel=\"noopener noreferrer\">Visit Feel website</a>"
+    ],
+    "fr": [
+      "<a href=\"https://www.feelapp.io/\" target=\"_blank\" rel=\"noopener noreferrer\">Visiter le site de Feel</a>"
+    ]
+  },
+  "photos": [
+    "FEEL LOGO.webp"
+  ],
+  "credits": {
+    "es": [
+      "Composición, producción y mezcla inmersiva para Feel, una app de introspección en desarrollo"
+    ],
+    "en": [
+      "Composition, production, and immersive mixing for Feel, an introspection app in development"
+    ],
+    "fr": [
+      "Composition, production et mixage immersif pour Feel, une application d'introspection en développement"
+    ]
+  }
+}

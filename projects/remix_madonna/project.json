@@ -1,0 +1,35 @@
+{
+  "$schema": "../../schema/project.json",
+  "title": "Beatport Remix Contest - Madonna Ray Of Light (Submission)",
+  "short": "Ray Of Light Remix",
+  "type": "musicaMezcla",
+  "showImage": true,
+  "main": [],
+  "text": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "audio": [
+    "MADONNA - RAY OF LIGHT (SUN AND MOON REMIX).mp3"
+  ],
+  "text2": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "photos": [
+    "PORTADA MADONNA.webp"
+  ],
+  "credits": {
+    "es": [
+      "Remix de la canción del álbum de Madonna para concurso de la plataforma Beatport"
+    ],
+    "en": [
+      "Remix of a track from Madonna's album for the Beatport platform contest"
+    ],
+    "fr": [
+      "Remix d'un morceau de l'album de Madonna pour le concours de la plateforme Beatport"
+    ]
+  }
+}

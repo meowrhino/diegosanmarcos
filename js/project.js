@@ -165,7 +165,7 @@ async function renderArchivosTexto() {
     // Fetch en paralelo; el orden lo garantiza el array de resultados
     const cargas = await Promise.all(state.currentProject.archivosTexto.map(async (archivo) => {
         try {
-            const response = await fetch(assetUrl(`data/projects/${state.currentProject.slug}/${archivo}`));
+            const response = await fetch(assetUrl(`projects/${state.currentProject.slug}/${archivo}`));
             if (!response.ok) return null;
             return { archivo, text: await response.text() };
         } catch (e) {
@@ -257,7 +257,7 @@ function renderPrincipal() {
             container.appendChild(wrapper);
             renderedCount++;
         } else if (file.match(/\.(mp4|webm|ogg)$/i)) {
-            const path = assetUrl(`data/projects/${state.currentProject.slug}/${file}`);
+            const path = assetUrl(`projects/${state.currentProject.slug}/${file}`);
             const video = document.createElement('video');
             video.src = path;
             video.controls = true;
@@ -265,7 +265,7 @@ function renderPrincipal() {
             container.appendChild(video);
             renderedCount++;
         } else if (file.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
-            const path = assetUrl(`data/projects/${state.currentProject.slug}/${file}`);
+            const path = assetUrl(`projects/${state.currentProject.slug}/${file}`);
             const img = document.createElement('img');
             img.src = path;
             img.alt = getFullProjectTitle(state.currentProject);
@@ -360,7 +360,7 @@ function renderGaleria() {
         item.className = 'gallery-item';
 
         const img = document.createElement('img');
-        let imagePath = assetUrl(`data/projects/${state.currentProject.slug}/${imageName}`);
+        let imagePath = assetUrl(`projects/${state.currentProject.slug}/${imageName}`);
 
         // Si no tiene extension, probar con .jpg por defecto
         if (!imageName.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {

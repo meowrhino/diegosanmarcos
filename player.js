@@ -657,7 +657,7 @@ const DSM_Player = {
         if (this.isBgm) {
             this.element.src = DSM_SHARED.assetUrl(track.file);
         } else {
-            this.element.src = DSM_SHARED.assetUrl(`data/projects/${this.currentProjectSlug}/${track.file}`);
+            this.element.src = DSM_SHARED.assetUrl(`projects/${this.currentProjectSlug}/${track.file}`);
         }
         this.saveState();
         this.highlightPlaylistItem();
@@ -852,7 +852,7 @@ const DSM_Player = {
             if (this.isBgm) {
                 this.element.src = DSM_SHARED.assetUrl(track.file);
             } else {
-                this.element.src = DSM_SHARED.assetUrl(`data/projects/${this.currentProjectSlug}/${track.file}`);
+                this.element.src = DSM_SHARED.assetUrl(`projects/${this.currentProjectSlug}/${track.file}`);
             }
 
             this.show();

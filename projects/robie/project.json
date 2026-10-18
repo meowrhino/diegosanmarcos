@@ -1,0 +1,47 @@
+{
+  "$schema": "../../schema/project.json",
+  "title": "Debut 3000 (Roberta Nikita)",
+  "short": "Debut 3000",
+  "type": "musicaMezcla",
+  "showImage": true,
+  "main": [],
+  "text": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "audio": [
+    "BEBE.mp3",
+    "ME KIERE.mp3",
+    "NUNCA MÁS.mp3",
+    "SOLO PIENSO EN TI.mp3",
+    "INFIERNO.mp3",
+    "FERRARI.mp3",
+    "CARTA.mp3",
+    "SORRY PERO ADIOS.mp3",
+    "ENAMORÁ.mp3",
+    "TU Y YO.mp3",
+    "DESNUDARÉ.mp3",
+    "1 ángel (voice note version).mp3"
+  ],
+  "text2": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "photos": [
+    "PORTADA.webp",
+    "TRACKLIST.webp"
+  ],
+  "credits": {
+    "es": [
+      "Co-producción del álbum Debut 3000 de Roberta Nikita"
+    ],
+    "en": [
+      "Co-production of the album Debut 3000 by Roberta Nikita"
+    ],
+    "fr": [
+      "Co-production de l'album Debut 3000 de Roberta Nikita"
+    ]
+  }
+}

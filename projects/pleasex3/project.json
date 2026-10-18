@@ -1,0 +1,35 @@
+{
+  "$schema": "../../schema/project.json",
+  "title": "Please Please Please (cover Lost Weekend)",
+  "short": "Please x3",
+  "type": "musicaMezcla",
+  "showImage": true,
+  "main": [],
+  "text": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "audio": [
+    "Please Please Please.mp3"
+  ],
+  "text2": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "photos": [
+    "PORTADALW.webp"
+  ],
+  "credits": {
+    "es": [
+      "Mezcla y edición de audio para la cover \"Please Please Please - Sabrina Carpenter\" del grupo Lost Weekend del guitarrista y cantante Michael Berman"
+    ],
+    "en": [
+      "Audio mixing and editing for Lost Weekend's cover of \"Please Please Please - Sabrina Carpenter\" by guitarist and singer Michael Berman"
+    ],
+    "fr": [
+      "Mixage et montage audio pour la reprise de \"Please Please Please - Sabrina Carpenter\" par le groupe Lost Weekend, du guitariste et chanteur Michael Berman"
+    ]
+  }
+}

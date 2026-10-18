@@ -28,54 +28,43 @@ Portfolio web de Diego San Marcos, compositor y diseñador sonoro. Diseño inspi
 
 ## Estructura del Proyecto
 
+Sigue la receta de [meowrhino/JAMstack](https://github.com/meowrhino/JAMstack), en su forma de
+**SPA con pre-render** (el reproductor sigue sonando al cambiar de página). Para Diego:
+[GUIA.md](GUIA.md). Traspaso: [TRASPASO.md](TRASPASO.md). Si el build falla: [CLAUDE.md](CLAUDE.md).
+
 ```
 diegosanmarcos/
-├── index.html              # SPA: home + vista de proyecto en un solo documento
-├── proyecto.html           # Mismo shell SPA; plantilla de páginas de proyecto
-│                           #   y fallback para enlaces ?p=<slug>
-├── 404.html                # Fallback: redirige /p/<slug>/ sin generar a proyecto.html
-├── p/                      # Páginas de proyecto generadas (URLs bonitas)
-├── shared.js               # Router SPA, idioma, rutas de assets (DSM_SHARED)
-├── player.js               # Reproductor de audio global (DSM_Player)
-├── app.js                  # Entrada (type=module): carga datos, idioma y router (renderRoute)
-├── js/                     # Módulos ES nativos importados por app.js
-│   ├── state.js            # Estado global compartido (appData, currentMode, currentProject…)
-│   ├── helpers.js          # Helpers puros (loc, hexToRgb, títulos, aliases de DSM_SEO)
-│   ├── router.js           # Parseo de URL, modos y token renderVersion (anti-race)
-│   ├── menu.js             # Menú compartido (overlay, labels, trigger, click-outside-back)
-│   ├── home.js             # Vista home: grid, tiles especiales, BGM, SEO, transición iris
-│   └── project.js          # Vista proyecto: render de secciones, showView y SEO
-├── styles.css              # Estilos globales y de la home
-├── proyecto.css            # Estilos específicos de la vista de proyecto
-├── scripts/
-│   ├── generate-project-pages.mjs  # Genera p/<slug>/index.html desde data.json
-│   └── generate-sitemap.mjs        # Genera sitemap.xml
-├── data/
-│   ├── data.json          # Datos de proyectos y categorías
-│   ├── colores.json       # Paleta de colores HTML
-│   ├── backgrounds/       # Fondos para portfolio y personal
-│   ├── icons/             # Iconos de cada tipo de proyecto
-│   └── projects/          # Carpetas de cada proyecto con sus assets
-├── generadorFondos/       # Experimentos de generador de fondos
-└── manus/                 # Documentación del proceso
+├── data/site.json          # fuentes, modos (portfolio/personal), colores, música de fondo;
+│                           #   "lists": qué proyectos salen y en qué orden (ocultos: visible: false)
+├── data/                   # también colores.json, fondos, iconos, fuentes, 9slice y bgm
+├── projects/<slug>/        # un proyecto: project.json + sus ficheros (fotos, audios, vídeos, .txt)
+├── schema/                 # qué campos lleva cada JSON (VS Code, el build y la vista previa)
+├── index.html              # la home (plantilla del build, y la vista previa con Live Server)
+├── proyecto.html           # la plantilla de cada /p/<slug>/
+├── 404.html                # la de las direcciones que no existen
+├── build/build.mjs         # → dist/: la home y una página por proyecto, con su contenido dentro
+├── app.js                  # entrada: carga los datos (js/house.js), idioma y router
+├── js/house.js             # la forma de la casa → la del data.json de antes (la usan app.js y el build)
+├── js/validar.js           # el JSON Schema sin dependencias (de JAMstack)
+├── js/                     # state, helpers, router, menu, home, project (como antes)
+├── shared.js, player*.js, seo-shared.js, vendor/   # router, reproductor, SEO, butterchurn
+└── scripts/vendor-update.sh  # actualiza butterchurn en vendor/
 ```
 
-## URLs
+## Cómo funciona
 
-Cada proyecto tiene una URL corta del tipo `https://diegosanmarcos.com/p/<slug>/`,
-generada como página estática con sus propios meta de SEO/og (imagen y
-descripción reales al compartir el enlace).
-
-**Al añadir, quitar o renombrar proyectos en `data.json`, regenerar y commitear:**
-
-```
-node scripts/generate-project-pages.mjs
-node scripts/generate-sitemap.mjs
-```
-
-Si se olvida este paso, los enlaces `/p/<slug>/` nuevos siguen funcionando:
-`404.html` redirige a `proyecto.html?p=<slug>`. Los enlaces antiguos
-(`proyecto.html?proyecto=<slug>`) también siguen funcionando.
+- **El build** (`npm ci && node build/build.mjs`) escribe la home y `/p/<slug>/` con su title,
+  description, og:image (1200×630, **sharp**, en `.cache/`), canonical y el contenido en español
+  dentro (título, textos, galería, créditos). Al cargar, el JS vuelve a pintar lo mismo. Sustituye
+  a los scripts que se ejecutaban a mano y a `p/` commiteado.
+- **El idioma** (es/en/fr) sigue en `localStorage`, como siempre: no hay una dirección por idioma.
+- **Ocultos**: `{ "project": "x", "visible": false }` en `lists`: su página con `noindex`, fuera de
+  la home y del sitemap.
+- **Vista previa**: Live Server sobre la carpeta. Sin `data-built` en `<html>`, `app.js` revisa los
+  JSON con `schema/` y enseña en pantalla lo que pararía el build.
+- **Publicar**: las dos copias en **GitHub Pages** con la Action (`.github/workflows/deploy.yml`):
+  hay audios de más de 25 MB, que Cloudflare no publica. En `meowrhino`, github.io sin indexar; en
+  la de Diego, su dominio. Si falla, un issue.
 
 ## Tecnologías
 
@@ -111,33 +100,9 @@ Si se olvida este paso, los enlaces `/p/<slug>/` nuevos siguen funcionando:
 
 ## Uso
 
-### Añadir un Nuevo Proyecto
-
-1. Crear carpeta en `data/projects/[slug]/`
-2. Añadir assets (videos, imágenes, audios)
-3. Actualizar `data/data.json` con la información del proyecto:
-
-```json
-{
-  "slug": "nombre-proyecto",
-  "titulo": "Título del Proyecto",
-  "tipo": "audiovisual",
-  "principal": ["video.mp4"],
-  "texto1": ["Descripción del proyecto"],
-  "audio": ["audio1.wav", "audio2.wav"],
-  "texto2": ["Más información"],
-  "galeria": ["imagen1", "imagen2"],
-  "creditos": ["Crédito 1", "Crédito 2"]
-}
-```
-
-### Cambiar Colores
-
-Editar `data/data.json` en la sección `typeColors` usando nombres de colores HTML del archivo `data/colores.json`.
-
-### Personalizar Fondos
-
-Reemplazar `data/backgrounds/fondo1.jpg` (portfolio) y `data/backgrounds/fondo2.jpeg` (personal).
+Añadir o cambiar un proyecto, los colores (`typeColors` en `data/site.json`) o los fondos: ver
+[GUIA.md](GUIA.md). En corto: copiar una carpeta de `projects/`, cambiar su `project.json` y
+añadirla a `lists` en `data/site.json`.
 
 ## Navegación
 

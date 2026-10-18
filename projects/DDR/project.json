@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schema/project.json",
+  "title": "Dark Roast Revelations Podcast (Vito Luis Ramos)",
+  "short": "Dark Roast Revelations",
+  "type": "identidadSonora",
+  "showImage": false,
+  "main": [],
+  "text": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "audio": [
+    "IS IT POSSIBLE.mp3"
+  ],
+  "text2": {
+    "es": [
+      "<a href=\"https://open.spotify.com/episode/3u3hMkQ1pH6BF0e8ZaDDcn?si=XMG2_t5zS0eomAF86LbA-A\" target=\"_blank\" rel=\"noopener noreferrer\">Escuchar episodio completo en Spotify</a>"
+    ],
+    "en": [
+      "<a href=\"https://open.spotify.com/episode/3u3hMkQ1pH6BF0e8ZaDDcn?si=XMG2_t5zS0eomAF86LbA-A\" target=\"_blank\" rel=\"noopener noreferrer\">Listen to the full episode on Spotify</a>"
+    ],
+    "fr": [
+      "<a href=\"https://open.spotify.com/episode/3u3hMkQ1pH6BF0e8ZaDDcn?si=XMG2_t5zS0eomAF86LbA-A\" target=\"_blank\" rel=\"noopener noreferrer\">Écouter l'épisode complet sur Spotify</a>"
+    ]
+  },
+  "photos": [
+    "DDR.webp"
+  ],
+  "credits": {
+    "es": [
+      "Intro musical para podcast de terror"
+    ],
+    "en": [
+      "Musical intro for a horror podcast"
+    ],
+    "fr": [
+      "Introduction musicale pour un podcast d'horreur"
+    ]
+  }
+}

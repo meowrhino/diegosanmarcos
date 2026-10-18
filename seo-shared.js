@@ -52,10 +52,10 @@
     // encodeURIComponent por segmento en el generador estatico).
     function getProjectSeoImagePath(project) {
         const principalImage = (project.principal || []).find((file) => IMAGE_PATTERN.test(file));
-        if (principalImage) return `data/projects/${project.slug}/${principalImage}`;
+        if (principalImage) return `projects/${project.slug}/${principalImage}`;
 
         const galleryImage = (project.galeria || []).find((file) => IMAGE_PATTERN.test(file));
-        if (galleryImage) return `data/projects/${project.slug}/${galleryImage}`;
+        if (galleryImage) return `projects/${project.slug}/${galleryImage}`;
 
         return 'data/icons/LOGO URL.png';
     }

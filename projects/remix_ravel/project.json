@@ -1,0 +1,35 @@
+{
+  "$schema": "../../schema/project.json",
+  "title": "Fiverr Remix Contest - Bolero de Ravel (Submission)",
+  "short": "Bolero de Ravel Remix",
+  "type": "musicaMezcla",
+  "showImage": true,
+  "main": [],
+  "text": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "audio": [
+    "Ravel In Ecstasy - Diego San Marcos.mp3"
+  ],
+  "text2": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "photos": [
+    "RAVEL REMIX4.webp"
+  ],
+  "credits": {
+    "es": [
+      "Remix electrónico del Bolero de Ravel para concurso de la plataforma Fiverr"
+    ],
+    "en": [
+      "Electronic remix of Ravel's Bolero for the Fiverr platform contest"
+    ],
+    "fr": [
+      "Remix électronique du Boléro de Ravel pour le concours de la plateforme Fiverr"
+    ]
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "$schema": "../../schema/project.json",
+  "title": "Berlin International Sound Design Competition (2026 Submission)",
+  "short": "BIFSC26",
+  "type": "audiovisual",
+  "showImage": true,
+  "main": [
+    "https://youtu.be/ZhNsC_r2fr0"
+  ],
+  "text": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "audio": [],
+  "text2": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "photos": [
+    "BIFSC2_1.webp",
+    "BIFSC2_2.webp",
+    "BIFSC2.webp"
+  ],
+  "credits": {
+    "es": [
+      "Re-diseño de sonido para el concurso BIFSC de 2026"
+    ],
+    "en": [
+      "Sound redesign for the 2026 BIFSC competition"
+    ],
+    "fr": [
+      "Refonte sonore pour le concours BIFSC 2026"
+    ]
+  }
+}

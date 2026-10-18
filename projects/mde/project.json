@@ -1,0 +1,37 @@
+{
+  "$schema": "../../schema/project.json",
+  "title": "MDE (Carlos Carvento)",
+  "short": "MDE",
+  "type": "audiovisual",
+  "showImage": true,
+  "main": [
+    "https://youtu.be/lao3BA7VHXk"
+  ],
+  "text": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "audio": [],
+  "text2": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "photos": [
+    "PORTADA VINILO.webp",
+    "FOTO.webp",
+    "VINILO.webp"
+  ],
+  "credits": {
+    "es": [
+      "Música Original y Mezcla para Pieza de Danza Contemporánea"
+    ],
+    "en": [
+      "Original Music and Mix for Contemporary Dance Piece"
+    ],
+    "fr": [
+      "Musique originale et mixage pour pièce de danse contemporaine"
+    ]
+  }
+}

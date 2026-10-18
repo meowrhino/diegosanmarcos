@@ -1,0 +1,43 @@
+{
+  "$schema": "../../schema/project.json",
+  "title": "Igoera (Lotura)",
+  "short": "Igoera",
+  "type": "musicaMezcla",
+  "showImage": true,
+  "main": [],
+  "text": {
+    "es": [],
+    "en": [],
+    "fr": []
+  },
+  "audio": [
+    "REVELATION.mp3",
+    "FAITH.mp3"
+  ],
+  "text2": {
+    "es": [
+      "<a href=\"https://lotura.bandcamp.com/album/igoera\" target=\"_blank\" rel=\"noopener noreferrer\">Álbum completo en Bandcamp</a>"
+    ],
+    "en": [
+      "<a href=\"https://lotura.bandcamp.com/album/igoera\" target=\"_blank\" rel=\"noopener noreferrer\">Full album on Bandcamp</a>"
+    ],
+    "fr": [
+      "<a href=\"https://lotura.bandcamp.com/album/igoera\" target=\"_blank\" rel=\"noopener noreferrer\">Album complet sur Bandcamp</a>"
+    ]
+  },
+  "photos": [
+    "Portada.webp",
+    "Tracklist.webp"
+  ],
+  "credits": {
+    "es": [
+      "Producción de dos tracks para el álbum recopilatorio de Trance \"Igoera\""
+    ],
+    "en": [
+      "Production of two tracks for the Trance compilation album \"Igoera\""
+    ],
+    "fr": [
+      "Production de deux morceaux pour l'album compilation Trance \"Igoera\""
+    ]
+  }
+}
