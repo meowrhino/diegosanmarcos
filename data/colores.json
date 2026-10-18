@@ -1,4 +1,5 @@
 {
+  "$schema": "../schema/colores.json",
   "colores": {
     "LightCoral": "#F08080",
     "Salmon": "#FA8072",

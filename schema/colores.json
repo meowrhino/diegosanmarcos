@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "data/colores.json: la paleta",
+  "description": "data/colores.json: los colores con nombre que se pueden usar en data/site.json (por ejemplo en typeColors). VS Code lee este fichero (por el \"$schema\" de arriba del JSON) para subrayar lo que está mal.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["colores"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "colores": {
+      "type": "object",
+      "description": "El nombre del color y su valor: \"Salmon\": \"#FA8072\"",
+      "additionalProperties": { "type": "string", "pattern": "^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$" }
+    }
+  }
+}
