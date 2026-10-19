@@ -160,7 +160,7 @@ function projectPage(p) {
   // el contenido, como lo pinta js/project.js (que lo borra y lo vuelve a pintar)
   const ps = (arr, raw) => arr.map((t) => `<p>${raw ? t : esc(t)}</p>`).join('');
   html = swap(html, /(<main class="project-main[^"]*">)/,
-    `$1\n        <div class="project-title-section project-section dsm-dynamic-section"><h1>${esc(title)}</h1></div>`, file);
+    `$1\n        <div class="project-title-section project-section dsm-dynamic-section"><a href="./">${esc(site.title)}</a><h1>${esc(title)}</h1></div>`, file);  // la vuelta a casa sin JS (project.js la repinta sin ella)
   html = swap(html, /<div id="texto1-content" class="text-content"><\/div>/, `<div id="texto1-content" class="text-content">${ps(lang(p, 'texto1'), true)}</div>`, file);
   html = swap(html, /<div id="texto2-content" class="text-content"><\/div>/, `<div id="texto2-content" class="text-content">${ps(lang(p, 'texto2'), true)}</div>`, file);
   html = swap(html, /<div id="galeria-content" class="gallery-grid"><\/div>/, `<div id="galeria-content" class="gallery-grid">${p.galeria.map((f) =>
